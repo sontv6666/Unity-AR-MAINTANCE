@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb55e0a843f0654ea77d0d420ce23a8, type: 3}
+  m_Name: Figma Downloader
+  m_EditorClassIdentifier: 
+  _personalAccessToken: figd_TGUEf1GXp_fltN2OXXBxffp54fRUg9-Wg9rnSOVI
+  _assetExtension: figma
+  _assetPath: Resources/Figma/Files
+  _downloadDependencies: 1
+  _downloadImages: 1
+  _fileId: JbQv5Q37slS7VLnjhNXios
+  _fileVersion: 
+  _fileName: 
+  _defaultFileName: "\u1EE8NG D\u1EE4NG AR S\u1EECA CH\u1EEEA"
+  _branch: 
+  _branches: []

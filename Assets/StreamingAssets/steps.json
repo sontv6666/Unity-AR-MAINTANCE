@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "step_number": 1,
+      "title": "Maintenance",
+      "description": "Clean the jaws to remove chips and oil residue",
+      "image_file": "step1.png",
+      "model_file": "step1.glb",
+      "attach_rotation": [0, 0, 0]
+    },
+    {
+      "step_number": 2,
+      "title": "Inspection",
+      "description": "Check for wear and tear on the chuck",
+      "image_file": "step2.png",
+      "model_file": "step2.glb",
+      "attach_rotation": [0, 0, 0]
+    },
+
+    {
+      "step_number": 3,
+      "title": "VIETNAM",
+      "description": "I LOVE VIETNAM",
+      "image_file": "step2.png",
+      "model_file": "step3.glb",
+      "attach_rotation": [0, 0, 0]
+    },
+    {
+      "step_number": 4,
+      "title": "FPT UNITY",
+      "description": "FUCK HELP ME",
+      "image_file": "step4.png",
+      "model_file": "step4.glb",
+      "attach_rotation": [0, 0, 0]
+    }
+  ]
+}

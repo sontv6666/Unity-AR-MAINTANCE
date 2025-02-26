@@ -1,0 +1,56 @@
+fileFormatVersion: 2
+guid: 93685b25af418ab4eb16377b1da76729
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ac69724a0d29c2b43917235d0115eedc, type: 3}
+  _pages:
+  - enabled: 1
+    id: 0:1
+    name: Page 1
+  - enabled: 0
+    id: 197:12
+    name: Page 2
+  _fonts:
+  - fontName: Kanit-Medium
+    font: {instanceID: 0}
+  - fontName: Kanit-Regular
+    font: {instanceID: 0}
+  - fontName: Kanit-Light
+    font: {instanceID: 0}
+  - fontName: Kanit-SemiBold
+    font: {instanceID: 0}
+  - fontName: Kanit-275
+    font: {instanceID: 0}
+  - fontName: Inter-Heavy
+    font: {instanceID: 0}
+  - fontName: Roboto-Regular
+    font: {instanceID: 0}
+  - fontName: Kanit-Bold
+    font: {instanceID: 0}
+  - fontName: Inter-Regular
+    font: {instanceID: 0}
+  _fallbackFont: {instanceID: 0}
+  _pageReferences:
+  - {fileID: 9047220725666072297, guid: 93685b25af418ab4eb16377b1da76729, type: 3}
+  - {fileID: 1905268571734937201, guid: 93685b25af418ab4eb16377b1da76729, type: 3}
+  _layer: 5
+  _pixelsPerUnit: 100
+  _scaleFactor: 1
+  _gradientResolution: 128
+  _minTextureSize: 64
+  _maxTextureSize: 1024
+  _rectTextureSize: 32
+  _wrapMode: 1
+  _filterMode: 1
+  _sampleCount: 4
+  _expandEdges: 0
+  _markExternalAssetAsDependency: 1
+  _generateUniqueNodeName: 0
+  _localizationConverter: 
+  _effectConverters: []
+  _assetBindings: []

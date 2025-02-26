@@ -1,0 +1,78 @@
+{
+    "code": 1000,
+    "result": {
+        "id": "149c32e8-3ae6-4f2c-b9da-0673c9717071",
+        "modelTypeId": "0e553950-2a32-44cd-bd53-ed680a00f2e5",
+        "modelCode": "e6a9a4dff6d34b179eb4c17d2cec675b",
+        "status": "ACTIVE",
+        "name": "Model Test 2",
+        "description": "Description",
+        "imageUrl": "6e91a1c1-1b78-45c7-b7db-d1f653aa8b37.jpg",
+        "version": "1.0",
+        "scale": "1",
+        "file": "1832a51b-6173-4f66-a04e-90fa7b2c42da.glb",
+        "fileDat": null,
+        "instructionResponses": [
+            {
+                "id": "5e4864f6-ab6a-4675-9e98-e937e5c439a3",
+                "modelId": "149c32e8-3ae6-4f2c-b9da-0673c9717071",
+                "code": "IC2000",
+                "orderNumber": 1,
+                "imageUrl": "957b0c37-0d45-4e86-835e-978d3c5ec80a.png",
+                "name": "How to open model ?",
+                "description": "Description",
+                "position": "1.0, 2.0, 3.0",
+                "rotation": "3.0, 2.0, 1.0",
+                "instructionDetailResponse": [
+                    {
+                        "id": "76b19de7-b637-4b43-a100-d1c39074bd67",
+                        "instructionId": "5e4864f6-ab6a-4675-9e98-e937e5c439a3",
+                        "orderNumber": 1,
+                        "description": "Instruction Detail Test 1",
+                        "fileString": "576e6d2e-012c-480e-9ca4-0987519c5760.png"
+                    }
+                ]
+            },
+            {
+                "id": "6fe75a7e-81ec-4b3a-8268-d1ec6bec3daf",
+                "modelId": "149c32e8-3ae6-4f2c-b9da-0673c9717071",
+                "code": "IC2000",
+                "orderNumber": 2,
+                "imageUrl": "7b1e757d-36e3-4eb8-b18f-d1661f04993d.png",
+                "name": "How to open model ?",
+                "description": "Description",
+                "position": "1.0, 2.0, 3.0",
+                "rotation": "3.0, 2.0, 1.0",
+                "instructionDetailResponse": [
+                    {
+                        "id": "19f4257d-0c11-44de-8a9b-6c239b4f3bf4",
+                        "instructionId": "6fe75a7e-81ec-4b3a-8268-d1ec6bec3daf",
+                        "orderNumber": 1,
+                        "description": "Instruction Detail Test 1",
+                        "fileString": "ec84eead-0a67-4899-8a70-1dcd17578a0d.png"
+                    }
+                ]
+            },
+            {
+                "id": "f3e90e7f-7e89-40eb-84e8-6fa170fb7d5e",
+                "modelId": "149c32e8-3ae6-4f2c-b9da-0673c9717071",
+                "code": "IC2000",
+                "orderNumber": 3,
+                "imageUrl": "8f8a096b-2c60-4c7f-a73a-0f1b83a0536b.png",
+                "name": "How to open model ?",
+                "description": "Description",
+                "position": "1.0, 2.0, 3.0",
+                "rotation": "3.0, 2.0, 1.0",
+                "instructionDetailResponse": [
+                    {
+                        "id": "84156771-1476-4375-bed6-cff5b01b44eb",
+                        "instructionId": "f3e90e7f-7e89-40eb-84e8-6fa170fb7d5e",
+                        "orderNumber": 1,
+                        "description": "Instruction Detail Test 1",
+                        "fileString": "f42bfa95-1633-4d0c-bcf9-b150d614b856.png"
+                    }
+                ]
+            }
+        ]
+    }
+}
