@@ -1,21 +1,25 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.Networking;
 using ZXing;
 using TMPro;
 using System.IO;
 using System.Linq;
 using UnityEngine.UI;
 
-using UnityEngine.Networking;
+using UnityGLTF.Loader;
 using System.Collections;
 using System.Collections.Generic;
+using UnityGLTF;
+
+
 
 public class ARQRCodeScanner : MonoBehaviour
 {
+    
+    // AR Elementss
     public ARCameraManager arCameraManager;
-
-
     private bool isScanning = true;
     private Vector3 qrCodePosition = Vector3.zero;
     public GameObject modelContainer;
@@ -45,8 +49,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
    
 
-
-
+    
     public GameObject instructionDetailStepPrefab; // Prefab for each step
 
 
@@ -70,9 +73,9 @@ public class ARQRCodeScanner : MonoBehaviour
             trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
         }
 
-        // ShowScanUI();
+        ShowScanUI();
 
-        StartCoroutine(FetchCourseData());
+       //StartCoroutine(FetchCourseData());
 
 
     }
@@ -83,6 +86,35 @@ public class ARQRCodeScanner : MonoBehaviour
         {
             TryScanQRCode();
         }
+        
+        if (Input.touchCount == 2)
+            {
+                Touch touch0 = Input.GetTouch(0);
+                Touch touch1 = Input.GetTouch(1);
+
+                float prevDistance = (touch0.position - touch0.deltaPosition - (touch1.position - touch1.deltaPosition)).magnitude;
+                float currentDistance = (touch0.position - touch1.position).magnitude;
+                float scaleFactor = currentDistance / prevDistance;
+
+                modelContainer.transform.localScale *= scaleFactor;
+            }
+        
+            if (Input.touchCount == 1)
+            {
+                Touch touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    Vector2 touchPos = touch.position;
+                    Ray ray = Camera.main.ScreenPointToRay(touchPos);
+                    if (Physics.Raycast(ray, out RaycastHit hit))
+                    {
+                        modelContainer.transform.position = hit.point;
+                    }
+                }
+            }
+        
+            
+
     }
 
     //cach 1
@@ -98,6 +130,9 @@ public class ARQRCodeScanner : MonoBehaviour
             string jsonResponse = request.downloadHandler.text;
             var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
 
+            // ✅ Start fetching model data (position, rotation, file)
+            StartCoroutine(FetchModelData(response.result));
+            
             StartCoroutine(DownloadAndLoadUI(response.result)); // ✅ Load UI after getting data
         }
         else
@@ -142,8 +177,10 @@ public class ARQRCodeScanner : MonoBehaviour
                 Debug.Log("QR Code Scanned: " + result.Text);
                 ShowLoadingUI("Processing QR Code...");
                 UpdateUIText("Scanning...", "QR: " + result.Text);
-
+                
                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+                Quaternion qrCodeRotation = arCameraManager.transform.rotation;
+
                 StartCoroutine(CheckQRCode(result.Text));
             }
         }
@@ -180,6 +217,8 @@ public class ARQRCodeScanner : MonoBehaviour
         if (response.code == 1000 && response.result.courseCode == scannedQR)
         {
             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
+            StartCoroutine(FetchModelData(response.result));
+            
             StartCoroutine(DownloadAndLoadUI(response.result));
         }
         else
@@ -189,6 +228,118 @@ public class ARQRCodeScanner : MonoBehaviour
         }
     }
 
+    
+    IEnumerator FetchModelData(CourseResult course)
+    {
+        string modelApiUrl = "/model/" + course.modelId;
+        UnityWebRequest request = ApiConfig.CreateRequest(modelApiUrl);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
+            StartCoroutine(DownloadAndLoadModel(modelData));
+        }
+        else
+        {
+            Debug.LogError("Failed to fetch model data: " + request.error);
+            UpdateUIText("Error", "Failed to fetch model.");
+        }
+    }
+ 
+    IEnumerator DownloadAndLoadModel(ModelResponse modelData)
+    {
+        string fileEndpoint = "/files/";
+        string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.result.file);
+
+        yield return StartCoroutine(DownloadFile(fileEndpoint + modelData.result.file, modelData.result.file));
+
+        // ✅ Apply position & rotation
+        Vector3 position = new Vector3(modelData.result.position[0], modelData.result.position[1], modelData.result.position[2]);
+        Vector3 rotation = new Vector3(modelData.result.rotation[0], modelData.result.rotation[1], modelData.result.rotation[2]);
+
+        // ✅ Load the model
+    StartCoroutine(Load3DModel(modelFilePath, modelContainer,position , rotation));
+
+    }
+
+   IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+{
+    Debug.Log($"📌 Attempting to load model from: {modelPath}");
+
+    // 🔹 Normalize file path format
+    string formattedPath = modelPath.Replace("\\", "/");
+
+    // 🔹 Check if file exists (handle Android case separately)
+    bool fileExists = false;
+    #if UNITY_ANDROID
+        string androidPath = Path.Combine(Application.streamingAssetsPath, formattedPath);
+        using (UnityWebRequest request = UnityWebRequest.Get(androidPath))
+        {
+            yield return request.SendWebRequest();
+            fileExists = !request.isHttpError && !request.isNetworkError;
+        }
+    #else
+        fileExists = File.Exists(formattedPath);
+    #endif
+
+    if (!fileExists)
+    {
+        Debug.LogError($"❌ Model file not found: {formattedPath}");
+        yield break;
+    }
+
+    Debug.Log($"✅ Model file exists: {formattedPath}");
+
+    // 🔹 Ensure the model container exists
+    if (modelContainer == null)
+    {
+        Debug.LogError("❌ Model container is null. Cannot load model.");
+        yield break;
+    }
+
+    // 🔹 Remove previously loaded model
+    foreach (Transform child in modelContainer.transform)
+    {
+        Destroy(child.gameObject);
+    }
+
+    // 🔹 Create a new GameObject to hold the model
+    GameObject newModel = new GameObject("LoadedModel");
+    newModel.transform.SetParent(modelContainer.transform, false);
+
+    // 🔹 Apply position and rotation
+    newModel.transform.position = qrCodePosition;
+    newModel.transform.localScale = Vector3.one * 0.1f; // Adjust scale as needed
+
+
+    // 🔹 Construct URI for UnityWebRequest
+    string uri;
+    #if UNITY_ANDROID
+        uri = androidPath; // Android case
+    #else
+        uri = "file:///" + formattedPath; // Windows/Mac case
+    #endif
+
+    Debug.Log($"🔗 Loading GLB from: {uri}");
+
+    // 🔹 Create a UnityWebRequestLoader
+    var loader = new UnityWebRequestLoader(uri);
+
+    // 🔹 Create ImportOptions instance
+    ImportOptions importOptions = new ImportOptions() { DataLoader = loader };
+
+    // 🔹 Load model asynchronously using UnityGLTF
+    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(uri, importOptions);
+    yield return gltfImporter.LoadSceneAsync(-1); // ✅ FIX: Pass -1 instead of Transform
+
+    Debug.Log("✅ 3D Model successfully loaded.");
+}
+
+    
+    
+    
 
 // tat ca toi day    
     IEnumerator DownloadAndLoadUI(CourseResult course)
@@ -347,15 +498,13 @@ void UpdateInstructionStepUI(Instruction instruction)
 
     instructionStepInstances.Clear();
 
-    // ✅ Instantiate all instruction steps but only activate the first one
     for (int i = 0; i < currentInstructionDetails.Count; i++)
     {
         InstructionDetail detail = currentInstructionDetails[i];
 
         GameObject stepItem = Instantiate(instructionDetailStepPrefab, instructionDetailPanel.transform);
-        stepItem.SetActive(i == 0); // Only activate the first step, others remain inactive
+        stepItem.SetActive(i == 0); 
 
-        // ✅ Assign step details
         TMP_Text nameText = stepItem.transform.Find("instructionNameText")?.GetComponent<TMP_Text>();
         TMP_Text descriptionText = stepItem.transform.Find("instructionDetailDescriptionText")?.GetComponent<TMP_Text>();
         TMP_Text stepCountText = stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
@@ -364,7 +513,6 @@ void UpdateInstructionStepUI(Instruction instruction)
         if (descriptionText) descriptionText.text = detail.description;
         if (stepCountText) stepCountText.text = $"{i + 1}/{currentInstructionDetails.Count}";
 
-        // ✅ Load Image if available
         if (!string.IsNullOrEmpty(detail.imgString))
         {
             string imagePath = Path.Combine(Application.persistentDataPath, detail.imgString);
@@ -372,11 +520,23 @@ void UpdateInstructionStepUI(Instruction instruction)
             if (stepImage) StartCoroutine(LoadImageFromLocal(imagePath, stepImage));
         }
 
-        GameObject modelContainerForStep = stepItem.transform.Find("instructionDetailModelForEachStep")?.gameObject;
+        // ⚡️ Chỉ dùng modelContainer chung để tải mô hình
+          GameObject modelContainerForStep = stepItem.transform.Find("instructionDetailModelForEachStep")?.gameObject;
 
-        if (!string.IsNullOrEmpty(detail.fileString) &&
-            (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf")))
+        if (i == 0) 
         {
+            // 🚀 Load mô hình đầu tiên từ StreamingAssets
+            string firstModelPath = Path.Combine(Application.streamingAssetsPath, "Models/051a5414-0e1a-4fb5-ae8b-b23b76f4e011.glb");
+
+            if (modelContainerForStep != null)
+            {
+                StartCoroutine(Load3DModelForStep(firstModelPath, modelContainerForStep, "First Sample Model"));
+            }
+        }
+        else if (!string.IsNullOrEmpty(detail.fileString) &&
+                 (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf")))
+        {
+            // 🏗 Load các mô hình còn lại từ dữ liệu API
             string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
 
             if (modelContainerForStep != null)
@@ -385,16 +545,14 @@ void UpdateInstructionStepUI(Instruction instruction)
             }
         }
 
-        // ✅ Find Play Animation Button (Declared Outside of Model Check)
         Button playAnimationButton = stepItem.transform.Find("playanimationButton")?.GetComponent<Button>();
 
         if (playAnimationButton && modelContainerForStep)
         {
-            playAnimationButton.onClick.RemoveAllListeners(); // Clear previous listeners
+            playAnimationButton.onClick.RemoveAllListeners();
             playAnimationButton.onClick.AddListener(() => PlayModelAnimation(modelContainerForStep));
         }
 
-        // ✅ Find Back Button
         Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
 
         if (backButton)
@@ -403,7 +561,6 @@ void UpdateInstructionStepUI(Instruction instruction)
             backButton.onClick.AddListener(() => BackToCourseUI());
         }
 
-        // ✅ Add navigation buttons
         Button prevButton = stepItem.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
         Button nextButton = stepItem.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
 
@@ -413,9 +570,9 @@ void UpdateInstructionStepUI(Instruction instruction)
         instructionStepInstances.Add(stepItem);
     }
 
-    // ✅ Ensure buttons are properly set
     UpdateStepNavigationButtons();
 }
+
 
     
     void ShowInstructionDetails(Instruction instruction)
@@ -468,217 +625,192 @@ void UpdateStepNavigationButtons()
 }
 
 
+   
+
+
+
 
 IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
 {
     Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
-    if (!File.Exists(modelPath))
+    // 🔹 Normalize path format
+    string formattedPath = modelPath.Replace("\\", "/");
+
+    // 🔹 Check if file exists (special handling for StreamingAssets on Android)
+    bool fileExists = false;
+    #if UNITY_ANDROID
+        string androidPath = Path.Combine(Application.streamingAssetsPath, formattedPath);
+        using (UnityWebRequest request = UnityWebRequest.Get(androidPath))
+        {
+            yield return request.SendWebRequest();
+            fileExists = !request.isHttpError && !request.isNetworkError;
+        }
+    #else
+        fileExists = File.Exists(formattedPath);
+    #endif
+
+    if (!fileExists)
     {
-        Debug.LogError($"❌ Model file not found: {modelPath}");
+        Debug.LogError($"❌ Model file not found: {formattedPath}");
         yield break;
     }
 
-    // ✅ Remove any previous model from the container
+    Debug.Log($"✅ Model file exists: {formattedPath}");
+
+    // 🔹 Ensure the model container exists
+    if (modelContainerForStep == null)
+    {
+        Debug.LogError("❌ Model container is null. Cannot load model.");
+        yield break;
+    }
+
+    // 🔹 Remove previous model safely
     foreach (Transform child in modelContainerForStep.transform)
     {
         Destroy(child.gameObject);
     }
 
-    // ✅ Create a new GameObject to hold the GLB model
+    // 🔹 Create a new GameObject to hold the model
     GameObject newModel = new GameObject("LoadedModel");
     newModel.transform.SetParent(modelContainerForStep.transform, false);
-    newModel.transform.localScale = Vector3.one * 0.1f; // Scale down if needed
+    newModel.transform.localScale = Vector3.one * 0.1f;
 
-    // ✅ Load the model with GLTFast
-    var gltfImport = new GLTFast.GltfImport();
-    bool success = false;
+    // 🔹 Construct correct URI for UnityWebRequest
+    string uri;
+    #if UNITY_ANDROID
+        uri = androidPath; // StreamingAssets access on Android
+    #else
+        uri = "file:///" + formattedPath; // Windows/Mac
+    #endif
 
-    yield return gltfImport.Load("file://" + modelPath.Replace("\\", "/"));
-    
-    if (gltfImport != null)
+    Debug.Log($"🔗 Loading GLB from: {uri}");
+
+    // 🔹 Create a UnityWebRequestLoader instead of DefaultLoader
+    var loader = new UnityWebRequestLoader(uri);
+
+    // 🔹 Create ImportOptions instance
+    ImportOptions importOptions = new ImportOptions()
     {
-        success = gltfImport.InstantiateMainScene(newModel.transform);
-    }
+        DataLoader = loader
+    };
 
-    // ✅ Check if model loaded successfully
-    if (success)
-    {
-        Debug.Log("✅ 3D Model successfully loaded inside UI step.");
+    // 🔹 Load the model asynchronously using UnityGLTF
+    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(uri, importOptions);
+    yield return gltfImporter.LoadSceneAsync(-1); // ✅ FIX: Pass -1 instead of Transform
 
-        // ✅ Try to find Animator & Play Animation
-        Animator animator = newModel.GetComponentInChildren<Animator>();
-        if (animator != null)
-        {
-            Debug.Log("🎬 Animator found! Playing animation...");
-            PlayAnimation(animator, animationName);
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ No Animator found on the loaded model.");
-        }
-    }
-    else
-    {
-        Debug.LogError($"❌ Failed to load model: {modelPath}");
-        Destroy(newModel); // Cleanup
-    }
-}
+    Debug.Log("✅ 3D Model successfully loaded.");
 
-void PlayModelAnimation(GameObject modelContainer)
-{
-    if (modelContainer == null)
-    {
-        Debug.LogWarning("⚠️ Model container is null.");
-        return;
-    }
-
-    Animator animator = modelContainer.GetComponentInChildren<Animator>();
+    // 🔹 Try to find Animator & Play Animation
+    Animator animator = newModel.GetComponentInChildren<Animator>();
     if (animator != null)
     {
-        if (animator.runtimeAnimatorController != null && animator.runtimeAnimatorController.animationClips.Length > 0)
-        {
-            string firstAnimation = animator.runtimeAnimatorController.animationClips[0].name;
-            animator.Play(firstAnimation);
-            Debug.Log($"▶️ Playing animation: {firstAnimation}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ No animations found in the Animator.");
-        }
+        Debug.Log("🎬 Animator found! Playing animation...");
+        PlayAnimation(animator, animationName);
     }
     else
     {
-        Debug.LogWarning("⚠️ No Animator component found on the loaded model.");
+        Debug.LogWarning("⚠️ No Animator found on the model.");
     }
 }
 
-void BackToCourseUI()
-{
-    instructionDetailPanel.SetActive(false);
-    courseUIPanel.SetActive(true); // Show the course UI again
-    Debug.Log("🔙 Returning to Course UI");
-}
-  
-     
-     
-     
-void PlayAnimation(Animator animator, string animationName)
-{
-    if (animator != null && animator.runtimeAnimatorController != null)
+
+
+
+
+
+
+
+
+
+
+
+    void PlayModelAnimation(GameObject modelContainerForStep)
     {
-        if (!string.IsNullOrEmpty(animationName) && AnimationExists(animator, animationName))
+        if (modelContainerForStep == null)
         {
-            animator.Play(animationName);
-            Debug.Log($"▶️ Playing animation: {animationName}");
+            Debug.LogWarning("⚠️ Model container is null.");
             return;
         }
 
-        // ✅ Play first animation if no name is provided
-        foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+        Animator animator = modelContainerForStep.GetComponentInChildren<Animator>();
+        if (animator is not null)
         {
-            animator.Play(clip.name);
-            Debug.Log($"▶️ Playing default clip: {clip.name}");
-            return;
-        }
-
-        Debug.LogWarning("⚠️ No animations found in Animator.");
-    }
-}
-
-// ✅ Function to check if an animation exists
-bool AnimationExists(Animator animator, string animationName)
-{
-    foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
-    {
-        if (clip.name == animationName)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-    
-    IEnumerator Load3DModel(string modelPath)
-    {
-        // ✅ Fix Windows path issue (use forward slashes)
-        modelPath = modelPath.Replace("\\", "/");
-        Debug.Log($"🔍 Attempting to load 3D model from: {modelPath}");
-
-        // ✅ Ensure file exists (Wait if necessary)
-        float waitTime = 0f;
-        while (!File.Exists(modelPath) && waitTime < 5f) // Max wait 5 sec
-        {
-            Debug.Log($"⏳ Waiting for model file to be ready... {waitTime}s");
-            yield return new WaitForSeconds(0.5f); // Wait 0.5s and check again
-            waitTime += 0.5f;
-        }
-
-        if (!File.Exists(modelPath))
-        {
-            Debug.LogError($"❌ Model file NOT FOUND: {modelPath}");
-            yield break;
-        }
-
-        // ✅ Create or use existing container
-        if (modelContainer == null)
-        {
-            modelContainer = new GameObject("ModelContainer");
-        }
-
-        // ✅ Create new GameObject for GLTF model
-        GameObject gltfObject = new GameObject("LoadedModel");
-        gltfObject.transform.SetParent(modelContainer.transform, false);
-        gltfObject.transform.localScale = Vector3.one * 0.1f;
-        string fileUrl = "file:///" + modelPath.Replace("\\", "/"); // Fix slashes
-        Debug.Log($"📂 Loading GLB file from: {fileUrl}");
-
-        // ✅ Add GLTFast component
-        var gltfComponent = gltfObject.AddComponent<GLTFast.GltfAsset>();
-
-        
-       
-
-        // ✅ Load Model
-        yield return gltfComponent.Load(fileUrl);
-
-        // ✅ Check if the model actually loaded
-        if (gltfObject.transform.childCount > 0)
-        {
-            Debug.Log($"✅ 3D Model successfully loaded from: {modelPath}");
+            if (animator.runtimeAnimatorController != null &&
+                animator.runtimeAnimatorController.animationClips.Length > 0)
+            {
+                string firstAnimation = animator.runtimeAnimatorController.animationClips[0].name;
+                animator.Play(firstAnimation);
+                Debug.Log($"▶️ Playing animation: {firstAnimation}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ No animations found in the Animator.");
+            }
         }
         else
         {
-            Debug.LogError($"❌ Failed to load model: {modelPath}");
-            Destroy(gltfObject); // Cleanup if loading fails
+            Debug.LogWarning("⚠️ No Animator component found on the loaded model.");
         }
+    }
+       
+
+    
+
+    void BackToCourseUI()
+    {
+        instructionDetailPanel.SetActive(false);
+        courseUIPanel.SetActive(true); // Show the course UI again
+        Debug.Log("🔙 Returning to Course UI");
     }
 
 
-    
-  
 
 
+    void PlayAnimation(Animator animator, string animationName)
+    {
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            if (!string.IsNullOrEmpty(animationName) && AnimationExists(animator, animationName))
+            {
+                animator.Play(animationName);
+                Debug.Log($"▶️ Playing animation: {animationName}");
+                return;
+            }
 
+            // ✅ Play first animation if no name is provided
+            foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+            {
+                animator.Play(clip.name);
+                Debug.Log($"▶️ Playing default clip: {clip.name}");
+                return;
+            }
 
-    
+            Debug.LogWarning("⚠️ No animations found in Animator.");
+        }
+    }
+
+// ✅ Function to check if an animation exists
+    bool AnimationExists(Animator animator, string animationName)
+    {
+        foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == animationName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
    
 
 
-   
 
 
-    
-
-   
-
-
-
-
-
-
+    // ReSharper disable Unity.PerformanceAnalysis
     IEnumerator LoadImageFromLocal(string imagePath, UnityEngine.UI.Image targetImage)
     {
         Debug.Log($"🔍 Trying to load image from: {imagePath}");
@@ -694,7 +826,8 @@ bool AnimationExists(Animator animator, string animationName)
         if (texture.LoadImage(imageData))
         {
             Debug.Log($"✅ Successfully loaded image from: {imagePath}");
-            targetImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            targetImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f));
         }
         else
         {
@@ -711,25 +844,31 @@ bool AnimationExists(Animator animator, string animationName)
         isScanning = true;
         ShowScanUI();
     }
+    
 
+    
     void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
     {
         foreach (var trackedImage in eventArgs.updated)
         {
-            if (trackedImage.trackingState == TrackingState.Limited)
+            if (modelContainer == null)
+            {
+                Debug.LogWarning("Model container is null, skipping update.");
+                return;
+            }
+
+            if (trackedImage.trackingState == TrackingState.Limited || trackedImage.trackingState == TrackingState.None)
             {
                 Debug.LogWarning("Tracking lost! Hiding model.");
-                if (modelContainer != null)
-                {
-                    modelContainer.SetActive(false);
-                }
+                modelContainer.SetActive(false);
             }
             else if (trackedImage.trackingState == TrackingState.Tracking)
             {
-                if (modelContainer != null)
-                {
-                    modelContainer.SetActive(true);
-                }
+                modelContainer.SetActive(true);
+
+                // Update model position & rotation to follow the QR code
+                modelContainer.transform.position = trackedImage.transform.position;
+                modelContainer.transform.rotation = trackedImage.transform.rotation;
             }
         }
     }
@@ -739,10 +878,10 @@ bool AnimationExists(Animator animator, string animationName)
 
     void UpdateUIText(string message, string debugMessage)
     {
-        if (uiMessageText != null)
+        if (uiMessageText is not null)
             uiMessageText.text = message;
 
-        if (debugLogText != null)
+        if (debugLogText is not null)
             debugLogText.text = debugMessage;
     }
 
@@ -764,6 +903,7 @@ public class CourseResult
 {
     public string id;
     public string courseCode;
+    public string modelId;
     public string title;
     public string description;
     public string imageUrl;
@@ -794,4 +934,31 @@ public class InstructionDetail
     public string description;
     public string fileString;
     public string imgString;
+}
+[System.Serializable]
+public class ModelResponse
+{
+    public int code;
+    public ModelData result;
+}
+
+[System.Serializable]
+public class ModelData
+{
+    public string id;
+    public string modelTypeId;
+    public string modelTypeName;
+    public string modelCode;
+    public string status;
+    public string name;
+    public string companyId;
+    public string description;
+    public string imageUrl;
+    public bool isUsed;
+    public string version;
+    public string scale;
+    public float[] position;  // Position as [x, y, z]
+    public float[] rotation;  // Rotation as [x, y, z]
+    public string file;
+    public string courseName;
 }

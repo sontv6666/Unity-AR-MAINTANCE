@@ -4,7 +4,7 @@ using System.Collections;
 
 public static class ApiConfig
 {
-    private static readonly string baseUrl = "https://pure-wondrous-hippo.ngrok-free.app/api/v1";
+    private static readonly string baseUrl = "https://joey-lenient-ostrich.ngrok-free.app/api/v1";
     
     
     public static string GetBaseUrl()

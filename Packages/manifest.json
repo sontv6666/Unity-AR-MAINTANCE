@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.atteneder.gltfast": "https://github.com/atteneder/glTFast.git",
     "com.cdm.figma": "https://github.com/cdmvision/unity-figma-importer.git#1.9.0",
     "com.cdm.figma.ui": "https://github.com/cdmvision/unity-figma-importer.git#1.9.0-ugui",
     "com.unity.collab-proxy": "2.6.0",
@@ -13,11 +12,12 @@
     "com.unity.mobile.notifications": "2.3.2",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.render-pipelines.universal": "14.0.9",
+    "com.unity.shadergraph": "14.0.9",
     "com.unity.test-framework": "1.1.33",
     "com.unity.textmeshpro": "3.0.9",
     "com.unity.timeline": "1.7.6",
     "com.unity.ugui": "1.0.0",
-    "com.unity.vectorgraphics": "2.0.0-preview.18",
+    "com.unity.vectorgraphics": "2.0.0-preview.25",
     "com.unity.visualscripting": "1.9.2",
     "com.unity.xr.arcore": "5.1.4",
     "com.unity.xr.arfoundation": "5.1.6",
@@ -26,6 +26,7 @@
     "com.unity.xr.management": "4.5.0",
     "com.unity.xr.oculus": "4.1.2",
     "com.unity.xr.openxr": "1.9.1",
+    "org.khronos.unitygltf": "https://github.com/KhronosGroup/UnityGLTF.git/#release/2.13.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
