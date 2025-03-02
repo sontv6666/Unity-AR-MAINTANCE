@@ -73,9 +73,8 @@ public class ARQRCodeScanner : MonoBehaviour
             trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
         }
 
-        ShowScanUI();
-
-       //StartCoroutine(FetchCourseData());
+        //ShowScanUI();
+        StartCoroutine(FetchCourseData());
 
 
     }
@@ -117,7 +116,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
     }
 
-    //cach 1
+    //cach 1.1
     IEnumerator FetchCourseData()
     {
         string endpoint = "/course/3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
@@ -145,7 +144,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
 
-//cach 2
+    //cach 2.1
     void TryScanQRCode()
     {
         if (!isScanning) return;
@@ -187,7 +186,7 @@ public class ARQRCodeScanner : MonoBehaviour
     }
 
 
-//cach 2
+    //cach 2.2
     IEnumerator CheckQRCode(string qrValue)
     {
         string endpoint = "/course/3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
@@ -209,7 +208,7 @@ public class ARQRCodeScanner : MonoBehaviour
         }
     }
 
-//cach 2
+    //cach 2.3
     void ProcessResponse(string jsonResponse, string scannedQR)
     {
         var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
@@ -229,6 +228,8 @@ public class ARQRCodeScanner : MonoBehaviour
     }
 
     
+    
+    // all call this
     IEnumerator FetchModelData(CourseResult course)
     {
         string modelApiUrl = "/model/" + course.modelId;
@@ -264,33 +265,38 @@ public class ARQRCodeScanner : MonoBehaviour
 
     }
 
-   IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+ IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
 {
     Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
     // 🔹 Normalize file path format
     string formattedPath = modelPath.Replace("\\", "/");
 
-    // 🔹 Check if file exists (handle Android case separately)
-    bool fileExists = false;
+    // 🔹 Construct correct file path
+    string fullPath;
     #if UNITY_ANDROID
-        string androidPath = Path.Combine(Application.streamingAssetsPath, formattedPath);
-        using (UnityWebRequest request = UnityWebRequest.Get(androidPath))
+        fullPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
+    #else
+        fullPath = formattedPath; // Windows/Mac
+    #endif
+
+    // 🔹 Check if the file exists
+    bool fileExists = File.Exists(fullPath); // Works for Windows/Mac/Linux
+    #if UNITY_ANDROID
+        using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
         {
             yield return request.SendWebRequest();
             fileExists = !request.isHttpError && !request.isNetworkError;
         }
-    #else
-        fileExists = File.Exists(formattedPath);
     #endif
 
     if (!fileExists)
     {
-        Debug.LogError($"❌ Model file not found: {formattedPath}");
+        Debug.LogError($"❌ Model file not found: {fullPath}");
         yield break;
     }
 
-    Debug.Log($"✅ Model file exists: {formattedPath}");
+    Debug.Log($"✅ Model file exists: {fullPath}");
 
     // 🔹 Ensure the model container exists
     if (modelContainer == null)
@@ -305,43 +311,55 @@ public class ARQRCodeScanner : MonoBehaviour
         Destroy(child.gameObject);
     }
 
-    // 🔹 Create a new GameObject to hold the model
-    GameObject newModel = new GameObject("LoadedModel");
-    newModel.transform.SetParent(modelContainer.transform, false);
+    Debug.Log($"🔗 Preparing to load GLB from: {fullPath}");
 
-    // 🔹 Apply position and rotation
-    newModel.transform.position = qrCodePosition;
-    newModel.transform.localScale = Vector3.one * 0.1f; // Adjust scale as needed
-
-
-    // 🔹 Construct URI for UnityWebRequest
-    string uri;
-    #if UNITY_ANDROID
-        uri = androidPath; // Android case
-    #else
-        uri = "file:///" + formattedPath; // Windows/Mac case
-    #endif
-
-    Debug.Log($"🔗 Loading GLB from: {uri}");
-
-    // 🔹 Create a UnityWebRequestLoader
-    var loader = new UnityWebRequestLoader(uri);
+    // 🔹 Create UnityWebRequestLoader
+    var loader = new UnityWebRequestLoader(fullPath);
 
     // 🔹 Create ImportOptions instance
-    ImportOptions importOptions = new ImportOptions() { DataLoader = loader };
+    ImportOptions importOptions = new ImportOptions()
+    {
+        DataLoader = loader
+    };
 
     // 🔹 Load model asynchronously using UnityGLTF
-    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(uri, importOptions);
-    yield return gltfImporter.LoadSceneAsync(-1); // ✅ FIX: Pass -1 instead of Transform
+    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(fullPath, importOptions);
+    yield return gltfImporter.LoadSceneAsync(-1); // ✅ Correct usage of -1
 
     Debug.Log("✅ 3D Model successfully loaded.");
+
+    // 🔹 Find loaded model in the scene
+    GameObject loadedModel = modelContainer.transform.childCount > 0
+        ? modelContainer.transform.GetChild(modelContainer.transform.childCount - 1).gameObject
+        : null;
+
+    if (loadedModel == null)
+    {
+        Debug.LogError("❌ Failed to find the loaded model.");
+        yield break;
+    }
+
+    // 🔹 Apply position and rotation
+    loadedModel.transform.SetParent(modelContainer.transform, false);
+    loadedModel.transform.position = position;
+    loadedModel.transform.eulerAngles = rotation;
+    loadedModel.transform.localScale = Vector3.one * 0.1f; // Adjust scale as needed
+
+    Debug.Log("✅ Model correctly parented and transformed.");
 }
 
+
+
+ 
+ 
+ 
+ 
+ 
     
     
     
 
-// tat ca toi day    
+    // all call   
     IEnumerator DownloadAndLoadUI(CourseResult course)
     {
         string fileEndpoint = "/files/";
@@ -521,12 +539,12 @@ void UpdateInstructionStepUI(Instruction instruction)
         }
 
         // ⚡️ Chỉ dùng modelContainer chung để tải mô hình
-          GameObject modelContainerForStep = stepItem.transform.Find("instructionDetailModelForEachStep")?.gameObject;
+        GameObject modelContainerForStep = modelContainer;
 
         if (i == 0) 
         {
             // 🚀 Load mô hình đầu tiên từ StreamingAssets
-            string firstModelPath = Path.Combine(Application.streamingAssetsPath, "Models/051a5414-0e1a-4fb5-ae8b-b23b76f4e011.glb");
+            string firstModelPath = Path.Combine(Application.persistentDataPath, "Models/051a5414-0e1a-4fb5-ae8b-b23b76f4e011.glb");
 
             if (modelContainerForStep != null)
             {
@@ -629,34 +647,96 @@ void UpdateStepNavigationButtons()
 
 
 
-
-IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
+//
+// IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
+// {
+//     Debug.Log($"📌 Attempting to load model from: {modelPath}");
+//
+//     // 🔹 Normalize path format
+//     string formattedPath = modelPath.Replace("\\", "/");
+//
+//     // 🔹 Check if file exists (special handling for StreamingAssets on Android)
+//     bool fileExists = false;
+//     #if UNITY_ANDROID
+//         string androidPath = Path.Combine(Application.persistentDataPath, formattedPath);
+//         using (UnityWebRequest request = UnityWebRequest.Get(androidPath))
+//         {
+//             yield return request.SendWebRequest();
+//             fileExists = !request.isHttpError && !request.isNetworkError;
+//         }
+//     #else
+//         fileExists = File.Exists(formattedPath);
+//     #endif
+//
+//     if (!fileExists)
+//     {
+//         Debug.LogError($"❌ Model file not found: {formattedPath}");
+//         yield break;
+//     }
+//
+//     Debug.Log($"✅ Model file exists: {formattedPath}");
+//
+//     // 🔹 Ensure the model container exists
+//     if (modelContainerForStep == null)
+//     {
+//         Debug.LogError("❌ Model container is null. Cannot load model.");
+//         yield break;
+//     }
+//
+//     // 🔹 Remove previous model safely
+//     foreach (Transform child in modelContainerForStep.transform)
+//     {
+//         Destroy(child.gameObject);
+//     }
+//
+//     // 🔹 Create a new GameObject to hold the model
+//     GameObject newModel = new GameObject("LoadedModel");
+//     newModel.transform.SetParent(modelContainerForStep.transform, false);
+//     newModel.transform.localScale = Vector3.one * 0.1f;
+//
+//     // 🔹 Construct correct URI for UnityWebRequest
+//     string uri;
+//     #if UNITY_ANDROID
+//         uri = androidPath; // StreamingAssets access on Android
+//     #else
+//         uri = "file:///" + formattedPath; // Windows/Mac
+//     #endif
+//
+//     Debug.Log($"🔗 Loading GLB from: {uri}");
+//
+//     // 🔹 Create a UnityWebRequestLoader instead of DefaultLoader
+//     var loader = new UnityWebRequestLoader(uri);
+//
+//     // 🔹 Create ImportOptions instance
+//     ImportOptions importOptions = new ImportOptions()
+//     {
+//         DataLoader = loader
+//     };
+//
+//     // 🔹 Load the model asynchronously using UnityGLTF
+//     GLTFSceneImporter gltfImporter = new GLTFSceneImporter(uri, importOptions);
+//     yield return gltfImporter.LoadSceneAsync(-1); // ✅ FIX: Pass -1 instead of Transform
+//
+//     Debug.Log("✅ 3D Model successfully loaded.");
+//
+//     // 🔹 Try to find Animator & Play Animation
+//     Animator animator = newModel.GetComponentInChildren<Animator>();
+//     if (animator != null)
+//     {
+//         Debug.Log("🎬 Animator found! Playing animation...");
+//         PlayAnimation(animator, animationName);
+//     }
+//     else
+//     {
+//         Debug.LogWarning("⚠️ No Animator found on the model.");
+//     }
+// }
+   IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
 {
     Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
     // 🔹 Normalize path format
     string formattedPath = modelPath.Replace("\\", "/");
-
-    // 🔹 Check if file exists (special handling for StreamingAssets on Android)
-    bool fileExists = false;
-    #if UNITY_ANDROID
-        string androidPath = Path.Combine(Application.streamingAssetsPath, formattedPath);
-        using (UnityWebRequest request = UnityWebRequest.Get(androidPath))
-        {
-            yield return request.SendWebRequest();
-            fileExists = !request.isHttpError && !request.isNetworkError;
-        }
-    #else
-        fileExists = File.Exists(formattedPath);
-    #endif
-
-    if (!fileExists)
-    {
-        Debug.LogError($"❌ Model file not found: {formattedPath}");
-        yield break;
-    }
-
-    Debug.Log($"✅ Model file exists: {formattedPath}");
 
     // 🔹 Ensure the model container exists
     if (modelContainerForStep == null)
@@ -665,44 +745,64 @@ IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForSte
         yield break;
     }
 
+    // 🔹 Construct correct URI
+    string fullPath;
+    #if UNITY_ANDROID
+        fullPath = Path.Combine(Application.persistentDataPath, formattedPath);
+    #else
+        fullPath = "file:///" + formattedPath; // Windows/Mac
+    #endif
+
+    if (!File.Exists(fullPath))
+    {
+        Debug.LogError($"❌ Model file not found: {fullPath}");
+        yield break;
+    }
+
+    Debug.Log($"✅ Model file exists: {fullPath}");
+
     // 🔹 Remove previous model safely
     foreach (Transform child in modelContainerForStep.transform)
     {
         Destroy(child.gameObject);
     }
 
-    // 🔹 Create a new GameObject to hold the model
-    GameObject newModel = new GameObject("LoadedModel");
-    newModel.transform.SetParent(modelContainerForStep.transform, false);
-    newModel.transform.localScale = Vector3.one * 0.1f;
+    Debug.Log($"🔗 Loading GLB from: {fullPath}");
 
-    // 🔹 Construct correct URI for UnityWebRequest
-    string uri;
-    #if UNITY_ANDROID
-        uri = androidPath; // StreamingAssets access on Android
-    #else
-        uri = "file:///" + formattedPath; // Windows/Mac
-    #endif
+    // 🔹 Use UnityWebRequestLoader for loading model from URL or file
+    var loader = new UnityWebRequestLoader(fullPath);
 
-    Debug.Log($"🔗 Loading GLB from: {uri}");
-
-    // 🔹 Create a UnityWebRequestLoader instead of DefaultLoader
-    var loader = new UnityWebRequestLoader(uri);
-
-    // 🔹 Create ImportOptions instance
+    // 🔹 Import options
     ImportOptions importOptions = new ImportOptions()
     {
         DataLoader = loader
     };
 
-    // 🔹 Load the model asynchronously using UnityGLTF
-    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(uri, importOptions);
-    yield return gltfImporter.LoadSceneAsync(-1); // ✅ FIX: Pass -1 instead of Transform
+    // 🔹 Load the model asynchronously
+    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(fullPath, importOptions);
+    yield return gltfImporter.LoadSceneAsync(-1); // ✅ Correct way to load the default scene
 
     Debug.Log("✅ 3D Model successfully loaded.");
 
+    // 🔹 Find the newly loaded model (usually the last child of the root)
+    GameObject loadedModel = modelContainerForStep.transform.childCount > 0 
+        ? modelContainerForStep.transform.GetChild(modelContainerForStep.transform.childCount - 1).gameObject 
+        : null;
+
+    if (loadedModel == null)
+    {
+        Debug.LogError("❌ Failed to find the loaded model.");
+        yield break;
+    }
+
+    // 🔹 Set model parent correctly
+    loadedModel.transform.SetParent(modelContainerForStep.transform, false);
+    loadedModel.transform.localScale = Vector3.one * 0.1f;
+
+    Debug.Log("✅ Model correctly parented and scaled.");
+
     // 🔹 Try to find Animator & Play Animation
-    Animator animator = newModel.GetComponentInChildren<Animator>();
+    Animator animator = loadedModel.GetComponentInChildren<Animator>();
     if (animator != null)
     {
         Debug.Log("🎬 Animator found! Playing animation...");
