@@ -7,11 +7,13 @@ using TMPro;
 using System.IO;
 using System.Linq;
 using UnityEngine.UI;
+using GLTFast;
+using GLTFast.Loading;
+using System.Threading.Tasks;
 
-using UnityGLTF.Loader;
 using System.Collections;
 using System.Collections.Generic;
-using UnityGLTF;
+
 
 
 
@@ -73,8 +75,8 @@ public class ARQRCodeScanner : MonoBehaviour
             trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
         }
 
-        //ShowScanUI();
-        StartCoroutine(FetchCourseData());
+        ShowScanUI();
+        //StartCoroutine(FetchCourseData());
 
 
     }
@@ -265,23 +267,26 @@ public class ARQRCodeScanner : MonoBehaviour
 
     }
 
- IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
 {
     Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
     // 🔹 Normalize file path format
     string formattedPath = modelPath.Replace("\\", "/");
 
-    // 🔹 Construct correct file path
+    // 🔹 Construct full file path
     string fullPath;
     #if UNITY_ANDROID
-        fullPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
+        fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
     #else
         fullPath = formattedPath; // Windows/Mac
     #endif
 
+    Debug.Log($"🔗 Full path: {fullPath}");
+
     // 🔹 Check if the file exists
-    bool fileExists = File.Exists(fullPath); // Works for Windows/Mac/Linux
+    bool fileExists = File.Exists(fullPath);
+    
     #if UNITY_ANDROID
         using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
         {
@@ -313,18 +318,34 @@ public class ARQRCodeScanner : MonoBehaviour
 
     Debug.Log($"🔗 Preparing to load GLB from: {fullPath}");
 
-    // 🔹 Create UnityWebRequestLoader
-    var loader = new UnityWebRequestLoader(fullPath);
-
-    // 🔹 Create ImportOptions instance
-    ImportOptions importOptions = new ImportOptions()
+    // 🔹 Create GLTFast loader
+    var gltf = new GltfImport();
+    var loadTask = gltf.Load(fullPath);
+    
+    while (!loadTask.IsCompleted) // Wait for loading to finish
     {
-        DataLoader = loader
-    };
+        yield return null;
+    }
 
-    // 🔹 Load model asynchronously using UnityGLTF
-    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(fullPath, importOptions);
-    yield return gltfImporter.LoadSceneAsync(-1); // ✅ Correct usage of -1
+    if (!loadTask.Result) // Check if load was successful
+    {
+        Debug.LogError("❌ Failed to load GLB model.");
+        yield break;
+    }
+
+    // 🔹 Instantiate the model
+    var instantiateTask = gltf.InstantiateMainSceneAsync(modelContainer.transform);
+    
+    while (!instantiateTask.IsCompleted) // Wait for instantiation
+    {
+        yield return null;
+    }
+
+    if (!instantiateTask.Result)
+    {
+        Debug.LogError("❌ Failed to instantiate GLB model.");
+        yield break;
+    }
 
     Debug.Log("✅ 3D Model successfully loaded.");
 
@@ -343,7 +364,7 @@ public class ARQRCodeScanner : MonoBehaviour
     loadedModel.transform.SetParent(modelContainer.transform, false);
     loadedModel.transform.position = position;
     loadedModel.transform.eulerAngles = rotation;
-    loadedModel.transform.localScale = Vector3.one * 0.1f; // Adjust scale as needed
+    loadedModel.transform.localScale = Vector3.one * 0.1f;
 
     Debug.Log("✅ Model correctly parented and transformed.");
 }
@@ -731,11 +752,11 @@ void UpdateStepNavigationButtons()
 //         Debug.LogWarning("⚠️ No Animator found on the model.");
 //     }
 // }
-   IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
+ public IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string animationName)
 {
     Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
-    // 🔹 Normalize path format
+    // 🔹 Normalize file path format
     string formattedPath = modelPath.Replace("\\", "/");
 
     // 🔹 Ensure the model container exists
@@ -745,15 +766,27 @@ void UpdateStepNavigationButtons()
         yield break;
     }
 
-    // 🔹 Construct correct URI
+    // 🔹 Construct full file path
     string fullPath;
     #if UNITY_ANDROID
-        fullPath = Path.Combine(Application.persistentDataPath, formattedPath);
+        fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
     #else
-        fullPath = "file:///" + formattedPath; // Windows/Mac
+        fullPath = "file:///" + formattedPath;
     #endif
 
-    if (!File.Exists(fullPath))
+    Debug.Log($"🔗 Full path: {fullPath}");
+
+    // 🔹 Check if the file exists
+    bool fileExists = File.Exists(fullPath);
+    #if UNITY_ANDROID
+        using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
+        {
+            yield return request.SendWebRequest();
+            fileExists = !request.isHttpError && !request.isNetworkError;
+        }
+    #endif
+
+    if (!fileExists)
     {
         Debug.LogError($"❌ Model file not found: {fullPath}");
         yield break;
@@ -769,24 +802,32 @@ void UpdateStepNavigationButtons()
 
     Debug.Log($"🔗 Loading GLB from: {fullPath}");
 
-    // 🔹 Use UnityWebRequestLoader for loading model from URL or file
-    var loader = new UnityWebRequestLoader(fullPath);
+    // 🔹 Use GLTFast to load model
+    var gltf = new GltfImport();
+    var loadTask = gltf.Load(fullPath);
+    while (!loadTask.IsCompleted) yield return null; // Wait until loading is done
 
-    // 🔹 Import options
-    ImportOptions importOptions = new ImportOptions()
+    if (!loadTask.Result)
     {
-        DataLoader = loader
-    };
+        Debug.LogError("❌ Failed to load GLB model.");
+        yield break;
+    }
 
-    // 🔹 Load the model asynchronously
-    GLTFSceneImporter gltfImporter = new GLTFSceneImporter(fullPath, importOptions);
-    yield return gltfImporter.LoadSceneAsync(-1); // ✅ Correct way to load the default scene
+    // 🔹 Instantiate the model
+    var instantiateTask = gltf.InstantiateMainSceneAsync(modelContainerForStep.transform);
+    while (!instantiateTask.IsCompleted) yield return null; // Wait until instantiation is done
+
+    if (!instantiateTask.Result)
+    {
+        Debug.LogError("❌ Failed to instantiate GLB model.");
+        yield break;
+    }
 
     Debug.Log("✅ 3D Model successfully loaded.");
 
-    // 🔹 Find the newly loaded model (usually the last child of the root)
-    GameObject loadedModel = modelContainerForStep.transform.childCount > 0 
-        ? modelContainerForStep.transform.GetChild(modelContainerForStep.transform.childCount - 1).gameObject 
+    // 🔹 Find the newly loaded model
+    GameObject loadedModel = modelContainerForStep.transform.childCount > 0
+        ? modelContainerForStep.transform.GetChild(modelContainerForStep.transform.childCount - 1).gameObject
         : null;
 
     if (loadedModel == null)
@@ -818,9 +859,7 @@ void UpdateStepNavigationButtons()
 
 
 
-
-
-
+   
 
 
 
