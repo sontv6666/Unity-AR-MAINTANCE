@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3708985, g: 0.3783704, b: 0.35722548, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1445,8 +1445,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1039324124}
   m_HandleRect: {fileID: 1039324123}
   m_Direction: 2
-  m_Value: 1.0000018
-  m_Size: 0.7331488
+  m_Value: 1.000002
+  m_Size: 0.73314875
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6334,7 +6334,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 170.13174, y: -272.2536}
+  m_AnchoredPosition: {x: 90, y: -327}
   m_SizeDelta: {x: 269.4849, y: 52.0319}
   m_Pivot: {x: -0.060069554, y: 1}
 --- !u!114 &373464477
@@ -7635,9 +7635,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.5
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -15090,7 +15090,7 @@ GameObject:
   m_Component:
   - component: {fileID: 898871999}
   - component: {fileID: 898871998}
-  - component: {fileID: 898871997}
+  - component: {fileID: 898872000}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -15098,26 +15098,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &898871997
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 898871996}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
 --- !u!114 &898871998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15148,6 +15128,47 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &898872000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 898871996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
 --- !u!1 &909831809
 GameObject:
   m_ObjectHideFlags: 0
@@ -21989,6 +22010,7 @@ GameObject:
   - component: {fileID: 1220088748}
   - component: {fileID: 1220088747}
   - component: {fileID: 1220088746}
+  - component: {fileID: 1220088750}
   m_Layer: 5
   m_Name: LoginPage
   m_TagString: Untagged
@@ -22028,9 +22050,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.5
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -22080,6 +22102,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1220088750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220088745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cb5aa0d56ff65e468f3f716cf66fac3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loginScreen: {fileID: 3981078436835507980}
 --- !u!1 &1221295856
 GameObject:
   m_ObjectHideFlags: 0
@@ -27857,8 +27892,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -207.22083, y: 18.514404}
-  m_SizeDelta: {x: 889.98, y: 1301.7}
+  m_AnchoredPosition: {x: -59.841064, y: 13.003662}
+  m_SizeDelta: {x: 800.2191, y: 1369.7999}
   m_Pivot: {x: 0.13358115, y: 0.92836815}
 --- !u!225 &1584423497
 CanvasGroup:
@@ -29114,7 +29149,7 @@ GameObject:
   - component: {fileID: 1656554572}
   - component: {fileID: 1656554571}
   m_Layer: 5
-  m_Name: AR LOGO
+  m_Name: LogoMain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29136,7 +29171,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 234, y: -285}
+  m_AnchoredPosition: {x: 270, y: -325}
   m_SizeDelta: {x: 247.8252, y: 167.6853}
   m_Pivot: {x: -0.031672418, y: 1.0431533}
 --- !u!225 &1656554571
@@ -37225,7 +37260,7 @@ GameObject:
   - component: {fileID: 4641322308048726593}
   - component: {fileID: 6879694082146910076}
   m_Layer: 5
-  m_Name: username box
+  m_Name: UsernameBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39031,10 +39066,10 @@ RectTransform:
   - {fileID: 7834847089431847334}
   m_Father: {fileID: 1220088749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -426.25565, y: 160.46631}
-  m_SizeDelta: {x: -389.1859, y: -1195.6615}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -127.54358, y: 10.787842}
+  m_SizeDelta: {x: 458.3643, y: 877.1646}
   m_Pivot: {x: 0.028203465, y: 0.94906825}
 --- !u!1 &1131720987936934983
 GameObject:
@@ -39786,7 +39821,7 @@ GameObject:
   - component: {fileID: 4099299299835000004}
   - component: {fileID: 8422739099851014880}
   m_Layer: 5
-  m_Name: Rectangle 1
+  m_Name: DecorRec1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40324,7 +40359,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 238, y: -198}
+  m_AnchoredPosition: {x: 157.86826, y: -252.7464}
   m_SizeDelta: {x: 179.727, y: 70.4417}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1964820422436655781
@@ -40650,7 +40685,7 @@ GameObject:
   - component: {fileID: 3285587573492516420}
   - component: {fileID: 1668521838833092595}
   m_Layer: 5
-  m_Name: password box
+  m_Name: PasswordBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43270,7 +43305,7 @@ GameObject:
   - component: {fileID: 4314936294376453990}
   - component: {fileID: 5149668554987433203}
   m_Layer: 5
-  m_Name: Enter box
+  m_Name: EnterBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45293,7 +45328,7 @@ GameObject:
   - component: {fileID: 1391746350429163621}
   - component: {fileID: 248789528990910953}
   m_Layer: 5
-  m_Name: Login Screen
+  m_Name: LoginScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46463,7 +46498,7 @@ GameObject:
   - component: {fileID: 4234419391221352500}
   - component: {fileID: 4579971762698264109}
   m_Layer: 5
-  m_Name: Remember me
+  m_Name: RememberMeLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48232,7 +48267,7 @@ GameObject:
   - component: {fileID: 5627306543772903822}
   - component: {fileID: 3905727150025052545}
   m_Layer: 5
-  m_Name: checkbox remeber
+  m_Name: CheckboxRemeberMe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51592,7 +51627,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 156, y: -305}
+  m_AnchoredPosition: {x: 75.86826, y: -359.7464}
   m_SizeDelta: {x: 204, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &7055330181915654081
@@ -51683,7 +51718,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 154.49997, y: -406.82404}
+  m_AnchoredPosition: {x: 74.36823, y: -461.57043}
   m_SizeDelta: {x: 204, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &7098801609491543059
@@ -52911,8 +52946,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 22, y: 78}
-  m_SizeDelta: {x: 549.0718, y: 237.2609}
+  m_AnchoredPosition: {x: -0.000011444092, y: 0}
+  m_SizeDelta: {x: 458.36, y: 224.75}
   m_Pivot: {x: 0, y: 1}
 --- !u!225 &7835585954553087446
 CanvasGroup:
@@ -53998,7 +54033,7 @@ GameObject:
   - component: {fileID: 1379982239345547189}
   - component: {fileID: 6621837506291727081}
   m_Layer: 5
-  m_Name: Log in
+  m_Name: LoginLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54038,7 +54073,7 @@ GameObject:
   - component: {fileID: 8897604097134762493}
   - component: {fileID: 3943561180831774259}
   m_Layer: 5
-  m_Name: Forgot passwords?
+  m_Name: ForgotPasswordsLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
