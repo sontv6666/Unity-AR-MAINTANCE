@@ -544,7 +544,7 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
     courseUIPanel.SetActive(false);
     instructionDetailPanel.SetActive(true);
 }
-    void UpdateInstructionStepUI(Instruction instruction)
+   void UpdateInstructionStepUI(Instruction instruction)
 {
     if (currentInstructionDetails == null || currentInstructionDetails.Count == 0)
     {
@@ -552,30 +552,30 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
         return;
     }
 
-    // ✅ Hide "FirstModelAfterScan" when entering step-by-step mode
+    // ✅ Ensure "FirstModelAfterScan" exists
     GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-    if (firstModel != null)
+    if (firstModel == null)
     {
-        firstModel.SetActive(false);
+        Debug.LogError("FirstModelAfterScan not found!");
+        return;
     }
 
-    // ✅ Clear previous step instances
+    // ✅ Hide "FirstModelAfterScan" initially
+    firstModel.SetActive(false);
+
+    // ✅ Clear previous step UI instances
     foreach (GameObject step in instructionStepInstances)
     {
         Destroy(step);
     }
     instructionStepInstances.Clear();
 
-    List<GameObject> loadedStepModels = new List<GameObject>(); // Store all models to disable them later
-
-    
-    
     for (int i = 0; i < currentInstructionDetails.Count; i++)
     {
         InstructionDetail detail = currentInstructionDetails[i];
 
         GameObject stepItem = Instantiate(instructionDetailStepPrefab, instructionDetailPanel.transform);
-        stepItem.SetActive(i == 0); 
+        stepItem.SetActive(i == 0); // Show only the first step initially
 
         TMP_Text nameText = stepItem.transform.Find("instructionNameText")?.GetComponent<TMP_Text>();
         TMP_Text descriptionText = stepItem.transform.Find("instructionDetailDescriptionText")?.GetComponent<TMP_Text>();
@@ -592,143 +592,328 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
             if (stepImage) StartCoroutine(LoadImageFromLocal(imagePath, stepImage));
         }
 
-        // ✅ Remove old models from previous steps
-        foreach (Transform child in modelContainer.transform)
-        {
-            if (child.name.StartsWith("ModelStep"))
-            {
-                Destroy(child.gameObject);
-            }
-        }
-
-        GameObject modelContainerForStep = modelContainer;
-        GameObject currentStepModel = null;
-
-        // ✅ Load step-specific model if available
-        if (!string.IsNullOrEmpty(detail.fileString) &&
-            (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf")))
-        {
-            string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
-            if (modelContainerForStep != null)
-            {
-                StartCoroutine(LoadModelAndWait(modelPath, modelContainerForStep, $"Step{i}", (loadedModel) =>
-                {
-                    if (loadedModel != null)
-                    {
-                        currentStepModel = loadedModel;
-                        currentStepModel.SetActive(i == 0);
-                    }
-                }));
-            }
-        }
-
-        Debug.Log($"🔍 Checking model for Step {i}: {currentStepModel?.name ?? "NULL"}");
-
         // ✅ Play/Stop animation button logic
-        Button playAnimationButton = stepItem.transform.Find("playanimationButton")?.GetComponent<Button>();
-        if (playAnimationButton)
+        Button replayAnimationButton = stepItem.transform.Find("replayanimationButton")?.GetComponent<Button>();
+        
+        if (replayAnimationButton)
         {
-            playAnimationButton.onClick.RemoveAllListeners();
-            playAnimationButton.onClick.AddListener(() =>
+            replayAnimationButton.onClick.RemoveAllListeners();
+            replayAnimationButton.onClick.AddListener(() =>
             {
-                if (currentStepModel != null)
-                {
-                    currentStepModel.SetActive(true);
-                    Animation animation = currentStepModel.GetComponentInChildren<Animation>(true);
-
-                    if (animation != null)
-                    {
-                        string animationName = detail.name;
-                        if (animation.IsPlaying(animationName))
-                        {
-                            animation.Stop();
-                            Debug.Log($"⏹ Stopped animation: {animationName}");
-                        }
-                        else
-                        {
-                            animation.Play(animationName);
-                            Debug.Log($"▶️ Playing animation: {animationName}");
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning("⚠️ No Animation component found on the current step model.");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"⚠️ No model found for Step {i}");
-                }
+                PlayStepAnimation(firstModel, detail);
+            });
+        }
+        
+        Button playAndStopAnimationButton = stepItem.transform.Find("playandstopanimationButton")?.GetComponent<Button>();
+        if (playAndStopAnimationButton)
+        {
+            playAndStopAnimationButton.onClick.RemoveAllListeners();
+            playAndStopAnimationButton.onClick.AddListener(() =>
+            {
+                TogglePlayPauseAnimation(firstModel);
             });
         }
 
-        Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
-        if (backButton)
-        {
-            backButton.onClick.RemoveAllListeners();
-            backButton.onClick.AddListener(() => BackToCourseUI());
-        }
+        // ✅ Speed control buttons
+        SetupSpeedControls(stepItem, firstModel, detail);
 
+        // ✅ Navigation buttons
+        Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
         Button prevButton = stepItem.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
         Button nextButton = stepItem.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
 
+        if (backButton) backButton.onClick.AddListener(() => BackToCourseUI());
         if (prevButton) prevButton.onClick.AddListener(() => ChangeInstructionStep(-1));
         if (nextButton) nextButton.onClick.AddListener(() => ChangeInstructionStep(1));
 
         instructionStepInstances.Add(stepItem);
     }
 
+    
+    
+    // ✅ Show first step model & animation
+    firstModel.SetActive(true);
+    PlayStepAnimation(firstModel, currentInstructionDetails[0]);
+
     UpdateStepNavigationButtons();
 }
+   
+// Speed values to cycle through
+float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
+int currentSpeedIndex = 2; // Default speed index (1x)
 
-// ✅ Coroutine to Load Model & Wait Until It's Ready
-IEnumerator LoadModelAndWait(string modelPath, GameObject modelContainerForStep, string stepName, System.Action<GameObject> callback)
+// Create buttons for each speed option
+// ✅ Create buttons for animation speed options
+    void SetupSpeedControls(GameObject stepItem, GameObject firstModel, InstructionDetail detail)
+    {
+        // Find Buttons
+        Button speedButtonX025 = stepItem.transform.Find("speedButtonX025")?.GetComponent<Button>();
+        Button speedButtonX05 = stepItem.transform.Find("speedButtonX05")?.GetComponent<Button>();
+        Button speedButtonX1 = stepItem.transform.Find("speedButtonX1")?.GetComponent<Button>();
+        Button speedButtonX2 = stepItem.transform.Find("speedButtonX2")?.GetComponent<Button>();
+        Button speedButtonX3 = stepItem.transform.Find("speedButtonX3")?.GetComponent<Button>();
+
+        // Find the Slider
+        Slider speedSlider = stepItem.transform.Find("animationSpeedSlider")?.GetComponent<Slider>();
+
+        // Assign Button Clicks
+        if (speedButtonX025) speedButtonX025.onClick.AddListener(() => ChangeAnimationSpeed(firstModel, detail, 0.25f));
+        if (speedButtonX05) speedButtonX05.onClick.AddListener(() => ChangeAnimationSpeed(firstModel, detail, 0.5f));
+        if (speedButtonX1) speedButtonX1.onClick.AddListener(() => ChangeAnimationSpeed(firstModel, detail, 1f));
+        if (speedButtonX2) speedButtonX2.onClick.AddListener(() => ChangeAnimationSpeed(firstModel, detail, 2f));
+        if (speedButtonX3) speedButtonX3.onClick.AddListener(() => ChangeAnimationSpeed(firstModel, detail, 3f));
+
+        // Assign Slider Change Listener
+        if (speedSlider)
+        {
+            speedSlider.minValue = 0.25f;
+            speedSlider.maxValue = 3f;
+            speedSlider.value = 1f; // Default speed
+            speedSlider.onValueChanged.AddListener((value) => ChangeAnimationSpeed(firstModel, detail, value));
+        }
+    }
+
+
+// ✅ Function to change animation speed
+    void ChangeAnimationSpeed(GameObject firstModel, InstructionDetail detail, float speed)
+    {
+        if (firstModel == null) return;
+
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+        if (animation != null && animation.IsPlaying(detail.animationName))
+        {
+            animation[detail.animationName].speed = speed;
+            Debug.Log($"⏩ Animation speed set to {speed}x");
+        }
+    }
+
+
+
+void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float speed = 1f)
 {
-    yield return Load3DModelForStep(modelPath, modelContainerForStep, stepName);
-    GameObject loadedModel = modelContainerForStep.transform.Find($"Model{stepName}")?.gameObject;
-    callback?.Invoke(loadedModel);
+    if (!firstModel) return;
+
+    // ✅ Get the Animation component
+    Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+    if (animation != null)
+    {
+        // ✅ Reset all animations before playing a new one
+        foreach (AnimationState state in animation)
+        {
+            if (state.enabled)
+            {
+                state.time = 0f; // Rewind to first frame
+                state.enabled = false; // Disable animation
+            }
+        }
+        animation.Stop();
+        animation.Sample(); // Apply first frame
+
+        Debug.Log("🔄 Reset all previous animations.");
+
+        // ✅ Reset to "Idle" if available
+        if (animation.GetClip("Idle") != null)
+        {
+            animation.Play("Idle");
+            Debug.Log("🔄 Reset model to idle animation.");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No 'Idle' animation found! Resetting model transforms.");
+            ResetModelState(firstModel);
+        }
+
+        // ✅ Play the new animation with speed control
+        if (animation.GetClip(detail.animationName) != null)
+        {
+            AnimationState newState = animation[detail.animationName];
+            lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
+            newState.speed = speed;
+            animation.Play(detail.animationName);
+            Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
+        }
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ No Animation component found!");
+    }
+
+    // ✅ Reset all meshes to active before hiding specific ones
+    foreach (Transform child in firstModel.transform)
+    {
+        child.gameObject.SetActive(true);
+    }
+
+    // ✅ Hide only specific meshes if needed
+    HashSet<string> meshesToHide = detail.meshes != null ? new HashSet<string>(detail.meshes) : null;
+    if (meshesToHide != null)
+    {
+        foreach (Transform child in firstModel.transform)
+        {
+            if (meshesToHide.Contains(child.name))
+            {
+                child.gameObject.SetActive(false);
+                Debug.Log($"🚫 Hiding mesh: {child.name}");
+            }
+        }
+    }
 }
+
+void TogglePlayPauseAnimation(GameObject firstModel)
+{
+    if (!firstModel) return;
+
+    Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+    if (animation != null)
+    {
+        foreach (AnimationState state in animation)
+        {
+            if (state.enabled) // 🔴 If animation is playing, PAUSE it
+            {
+                state.enabled = false; // Pause animation
+                animation.Sample(); // Keep the last frame
+                Debug.Log($"⏸️ Paused animation at frame: {state.time}");
+                return; // Stop execution here
+            }
+        }
+
+        // ▶️ If NO animation is playing, RESUME the last played animation
+        if (lastPlayedAnimationName != null && animation.GetClip(lastPlayedAnimationName) != null)
+        {
+            animation.Play(lastPlayedAnimationName);
+            Debug.Log($"▶️ Resumed animation: {lastPlayedAnimationName}");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No previous animation found to resume.");
+        }
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ No Animation component found.");
+    }
+}
+string lastPlayedAnimationName = null;
+
+void StopCurrentAnimationAtFrame(GameObject firstModel)
+{
+    if (firstModel == null) return;
+
+    // ✅ Get the Animation component
+    Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+    if (animation != null)
+    {
+        foreach (AnimationState state in animation)
+        {
+            if (state.enabled)
+            {
+                // ✅ Keep the animation at the current frame
+                state.enabled = false;
+                animation.Sample(); // Apply the current frame
+                Debug.Log($"⏸ Stopped animation at current frame: {state.name}");
+                return; // Stop after pausing the first active animation
+            }
+        }
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ No Animation component found!");
+    }
+}
+
+
+
+    void ResetModelState(GameObject model)
+    {
+        
+
+        Debug.Log("🔄 Model reset to default transform state.");
+        // ✅ Reset blend shapes (if applicable)
+        SkinnedMeshRenderer[] skinnedMeshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        foreach (var skinnedMesh in skinnedMeshes)
+        {
+            Mesh mesh = skinnedMesh.sharedMesh;
+            if (mesh != null && mesh.blendShapeCount > 0)
+            {
+                for (int i = 0; i < mesh.blendShapeCount; i++)
+                {
+                    skinnedMesh.SetBlendShapeWeight(i, 0); // Reset all blend shapes
+                }
+            }
+        }
+
+        Debug.Log("🔄 Model reset to default transform state.");
+    }
+
+
+    void BackToCourseUI()
+    {
+        instructionDetailPanel.SetActive(false);
+        courseUIPanel.SetActive(true);
+
+        Debug.Log("🔙 Returning to Course UI");
+
+        // ✅ Hide all step UI elements
+        foreach (GameObject stepItem in instructionStepInstances)
+        {
+            stepItem.SetActive(false);
+        }
+
+        // ✅ Reset to first step
+        currentStepIndex = 0;
+
+        // ✅ Reactivate "FirstModelAfterScan" and restore meshes
+        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+        if (firstModel != null)
+        {
+            firstModel.SetActive(true);
+
+            // ✅ Reactivate all hidden meshes
+            foreach (Transform child in firstModel.transform)
+            {
+                child.gameObject.SetActive(true);
+                Debug.Log($"✅ Reactivating mesh: {child.name}");
+            }
+
+            // ✅ Stop animation & reset to first frame
+            Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+            if (animation != null)
+            {
+                animation.Stop(); // Stop any running animation
+           
+                Debug.Log("⏹ Animation stopped and model reset to first frame.");
+            }
+        }
+    }
+
+
 
 // 🔄 Change step logic
 void ChangeInstructionStep(int direction)
 {
     if (instructionStepInstances.Count == 0) return;
 
-    // ✅ Deactivate current step UI
+    // ✅ Hide current step UI
     instructionStepInstances[currentStepIndex].SetActive(false);
 
     // ✅ Move to next/previous step
     currentStepIndex += direction;
     currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
 
-    // ✅ Activate new step UI
+    // ✅ Show new step UI
     instructionStepInstances[currentStepIndex].SetActive(true);
 
-    // ✅ Remove models not in the current step
-    foreach (Transform child in modelContainer.transform)
-    {
-        if (child.name.StartsWith("ModelStep"))
-        {
-            child.gameObject.SetActive(false);
-        }
-    }
-
-    // ✅ Show the model for the current step if it exists
-    GameObject currentStepModel = modelContainer.transform.Find($"ModelStep{currentStepIndex}")?.gameObject;
-    if (currentStepModel != null)
-    {
-        currentStepModel.SetActive(true);
-        currentLoadedModel = currentStepModel;
-    }
-
-    // ✅ Hide "FirstModelAfterScan" when entering step-by-step mode
+    // ✅ Play animation & update meshes
     GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
     if (firstModel != null)
     {
-        firstModel.SetActive(false);
+        PlayStepAnimation(firstModel, currentInstructionDetails[currentStepIndex]);
     }
 
-    // ✅ Update navigation buttons
     UpdateStepNavigationButtons();
 }
 
@@ -746,439 +931,9 @@ void UpdateStepNavigationButtons()
     if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
 }
 
-    
-//   void UpdateInstructionStepUI(Instruction instruction)
-// {
-//     if (currentInstructionDetails == null || currentInstructionDetails.Count == 0)
-//     {
-//         Debug.LogError("No instruction details to display!");
-//         return;
-//     }
-//     
-//     // ✅ Hide "FirstModelAfterScan" when entering step-by-step mode
-//     GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-//     if (firstModel != null)
-//     {
-//         firstModel.SetActive(false);
-//     }
-//
-//     instructionStepInstances.Clear();
-//
-//     for (int i = 0; i < currentInstructionDetails.Count; i++)
-//     {
-//         InstructionDetail detail = currentInstructionDetails[i];
-//
-//         GameObject stepItem = Instantiate(instructionDetailStepPrefab, instructionDetailPanel.transform);
-//         stepItem.SetActive(i == 0); 
-//
-//         TMP_Text nameText = stepItem.transform.Find("instructionNameText")?.GetComponent<TMP_Text>();
-//         TMP_Text descriptionText = stepItem.transform.Find("instructionDetailDescriptionText")?.GetComponent<TMP_Text>();
-//         TMP_Text stepCountText = stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
-//
-//         if (nameText) nameText.text = instruction.name;
-//         if (descriptionText) descriptionText.text = detail.description;
-//         if (stepCountText) stepCountText.text = $"{i + 1}/{currentInstructionDetails.Count}";
-//
-//         if (!string.IsNullOrEmpty(detail.imgString))
-//         {
-//             string imagePath = Path.Combine(Application.persistentDataPath, detail.imgString);
-//             Image stepImage = stepItem.transform.Find("instructionDetailImageShow")?.GetComponent<Image>();
-//             if (stepImage) StartCoroutine(LoadImageFromLocal(imagePath, stepImage));
-//         }
-//
-//         // ⚡️ Use modelContainer to load models
-//         GameObject modelContainerForStep = modelContainer;
-//
-//         if (!string.IsNullOrEmpty(detail.fileString) &&
-//                  (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf")))
-//         {
-//             // 🏗 Load step-specific models
-//             string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
-//
-//             if (modelContainerForStep != null)
-//             {
-//                 StartCoroutine(Load3DModelForStep(modelPath, modelContainerForStep, $"Step{i}"));
-//             }
-//         }
-//         
-//         // 🔹 Hide all step models except the current step
-//         foreach (Transform child in modelContainer.transform)
-//         {
-//             if (child.name.StartsWith("ModelStep"))
-//             {
-//                 child.gameObject.SetActive(false);
-//             }
-//         }
-//
-//         // ✅ Show the model for the current step if it exists
-//         GameObject currentStepModel = modelContainer.transform.Find($"ModelStep{currentStepIndex}")?.gameObject;
-//         if (currentStepModel != null)
-//         {
-//             currentStepModel.SetActive(true);
-//             currentLoadedModel = currentStepModel;
-//         }
-//
-//         Debug.Log($"🔍 Checking model for Step {i}: {currentStepModel?.name ?? "NULL"}");
-//
-//         // ✅ Play animation button logic
-//         // ✅ Play/Stop animation button logic
-//         Button playAnimationButton = stepItem.transform.Find("playanimationButton")?.GetComponent<Button>();
-//
-//         if (playAnimationButton)
-//         {
-//             playAnimationButton.onClick.RemoveAllListeners();
-//             playAnimationButton.onClick.AddListener(() =>
-//             {
-//                 if (currentStepModel != null)
-//                 {
-//                     currentStepModel.SetActive(true); // Ensure model is active
-//                     Animation animation = currentStepModel.GetComponentInChildren<Animation>(true);
-//
-//                     if (animation != null)
-//                     {
-//                         string animationName = detail.name; // Get the animation name
-//
-//                         if (animation.IsPlaying(animationName))
-//                         {
-//                             animation.Stop(); // Stop animation if playing
-//                             Debug.Log($"⏹ Stopped animation: {animationName}");
-//                         }
-//                         else
-//                         {
-//                             animation.Play(animationName); // Play animation if stopped
-//                             Debug.Log($"▶️ Playing animation: {animationName}");
-//                         }
-//                     }
-//                     else
-//                     {
-//                         Debug.LogWarning("⚠️ No Animation component found on the current step model.");
-//                     }
-//                 }
-//                 else
-//                 {
-//                     Debug.LogWarning($"⚠️ No model found for Step {i}");
-//                 }
-//             });
-//         }
-//
-//
-//
-//         Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
-//
-//         if (backButton)
-//         {
-//             backButton.onClick.RemoveAllListeners();
-//             backButton.onClick.AddListener(() => BackToCourseUI());
-//         }
-//
-//         Button prevButton = stepItem.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
-//         Button nextButton = stepItem.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
-//
-//         if (prevButton) prevButton.onClick.AddListener(() => ChangeInstructionStep(-1));
-//         if (nextButton) nextButton.onClick.AddListener(() => ChangeInstructionStep(1));
-//
-//         instructionStepInstances.Add(stepItem);
-//     }
-//
-//     UpdateStepNavigationButtons();
-// }  
-//    
-//
-// // 🔄 Change step by activating/deactivating instead of destroying
-//     void ChangeInstructionStep(int direction)
-//     {
-//         if (instructionStepInstances.Count == 0) return;
-//
-//         // ✅ Deactivate current step UI
-//         instructionStepInstances[currentStepIndex].SetActive(false);
-//
-//         // ✅ Move to next/previous step
-//         currentStepIndex += direction;
-//         currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
-//
-//         // ✅ Activate new step UI
-//         instructionStepInstances[currentStepIndex].SetActive(true);
-//
-//         
-//      
-//         
-//         // 🔹 Hide all step models except current step
-//         foreach (Transform child in modelContainer.transform)
-//         {
-//             if (child.name.StartsWith("ModelStep"))
-//             {
-//                 child.gameObject.SetActive(false);
-//             }
-//         }
-//
-//         // ✅ Show the model for the current step if it exists
-//         GameObject currentStepModel = modelContainer.transform.Find($"ModelStep{currentStepIndex}")?.gameObject;
-//         if (currentStepModel != null)
-//         {
-//             currentStepModel.SetActive(true);
-//             currentLoadedModel = currentStepModel;
-//         }
-//
-//         // ✅ Hide "FirstModelAfterScan" when entering step-by-step mode
-//         GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-//         if (firstModel != null)
-//         {
-//             firstModel.SetActive(false);
-//         }
-//
-//         // ✅ Update navigation buttons
-//         UpdateStepNavigationButtons();
-//     }
-//
-//
-// // 🟢 Enable/Disable Previous & Next buttons dynamically
-// void UpdateStepNavigationButtons()
-// {
-//     if (instructionStepInstances.Count == 0) return;
-//
-//     GameObject currentStep = instructionStepInstances[currentStepIndex];
-//
-//     Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
-//     Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
-//
-//     if (prevButton) prevButton.interactable = (currentStepIndex > 0);
-//     if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
-// }
 
-
-   
-
-
-public IEnumerator Load3DModelForStep(string modelPath, GameObject modelContainerForStep, string stepName)
-{
-    Debug.Log($"📌 Attempting to load model for step from: {modelPath}");
-
-    string formattedPath = modelPath.Replace("\\", "/");
-
-    if (modelContainerForStep == null)
-    {
-        Debug.LogError("❌ Model container is null. Cannot load model.");
-        yield break;
-    }
-
-    string fullPath;
-    #if UNITY_ANDROID
-        fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
-    #else
-        fullPath = "file:///" + formattedPath;
-    #endif
-
-    Debug.Log($"🔗 Full path: {fullPath}");
-
-    bool fileExists = File.Exists(fullPath);
-    #if UNITY_ANDROID
-        using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
-        {
-            yield return request.SendWebRequest();
-            fileExists = !request.isHttpError && !request.isNetworkError;
-        }
-    #endif
-
-    if (!fileExists)
-    {
-        Debug.LogError($"❌ Model file not found: {fullPath}");
-        yield break;
-    }
-
-    Debug.Log($"✅ Model file exists: {fullPath}");
-
-    // 🔹 Hide all previously loaded step models
-    foreach (Transform child in modelContainerForStep.transform)
-    {
-        if (child.name.StartsWith("ModelStep"))
-        {
-            child.gameObject.SetActive(false);
-        }
-    }
-
-    Debug.Log($"🔗 Loading GLB from: {fullPath}");
-
-    var gltf = new GltfImport();
-    var loadTask = gltf.Load(fullPath);
-    while (!loadTask.IsCompleted) yield return null;
-
-    if (!loadTask.Result)
-    {
-        Debug.LogError("❌ Failed to load GLB model.");
-        yield break;
-    }
-
-    var instantiateTask = gltf.InstantiateMainSceneAsync(modelContainerForStep.transform);
-    while (!instantiateTask.IsCompleted) yield return null;
-
-    if (!instantiateTask.Result)
-    {
-        Debug.LogError("❌ Failed to instantiate GLB model.");
-        yield break;
-    }
-
-    Debug.Log("✅ 3D Model successfully loaded for step.");
-
-    GameObject loadedModel = modelContainerForStep.transform.childCount > 0
-        ? modelContainerForStep.transform.GetChild(modelContainerForStep.transform.childCount - 1).gameObject
-        : null;
-
-    if (loadedModel == null)
-    {
-        Debug.LogError("❌ Failed to find the loaded model.");
-        yield break;
-    }
-    
-    // ✅ Stop auto-playing animation after loading
-    Animation animation = loadedModel.GetComponentInChildren<Animation>(true);
-    if (animation != null)
-    {
-        animation.Stop(); // Stop the default animation from playing automatically
-        animation.playAutomatically = false; // Prevent it from playing on start
-        Debug.Log("⏹ Stopped auto-playing animation.");
-    }
-    else
-    {
-        Debug.LogWarning("⚠️ No Animation component found on the loaded model.");
-    }
-
-
-    // 🔹 Set step model name (ModelStep1, ModelStep2, ...)
-    loadedModel.name = $"Model{stepName}";
-
-    // 🔹 Set the loaded model as the current active model
-    currentLoadedModel = loadedModel;
-    currentLoadedModel.SetActive(true);
-
-    // 🔹 Set model parent correctly
-    currentLoadedModel.transform.SetParent(modelContainerForStep.transform, false);
-    currentLoadedModel.transform.position = qrCodePosition;  
-    currentLoadedModel.transform.eulerAngles = qrCodeRotation;
-    currentLoadedModel.transform.localScale = Vector3.one * 0.1f; 
-
-    Debug.Log($"✅ Model correctly anchored for step: {stepName}");
-
- 
-}
-
-
-
-
-
-
-
-   
-
-
-
-
-    void PlayModelAnimation(GameObject modelContainerForStep)
-    {
-        if (modelContainerForStep == null)
-        {
-            Debug.LogWarning("⚠️ Model container is null.");
-            return;
-        }
-
-        Animator animator = modelContainerForStep.GetComponentInChildren<Animator>();
-        if (animator is not null)
-        {
-            if (animator.runtimeAnimatorController != null &&
-                animator.runtimeAnimatorController.animationClips.Length > 0)
-            {
-                string firstAnimation = animator.runtimeAnimatorController.animationClips[0].name;
-                animator.Play(firstAnimation);
-                Debug.Log($"▶️ Playing animation: {firstAnimation}");
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ No animations found in the Animator.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ No Animator component found on the loaded model.");
-        }
-    }
-       
 
     
-
-    void BackToCourseUI()
-    {
-        instructionDetailPanel.SetActive(false);
-        courseUIPanel.SetActive(true);
-    
-        Debug.Log("🔙 Returning to Course UI");
-
-        // ✅ Hide all step models
-        foreach (Transform child in modelContainer.transform)
-        {
-            if (child.name.StartsWith("ModelStep"))
-            {
-                child.gameObject.SetActive(false);
-            }
-        }
-
-        // ✅ Hide all step UI elements
-        foreach (GameObject stepItem in instructionStepInstances)
-        {
-            stepItem.SetActive(false);
-        }
-
-        // ✅ Reset to first step (so it starts fresh when reopened)
-        currentStepIndex = 0;
-
-        // ✅ Reactivate "FirstModelAfterScan"
-        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-        if (firstModel != null)
-        {
-            firstModel.SetActive(true);
-        }
-    }
-
-
-
-
-
-
-    // ✅ Updated PlayAnimation function (For Animator only)
-    void PlayAnimation(Animator animator, string animationName)
-    {
-        if (animator == null || animator.runtimeAnimatorController == null)
-        {
-            Debug.LogWarning("⚠️ Animator or Controller is missing!");
-            return;
-        }
-
-        if (AnimationExists(animator, animationName))
-        {
-            animator.Play(animationName);
-            Debug.Log($"▶️ Playing animation: {animationName}");
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ Animation '{animationName}' not found in Animator.");
-        }
-    }
-
-// ✅ Helper function to check if animation exists in the Animator
-    bool AnimationExists(Animator animator, string animationName)
-    {
-        foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
-        {
-            if (clip.name == animationName)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-
-   
-
 
 
 
@@ -1272,6 +1027,8 @@ public class InstructionDetail
     public string id;
     public string instructionId;
     public string name;
+    public List<string> meshes;
+    public string animationName;
     public int orderNumber;
     public string description;
     public string fileString;
