@@ -5,13 +5,13 @@ using System.Collections;
 public static class ApiConfig
 {
     private static readonly string baseUrl = "https://pure-wondrous-hippo.ngrok-free.app/api/v1";
-    
-    
+
+
     public static string GetBaseUrl()
     {
         return baseUrl;
     }
-    
+
     public static UnityWebRequest CreateRequest(string endpoint, string method = "GET", string jsonBody = null)
     {
         string url = baseUrl + endpoint;
