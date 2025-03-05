@@ -4,8 +4,13 @@ using System.Collections;
 
 public static class ApiConfig
 {
-    private static readonly string baseUrl = "https://joey-lenient-ostrich.ngrok-free.app";
-    // private static readonly string baseUrl = "https://capital-earwig-vertically.ngrok-free.app/api/v1";
+    private static readonly string baseUrl = "https://pure-wondrous-hippo.ngrok-free.app/api/v1";
+
+
+    public static string GetBaseUrl()
+    {
+        return baseUrl;
+    }
 
     public static UnityWebRequest CreateRequest(string endpoint, string method = "GET", string jsonBody = null)
     {
