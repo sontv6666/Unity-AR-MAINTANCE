@@ -8,12 +8,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainApp.unity
     guid: 40271f966d744dc4080952b410e65c32
+  - enabled: 1
+    path: Assets/Scenes/QRScanner.unity
+    guid: 03f9b116aab94af4d82ab4f3cf85b2f7
   - enabled: 0
     path: Assets/Scenes/ARScene.unity
     guid: e62bb6e3f07084f47b761d4708327e12
-  - enabled: 0
-    path: Assets/Scenes/QRScanner.unity
-    guid: 03f9b116aab94af4d82ab4f3cf85b2f7
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: f0bd4df40ef9f0544b3ec4bf698375f2,
       type: 2}

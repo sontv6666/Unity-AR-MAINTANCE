@@ -13,8 +13,7 @@ using System.Threading.Tasks;
 
 using System.Collections;
 using System.Collections.Generic;
-
-
+using UnityEngine.SceneManagement;
 
 
 public class ARQRCodeScanner : MonoBehaviour
@@ -50,7 +49,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
     public GameObject instructionDetailPanel; //four panel
 
-   
+    public Button backButton;
 
     
     public GameObject instructionDetailStepPrefab; // Prefab for each step
@@ -66,18 +65,63 @@ public class ARQRCodeScanner : MonoBehaviour
     private GameObject currentLoadedModel = null;
 
     private List<GameObject> instructionStepInstances = new List<GameObject>();
+    private ModelResponse cachedModelData;
 
+    private string courseID;
     void Start()
     {
+        if (backButton != null)
+        {
+            backButton.onClick.AddListener(GoBackToMainApp);
+        }
+        
         arSessionOrigin = FindObjectOfType<ARSessionOrigin>();
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
+    
+         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+        if (string.IsNullOrEmpty(courseID))
+        {
+            Debug.LogError("❌ No Course ID found!");
+            scanUIPanel.SetActive(true);
+            
+        }
+        else
+        {
+            Debug.Log($"✅ Retrieved Course ID: {courseID}");
+            scanUIPanel.SetActive(true);
+           
 
-        // ✅ Show the Scan UI
-        //ShowScanUI();
-        StartCoroutine(FetchCourseData());
-
-
+            StartCoroutine(DownloadCourseBeforeScanning(courseID));
+        }
+        
+        // 🚀 Step 2: Disable all UI panels until scanning is complete
+        courseUIPanel.SetActive(false);
+        instructionDetailPanel.SetActive(false);
+        modelContainer.SetActive(false);
     }
+
+    // step 1.1:start  download course data before scanning
+    IEnumerator DownloadCourseBeforeScanning(string courseId)
+    {
+        // Fetch course data
+        yield return StartCoroutine(FetchCourseData(courseId));
+
+        // ✅ Wait for all downloads to complete before scanning
+       
+        yield return new WaitForSeconds(1f);
+       
+        // ✅ Now enable scanning
+        StartScanning();
+    }
+
+    // step 2:start  download course data before scanning
+    void StartScanning()
+    {
+        isScanning = true;
+        scanUIPanel.SetActive(false);
+        loadingUIPanel.SetActive(true);
+    }
+
 
     void Update()
     {
@@ -116,34 +160,37 @@ public class ARQRCodeScanner : MonoBehaviour
 
     }
 
-    //cach 1.1
-    IEnumerator FetchCourseData()
+    // step 1.2: fetch courseData to download model and UI
+    IEnumerator FetchCourseData(string courseId) // 🔹 Now accepts courseId
     {
-        string endpoint = "/course/3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+        if (string.IsNullOrEmpty(courseId))
+        {
+            Debug.LogError("❌ No Course ID found in FetchCourseData!");
+            yield break;
+        }
+
+        string endpoint = "/course/" + courseId;
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 
-        yield return request.SendWebRequest(); // ✅ Wait until the request is done
+        yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
             string jsonResponse = request.downloadHandler.text;
             var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
 
-            // ✅ Start fetching model data (position, rotation, file)
+            // fetch model data to download model and load ui
             StartCoroutine(FetchModelData(response.result));
             
-            StartCoroutine(DownloadAndLoadUI(response.result)); // ✅ Load UI after getting data
+            // fetch model data to download instruction image, model and pdf,.... and load ui
+            StartCoroutine(DownloadAndLoadUI(response.result));
         }
         else
         {
-            Debug.LogError("API Request Failed: " + request.error);
-            Debug.LogError("API Request result: " + request.result);
+            Debug.LogError("❌ API Request Failed: " + request.error);
         }
     }
-
-
-
-
+    
     //cach 2.1
     void TryScanQRCode()
     {
@@ -180,7 +227,7 @@ public class ARQRCodeScanner : MonoBehaviour
                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 
-                StartCoroutine(CheckQRCode(result.Text));
+                StartCoroutine(CheckQRCode(result.Text, courseID));
             }
         }
     }
@@ -188,9 +235,9 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
     //cach 2.2
-    IEnumerator CheckQRCode(string qrValue)
+    IEnumerator CheckQRCode(string qrValue, string courseId)
     {
-        string endpoint = "/course/3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+        string endpoint = "/course/" + courseId;
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 
         yield return request.SendWebRequest();
@@ -217,9 +264,9 @@ public class ARQRCodeScanner : MonoBehaviour
         if (response.code == 1000 && response.result.courseCode == scannedQR)
         {
             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
-            StartCoroutine(FetchModelData(response.result));
-            
-            StartCoroutine(DownloadAndLoadUI(response.result));
+            courseUIPanel.SetActive(true);
+            loadingUIPanel.SetActive(false);
+            modelContainer.SetActive(true);
         }
         else
         {
@@ -264,44 +311,44 @@ public class ARQRCodeScanner : MonoBehaviour
         Vector3 rotation = new Vector3(modelData.result.rotation[0], modelData.result.rotation[1], modelData.result.rotation[2]);
 
         // ✅ Load the model
-    StartCoroutine(Load3DModel(modelFilePath, modelContainer,position , rotation));
+        StartCoroutine(Load3DModel(modelFilePath, modelContainer,position , rotation));
 
     }
     
     //LOAD MODEL FROM FETCH, DOWNLOAD MODEL
 
-public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
-{
-    Debug.Log($"📌 Attempting to load model from: {modelPath}");
+    public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+    {
+         Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
-    string formattedPath = modelPath.Replace("\\", "/");
+         string formattedPath = modelPath.Replace("\\", "/");
 
-    string fullPath;
-    #if UNITY_ANDROID
-        fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
-    #else
-        fullPath = formattedPath;
-    #endif
+         string fullPath;
+        #if UNITY_ANDROID
+            fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
+         #else
+            fullPath = formattedPath;
+         #endif
 
-    Debug.Log($"🔗 Full path: {fullPath}");
+         Debug.Log($"🔗 Full path: {fullPath}");
 
-    bool fileExists = File.Exists(fullPath);
+          bool fileExists = File.Exists(fullPath);
     
-    #if UNITY_ANDROID
-        using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
+         #if UNITY_ANDROID
+         using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
         {
             yield return request.SendWebRequest();
             fileExists = !request.isHttpError && !request.isNetworkError;
         }
-    #endif
+          #endif
 
-    if (!fileExists)
-    {
-        Debug.LogError($"❌ Model file not found: {fullPath}");
-        yield break;
-    }
+         if (!fileExists)
+         {
+           Debug.LogError($"❌ Model file not found: {fullPath}");
+           yield break;
+         }
 
-    Debug.Log($"✅ Model file exists: {fullPath}");
+         Debug.Log($"✅ Model file exists: {fullPath}");
 
     if (modelContainer == null)
     {
@@ -367,7 +414,7 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
     loadedModel.transform.localScale = Vector3.one * 0.1f;
 
     Debug.Log("✅ Model correctly anchored to QR Code.");
-}
+    }
 
 
 
@@ -401,7 +448,7 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
                     imagePaths[detail.imgString] = imageFilePath;
                 }
 
-                // ✅ Download models
+                // ✅ Download if have 3D models
                 if (!string.IsNullOrEmpty(detail.fileString))
                 {
                     yield return StartCoroutine(DownloadFile(fileEndpoint + detail.fileString, detail.fileString));
@@ -416,10 +463,21 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
         }
 
         // ✅ Load UI with local images
-        LoadUI(course, imagePaths);
+       LoadUI(course, imagePaths);
         
     }
-    
+    void LoadUI(CourseResult course, Dictionary<string, string> imagePaths)
+    {
+        ShowCourseUI(course); // This method sets course title, description, and instructions
+        Debug.Log($"📂 Application Persistent Data Path: {Application.persistentDataPath}");
+
+        // ✅ Load the course image if available
+        if (!string.IsNullOrEmpty(course.imageUrl) && imagePaths.ContainsKey(course.imageUrl))
+        {
+            StartCoroutine(LoadImageFromLocal(imagePaths[course.imageUrl],
+                courseUIPanel.transform.Find("CourseImage").GetComponent<UnityEngine.UI.Image>()));
+        }
+    }
     
     // DOWNLOAD FILE
     IEnumerator DownloadFile(string fileUrl, string fileName)
@@ -471,18 +529,7 @@ public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vect
 
     }
 
-    void LoadUI(CourseResult course, Dictionary<string, string> imagePaths)
-    {
-        ShowCourseUI(course); // This method sets course title, description, and instructions
-        Debug.Log($"📂 Application Persistent Data Path: {Application.persistentDataPath}");
-
-        // ✅ Load the course image if available
-        if (!string.IsNullOrEmpty(course.imageUrl) && imagePaths.ContainsKey(course.imageUrl))
-        {
-            StartCoroutine(LoadImageFromLocal(imagePaths[course.imageUrl],
-                courseUIPanel.transform.Find("CourseImage").GetComponent<UnityEngine.UI.Image>()));
-        }
-    }
+  
     
     void ShowCourseUI(CourseResult course)
     {
@@ -763,6 +810,11 @@ void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float sp
     }
 }
 
+
+public void GoBackToMainApp()
+{
+    SceneManager.LoadScene("MainApp"); 
+}
 void TogglePlayPauseAnimation(GameObject firstModel)
 {
     if (!firstModel) return;

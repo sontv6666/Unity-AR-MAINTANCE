@@ -33,7 +33,7 @@ public class ScreenManagers : MonoBehaviour
             }
             else
             {
-                Debug.Log("Reached the last screen. No more screens to show.");
+               
             }
         }
     }

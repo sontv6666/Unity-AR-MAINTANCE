@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using Code;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
 
+using System.IO;
+
 public class CourseLoader : MonoBehaviour
 {
-    [Header("UI References")]
-    public GameObject coursePanelPrefab; // Prefab for each course item
+    [Header("UI References")] public GameObject coursePanelPrefab; // Prefab for each course item
     public Transform contentParent; // Parent object to hold all course panels
- 	public GameObject nocourseText;
-  	public GameObject detailPage; 
-    public GameObject homePage; 
-    [Header("API Settings")]
-    private string endpointTemplate = "course?page=1&size=50&userId={0}";
+    public GameObject nocourseText;
+    public GameObject detailPage;
+    public GameObject homePage;
+    [Header("API Settings")] private string endpointTemplate = "/course?page=1&size=50&userId={0}";
 
     void Start()
     {
@@ -38,7 +39,8 @@ public class CourseLoader : MonoBehaviour
         {
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            if (request.result == UnityWebRequest.Result.ConnectionError ||
+                request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError($"API Error: {request.error}");
             }
@@ -64,19 +66,21 @@ public class CourseLoader : MonoBehaviour
             {
                 // Truncate long title and description
                 string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
-                string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
-            
+                string truncatedDescription = course.description.Length > 10
+                    ? course.description.Substring(0, 10) + "..."
+                    : course.description;
+
                 // Assign truncated values to course data
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;
-            	nocourseText.SetActive(false);
+                nocourseText.SetActive(false);
                 // Create UI panel for each course
                 CreateCoursePanel(course);
             }
         }
         else
         {
-			nocourseText.SetActive(true);
+            nocourseText.SetActive(true);
 
             Debug.LogError("Response data is null or invalid!");
         }
@@ -94,73 +98,145 @@ public class CourseLoader : MonoBehaviour
         if (titleText != null) titleText.text = course.title;
         if (descriptionText != null) descriptionText.text = course.description;
         if (scoreText != null) scoreText.text = $"Lessons: {course.numberOfLessons}";
-  Button courseButton = panel.GetComponent<Button>();
-    if (courseButton != null)
-    {
-        courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
-    }
+
+        Button courseButton = panel.GetComponent<Button>();
+        if (courseButton != null)
+        {
+            courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
+        }
+
         if (!string.IsNullOrEmpty(course.imageUrl))
         {
             Image imageComponent = panel.transform.Find("courseImage_background/course_image").GetComponent<Image>();
             if (imageComponent != null)
             {
-                StartCoroutine(LoadCourseImage(course.imageUrl, imageComponent));
+                StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
             }
         }
     }
 
-    IEnumerator LoadCourseImage(string url, Image imageComponent)
+    IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
     {
-        Debug.Log($"CourseLoader: Loading image from {url}");
-        using (UnityWebRequest textureRequest = UnityWebRequestTexture.GetTexture(url))
+        if (string.IsNullOrEmpty(imageUrl))
         {
-            yield return textureRequest.SendWebRequest();
+            Debug.LogError("❌ Image URL is null or empty!");
+            yield break;
+        }
 
-            if (textureRequest.result == UnityWebRequest.Result.ConnectionError || textureRequest.result == UnityWebRequest.Result.ProtocolError)
+        // ✅ Use ApiConfig to get base URL
+        string fullUrl = "/files/" + imageUrl;
+        Debug.Log(fullUrl);
+        string filename = Path.GetFileName(imageUrl);
+        string localPath = Path.Combine(Application.persistentDataPath, filename);
+
+        // ✅ Check if image is cached
+        if (File.Exists(localPath))
+        {
+            Debug.Log($"📂 Loading cached image: {localPath}");
+            yield return LoadImageFromLocal(localPath, imageComponent);
+            yield break;
+        }
+
+        // ✅ Download image
+        yield return StartCoroutine(DownloadFile(fullUrl, localPath));
+
+        if (File.Exists(localPath))
+        {
+            yield return LoadImageFromLocal(localPath, imageComponent);
+        }
+    }
+
+
+    
+
+    IEnumerator DownloadFile(string url, string localPath)
+    {
+        Debug.Log($"🌐 Attempting to download: {url}");
+   
+        using (UnityWebRequest request = ApiConfig.CreateRequest(url))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.LogError($"Image Load Error: {textureRequest.error}");
+                Debug.LogError($"❌ Download Error: {request.error} \nURL: {url}");
             }
             else
             {
-                Texture2D texture = DownloadHandlerTexture.GetContent(textureRequest);
-                if (texture != null)
-                {
-                    imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
-                    Debug.Log("CourseLoader: Image loaded successfully.");
-                }
+                File.WriteAllBytes(localPath, request.downloadHandler.data);
+                Debug.Log($"✅ Downloaded and saved: {localPath}");
             }
         }
     }
 
-public void OnCourseClicked(string courseId)
-{
-    Debug.Log($"CourseLoader: Course clicked with ID {courseId}");
 
-    CourseManager.SelectedCourseId = courseId;
 
-    if (detailPage != null)
+    IEnumerator LoadImageFromLocal(string path, Image imageComponent)
     {
-        detailPage.SetActive(true);
-   
-        
-    }
-    else
-    {
-        Debug.LogError("CourseLoader: DetailPage is not assigned!");
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"❌ Image file not found at path: {path}");
+            yield break;
+        }
+
+        Debug.Log($"📂 Loading image from: {path}");
+
+        byte[] imageData = File.ReadAllBytes(path);
+        if (imageData == null || imageData.Length == 0)
+        {
+            Debug.LogError($"❌ Failed to read image data from: {path}");
+            yield break;
+        }
+
+        Texture2D texture = new Texture2D(2, 2);
+        bool isLoaded = texture.LoadImage(imageData);
+
+        if (!isLoaded)
+        {
+            Debug.LogError("❌ Failed to load image data into Texture2D!");
+            yield break;
+        }
+
+        if (imageComponent == null)
+        {
+            Debug.LogError("❌ Image component is null! Cannot assign sprite.");
+            yield break;
+        }
+
+        imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+        Debug.Log("✅ Image successfully loaded and applied to UI.");
+    
+        yield return null;
     }
 
-    CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
-    if (courseDetailLoader != null)
-    {
-        courseDetailLoader.LoadCourseDetails(courseId);
-    }
-    else
-    {
-        Debug.LogError("CourseLoader: CourseDetailLoader component is missing on DetailPage!");
-    }
-}
 
 
+  
+
+    public void OnCourseClicked(string courseId)
+    {
+        Debug.Log($"CourseLoader: Course clicked with ID {courseId}");
+        CourseManager.SelectedCourseId = courseId;
+
+        if (detailPage != null)
+        {
+            detailPage.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("CourseLoader: DetailPage is not assigned!");
+        }
+
+        CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
+        if (courseDetailLoader != null)
+        {
+            courseDetailLoader.LoadCourseDetails(courseId);
+        }
+        else
+        {
+            Debug.LogError("CourseLoader: CourseDetailLoader component is missing on DetailPage!");
+        }
+    }
 
 }
 
