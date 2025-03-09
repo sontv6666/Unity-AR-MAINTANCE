@@ -13,8 +13,7 @@
 //
 // using System.Collections;
 // using System.Collections.Generic;
-//
-//
+// using UnityEngine.SceneManagement;
 //
 //
 // public class ARQRCodeScanner : MonoBehaviour
@@ -50,7 +49,7 @@
 //
 //     public GameObject instructionDetailPanel; //four panel
 //
-//    
+//     public Button backButton;
 //
 //     
 //     public GameObject instructionDetailStepPrefab; // Prefab for each step
@@ -67,13 +66,22 @@
 //
 //     private List<GameObject> instructionStepInstances = new List<GameObject>();
 //     private ModelResponse cachedModelData;
+//
+//     private string courseID;
+//     private string testID= "3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+//     private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
 //     void Start()
 //     {
+//         if (backButton != null)
+//         {
+//             backButton.onClick.AddListener(GoBackToMainApp);
+//         }
+//         
 //         arSessionOrigin = FindObjectOfType<ARSessionOrigin>();
 //         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
 //     
-//         string courseId = PlayerPrefs.GetString("SelectedCourseID", "");
-//         if (string.IsNullOrEmpty(courseId))
+//          courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+//         if (string.IsNullOrEmpty(courseID))
 //         {
 //             Debug.LogError("❌ No Course ID found!");
 //             scanUIPanel.SetActive(true);
@@ -81,12 +89,13 @@
 //         }
 //         else
 //         {
-//             Debug.Log($"✅ Retrieved Course ID: {courseId}");
+//             Debug.Log($"✅ Retrieved Course ID: {courseID}");
 //             scanUIPanel.SetActive(true);
 //            
 //
-//             StartCoroutine(DownloadCourseBeforeScanning(courseId));
+//             StartCoroutine(DownloadCourseBeforeScanning(courseID));
 //         }
+//         
 //     }
 //
 //     // step 1.1:start  download course data before scanning
@@ -96,9 +105,9 @@
 //         yield return StartCoroutine(FetchCourseData(courseId));
 //
 //         // ✅ Wait for all downloads to complete before scanning
-//         scanUIPanel.SetActive(false);
+//        
 //         yield return new WaitForSeconds(1f);
-//
+//        
 //         // ✅ Now enable scanning
 //         StartScanning();
 //     }
@@ -107,6 +116,7 @@
 //     void StartScanning()
 //     {
 //         isScanning = true;
+//         scanUIPanel.SetActive(false);
 //         loadingUIPanel.SetActive(true);
 //     }
 //
@@ -215,7 +225,7 @@
 //                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
 //                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 //
-//                 StartCoroutine(CheckQRCode(result.Text));
+//                 StartCoroutine(CheckQRCode(result.Text, courseID));
 //             }
 //         }
 //     }
@@ -223,9 +233,9 @@
 //
 //
 //     //cach 2.2
-//     IEnumerator CheckQRCode(string qrValue)
+//     IEnumerator CheckQRCode(string qrValue, string courseId)
 //     {
-//         string endpoint = "/course/3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+//         string endpoint = "/course/" + courseId;
 //         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 //
 //         yield return request.SendWebRequest();
@@ -253,7 +263,7 @@
 //         {
 //             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
 //             StartCoroutine(FetchModelData(response.result));
-//             
+//              
 //             StartCoroutine(DownloadAndLoadUI(response.result));
 //         }
 //         else
@@ -798,6 +808,11 @@
 //     }
 // }
 //
+//
+// public void GoBackToMainApp()
+// {
+//     SceneManager.LoadScene("MainApp"); 
+// }
 // void TogglePlayPauseAnimation(GameObject firstModel)
 // {
 //     if (!firstModel) return;

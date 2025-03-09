@@ -68,6 +68,8 @@ public class ARQRCodeScanner : MonoBehaviour
     private ModelResponse cachedModelData;
 
     private string courseID;
+    private string testID= "3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+    private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
     void Start()
     {
         if (backButton != null)
@@ -78,7 +80,8 @@ public class ARQRCodeScanner : MonoBehaviour
         arSessionOrigin = FindObjectOfType<ARSessionOrigin>();
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
     
-         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+        // courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+        courseID = testID;
         if (string.IsNullOrEmpty(courseID))
         {
             Debug.LogError("❌ No Course ID found!");
@@ -94,10 +97,6 @@ public class ARQRCodeScanner : MonoBehaviour
             StartCoroutine(DownloadCourseBeforeScanning(courseID));
         }
         
-        // 🚀 Step 2: Disable all UI panels until scanning is complete
-        courseUIPanel.SetActive(false);
-        instructionDetailPanel.SetActive(false);
-        modelContainer.SetActive(false);
     }
 
     // step 1.1:start  download course data before scanning
@@ -108,10 +107,9 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Wait for all downloads to complete before scanning
        
-        yield return new WaitForSeconds(1f);
+      //  yield return new WaitForSeconds(1f);
        
-        // ✅ Now enable scanning
-        StartScanning();
+       // StartScanning();
     }
 
     // step 2:start  download course data before scanning
@@ -264,9 +262,9 @@ public class ARQRCodeScanner : MonoBehaviour
         if (response.code == 1000 && response.result.courseCode == scannedQR)
         {
             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
-            courseUIPanel.SetActive(true);
-            loadingUIPanel.SetActive(false);
-            modelContainer.SetActive(true);
+            StartCoroutine(FetchModelData(response.result));
+             
+            StartCoroutine(DownloadAndLoadUI(response.result));
         }
         else
         {
@@ -744,19 +742,49 @@ void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float sp
     Animation animation = firstModel.GetComponentInChildren<Animation>(true);
     if (animation != null)
     {
+        // ✅ Disable Animator (if any) to prevent conflicts
+        Animator animator = firstModel.GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            Debug.LogWarning("⚠️ Animator detected! Disabling it to avoid conflicts with Animation.");
+            animator.enabled = false;
+        }
+
+        
+        animation.Stop();
+        animation.Rewind(); // ✅ Force rewind to first frame
+        Debug.Log("🔄 Stopped and rewound all animations.");
         // ✅ Reset all animations before playing a new one
         foreach (AnimationState state in animation)
         {
-            if (state.enabled)
+            if (state != null)
             {
                 state.time = 0f; // Rewind to first frame
-                state.enabled = false; // Disable animation
+                state.enabled = true; // Ensure it's enabled so Sample() works
+                animation.Play(state.name);
+                animation.Stop(); // Stop immediately after playing
+                animation.Sample(); // Apply first frame
+                state.enabled = false; // Disable after sampling
             }
         }
-        animation.Stop();
-        animation.Sample(); // Apply first frame
+        
+        // ✅ Force Reset Model Transform
+        ResetModelState(firstModel);
 
         Debug.Log("🔄 Reset all previous animations.");
+
+        // ✅ Reset the last played animation if available
+        if (!string.IsNullOrEmpty(lastPlayedAnimationName) && animation.GetClip(lastPlayedAnimationName) != null)
+        {
+            AnimationState lastState = animation[lastPlayedAnimationName];
+            lastState.time = 0f;
+            lastState.enabled = true;
+            animation.Play(lastPlayedAnimationName);
+            animation.Stop();
+            animation.Sample();
+            lastState.enabled = false;
+            Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
+        }
 
         // ✅ Reset to "Idle" if available
         if (animation.GetClip("Idle") != null)
@@ -811,6 +839,7 @@ void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float sp
 }
 
 
+
 public void GoBackToMainApp()
 {
     SceneManager.LoadScene("MainApp"); 
@@ -834,11 +863,17 @@ void TogglePlayPauseAnimation(GameObject firstModel)
         }
 
         // ▶️ If NO animation is playing, RESUME the last played animation
-        if (lastPlayedAnimationName != null && animation.GetClip(lastPlayedAnimationName) != null)
+        if (!string.IsNullOrEmpty(lastPlayedAnimationName) && animation.GetClip(lastPlayedAnimationName) != null)
         {
+            AnimationState lastState = animation[lastPlayedAnimationName];
+            lastState.time = 0f;
+            lastState.enabled = true;
             animation.Play(lastPlayedAnimationName);
-            Debug.Log($"▶️ Resumed animation: {lastPlayedAnimationName}");
+            animation.Stop();
+            animation.Sample();
+            lastState.enabled = false;
         }
+
         else
         {
             Debug.LogWarning("⚠️ No previous animation found to resume.");
