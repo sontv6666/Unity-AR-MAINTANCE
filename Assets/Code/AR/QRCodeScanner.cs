@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Interaction.Toolkit.AR;
 
 
 public class ARQRCodeScanner : MonoBehaviour
@@ -27,7 +28,7 @@ public class ARQRCodeScanner : MonoBehaviour
     public GameObject modelContainer;
 
 
-
+    private ARPlaneManager arPlaneManager;
     private ARSessionOrigin arSessionOrigin;
     private ARTrackedImageManager trackedImageManager;
 
@@ -50,7 +51,9 @@ public class ARQRCodeScanner : MonoBehaviour
     public GameObject instructionDetailPanel; //four panel
 
     public Button backButton;
-
+    
+    public Button centerModelButton; 
+    public float modelDistanceFromCamera = 0.5f;
     
     public GameObject instructionDetailStepPrefab; // Prefab for each step
 
@@ -72,6 +75,12 @@ public class ARQRCodeScanner : MonoBehaviour
     private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
     void Start()
     {
+        if (centerModelButton != null)
+        {
+            centerModelButton.onClick.AddListener(CenterModel);
+        }
+
+        
         if (backButton != null)
         {
             backButton.onClick.AddListener(GoBackToMainApp);
@@ -79,7 +88,8 @@ public class ARQRCodeScanner : MonoBehaviour
         
         arSessionOrigin = FindObjectOfType<ARSessionOrigin>();
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-    
+        arPlaneManager = FindObjectOfType<ARPlaneManager>();
+
         // courseID = PlayerPrefs.GetString("SelectedCourseID", "");
         courseID = testID;
         if (string.IsNullOrEmpty(courseID))
@@ -99,26 +109,125 @@ public class ARQRCodeScanner : MonoBehaviour
         
     }
 
-    // step 1.1:start  download course data before scanning
-    IEnumerator DownloadCourseBeforeScanning(string courseId)
-    {
-        // Fetch course data
-        yield return StartCoroutine(FetchCourseData(courseId));
 
-        // ✅ Wait for all downloads to complete before scanning
-       
-      //  yield return new WaitForSeconds(1f);
-       
-       // StartScanning();
+  void CenterModel()
+{
+    if (modelContainer == null)
+    {
+        Debug.LogError("❌ Model container is NULL! Cannot center the model.");
+        return;
     }
 
-    // step 2:start  download course data before scanning
-    void StartScanning()
+    Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+    if (model == null)
     {
-        isScanning = true;
-        scanUIPanel.SetActive(false);
-        loadingUIPanel.SetActive(true);
+        Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+        return;
     }
+
+    Camera arCamera = Camera.main;
+    if (arCamera == null)
+    {
+        Debug.LogError("❌ No Main Camera found! Make sure your AR camera is tagged as 'MainCamera'.");
+        return;
+    }
+
+    Vector3 cameraForward = arCamera.transform.forward.normalized;
+    Vector3 cameraPosition = arCamera.transform.position;
+
+    // Set reasonable min & max distances
+    float minDistance = 0.5f;  // Don't let it get too close
+    float maxDistance = 2.0f;  // Don't put it too far away
+
+    float adjustedDistance = Mathf.Clamp(modelDistanceFromCamera, minDistance, maxDistance);
+    Vector3 newPosition = cameraPosition + (cameraForward * adjustedDistance);
+    Vector3 finalPosition = newPosition; // Default position if no plane is found
+
+    Debug.Log($"📍 Step 1: Target position in front of camera: {newPosition}");
+
+    // Step 2: Find the nearest AR-detected plane
+    float minPlaneDistance = float.MaxValue;
+    ARPlane closestPlane = null;
+
+    if (arPlaneManager == null)
+    {
+        Debug.LogError("❌ ARPlaneManager is NULL! Make sure it is assigned.");
+        return;
+    }
+
+    foreach (ARPlane plane in arPlaneManager.trackables)
+    {
+        float distance = Vector3.Distance(newPosition, plane.transform.position);
+        Debug.Log($"🔍 Checking plane at {plane.transform.position} | Distance: {distance}");
+
+        if (distance < minPlaneDistance)
+        {
+            minPlaneDistance = distance;
+            closestPlane = plane;
+        }
+    }
+
+    // Step 3: Adjust position to detected plane
+    if (closestPlane != null)
+    {
+        Debug.Log($"✅ Closest plane found at {closestPlane.transform.position} (Distance: {minPlaneDistance})");
+        finalPosition.y = closestPlane.transform.position.y;
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ No AR plane found. Keeping the model at the current height.");
+    }
+
+    // Step 4: Apply position to the ACTUAL MODEL inside modelContainer
+    model.position = finalPosition;
+    model.rotation = Quaternion.LookRotation(cameraForward);
+
+    Debug.Log($"🎯 Final Model Position: {finalPosition}");
+
+    // ✅ Ensure Model is Visible
+    if (!model.gameObject.activeSelf)
+    {
+        Debug.LogWarning("⚠️ Model was inactive. Reactivating it now.");
+        model.gameObject.SetActive(true);
+    }
+}
+
+
+
+void SetupModelInteractions(GameObject model)
+{
+    if (model == null)
+    {
+        Debug.LogError("❌ No model found to setup interactions!");
+        return;
+    }
+
+    // Ensure it has a Collider (required for interaction)
+    if (model.GetComponent<Collider>() == null)
+    {
+        model.AddComponent<BoxCollider>(); // Adjust collider if needed
+        Debug.Log("📌 Added BoxCollider to model for interactions.");
+    }
+
+    // Ensure the model has ARTranslationInteractable
+    if (model.GetComponent<ARTranslationInteractable>() == null)
+    {
+        model.AddComponent<ARTranslationInteractable>();
+        Debug.Log("📌 ARTranslationInteractable added (Drag to move).");
+    }
+
+    // Ensure the model has ARScaleInteractable
+    if (model.GetComponent<ARScaleInteractable>() == null)
+    {
+        model.AddComponent<ARScaleInteractable>();
+        Debug.Log("📌 ARScaleInteractable added (Pinch to scale).");
+    }
+}
+
+
+
+
+
 
 
     void Update()
@@ -128,36 +237,58 @@ public class ARQRCodeScanner : MonoBehaviour
             TryScanQRCode();
         }
         
-        if (Input.touchCount == 2)
+        //
+        // if (Input.touchCount == 2)
+        // {
+        //     // Scale using two-finger pinch
+        //     Touch touch0 = Input.GetTouch(0);
+        //     Touch touch1 = Input.GetTouch(1);
+        //
+        //     float prevDistance = (touch0.position - touch0.deltaPosition - (touch1.position - touch1.deltaPosition)).magnitude;
+        //     float currentDistance = (touch0.position - touch1.position).magnitude;
+        //     float scaleFactor = currentDistance / prevDistance;
+        //
+        //     modelContainer.transform.localScale *= scaleFactor;
+        // }
+    
+        if (Input.touchCount == 1)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Moved)
             {
-                Touch touch0 = Input.GetTouch(0);
-                Touch touch1 = Input.GetTouch(1);
-
-                float prevDistance = (touch0.position - touch0.deltaPosition - (touch1.position - touch1.deltaPosition)).magnitude;
-                float currentDistance = (touch0.position - touch1.position).magnitude;
-                float scaleFactor = currentDistance / prevDistance;
-
-                modelContainer.transform.localScale *= scaleFactor;
-            }
-        
-            if (Input.touchCount == 1)
-            {
-                Touch touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Moved)
+                Vector2 touchPos = touch.position;
+                Ray ray = Camera.main.ScreenPointToRay(touchPos);
+                if (Physics.Raycast(ray, out RaycastHit hit))
                 {
-                    Vector2 touchPos = touch.position;
-                    Ray ray = Camera.main.ScreenPointToRay(touchPos);
-                    if (Physics.Raycast(ray, out RaycastHit hit))
-                    {
-                        modelContainer.transform.position = hit.point;
-                    }
+                    modelContainer.transform.position = hit.point;
                 }
             }
-        
-            
-
+        }
     }
 
+
+    
+    // step 1.1:start  download course data before scanning
+    IEnumerator DownloadCourseBeforeScanning(string courseId)
+    {
+        // Fetch course data
+        yield return StartCoroutine(FetchCourseData(courseId));
+
+        // ✅ Wait for all downloads to complete before scanning
+       
+        yield return new WaitForSeconds(1f);
+       
+        StartScanning();
+    }
+
+    // step 2:start  download course data before scanning
+    void StartScanning()
+    {
+        isScanning = true;
+        scanUIPanel.SetActive(false);
+        loadingUIPanel.SetActive(true);
+    }
+    
     // step 1.2: fetch courseData to download model and UI
     IEnumerator FetchCourseData(string courseId) // 🔹 Now accepts courseId
     {
@@ -405,7 +536,8 @@ public class ARQRCodeScanner : MonoBehaviour
 
     // 🔹 Apply QR Code position and rotation
     loadedModel.transform.SetParent(modelContainer.transform, false);
-    
+   // SetupModelInteractions(loadedModel);
+
     // ✅ Attach to QR code
     loadedModel.transform.position = qrCodePosition;  // Use QR Code position
     loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
@@ -608,12 +740,15 @@ public class ARQRCodeScanner : MonoBehaviour
     // ✅ Hide "FirstModelAfterScan" initially
     firstModel.SetActive(false);
 
+    instructionDetailStepPrefab.SetActive(false);
+    
     // ✅ Clear previous step UI instances
     foreach (GameObject step in instructionStepInstances)
     {
         Destroy(step);
     }
     instructionStepInstances.Clear();
+    
 
     for (int i = 0; i < currentInstructionDetails.Count; i++)
     {
@@ -661,6 +796,8 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Speed control buttons
         SetupSpeedControls(stepItem, firstModel, detail);
+        
+      
 
         // ✅ Navigation buttons
         Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
@@ -939,6 +1076,8 @@ void StopCurrentAnimationAtFrame(GameObject firstModel)
 
     void BackToCourseUI()
     {
+        
+        instructionDetailStepPrefab.SetActive(true);
         instructionDetailPanel.SetActive(false);
         courseUIPanel.SetActive(true);
 
