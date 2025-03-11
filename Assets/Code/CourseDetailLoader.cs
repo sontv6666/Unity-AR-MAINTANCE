@@ -30,6 +30,61 @@ namespace Code
         [Header("API Settings")]
         private string endpointTemplate = "/course/{0}"; 
         
+        
+        // void Start()
+        // {
+        //     RestoreLastPage();
+        // }
+        //
+        // void RestoreLastPage()
+        // {
+        //     bool showHome = PlayerPrefs.GetInt("ShowHomePage", 0) == 1;
+        //     bool showDetail = PlayerPrefs.GetInt("ShowDetailPage", 0) == 1;
+        //     string lastCourseId = PlayerPrefs.GetString("SelectedCourseID", "");
+        //
+        //     if (showHome)
+        //     {
+        //         ShowHomePage();
+        //     }
+        //
+        //     if (showDetail)
+        //     {
+        //         ShowDetailPage();
+        //
+        //         // ✅ Reload the last course if an ID is stored
+        //         if (!string.IsNullOrEmpty(lastCourseId))
+        //         {
+        //             LoadCourseDetails(lastCourseId);
+        //         }
+        //     }
+        //
+        //     // ✅ Clear stored values after restoring
+        //     PlayerPrefs.SetInt("ShowHomePage", 0);
+        //     PlayerPrefs.SetInt("ShowDetailPage", 0);
+        //     PlayerPrefs.SetString("SelectedCourseID", ""); 
+        //     PlayerPrefs.Save();
+        // }
+        //
+        //
+        // void ShowHomePage()
+        // {
+        //     GameObject homePage = GameObject.Find("HomePage");
+        //     if (homePage != null)
+        //     {
+        //         homePage.SetActive(true);
+        //     }
+        // }
+        //
+        // void ShowDetailPage()
+        // {
+        //     GameObject detailPage = GameObject.Find("DetailPage");
+        //     if (detailPage != null)
+        //     {
+        //         detailPage.SetActive(true);
+        //     }
+        // }
+
+        
         public void LoadCourseDetails(string courseId)
         {
             if (!string.IsNullOrEmpty(courseId))
@@ -166,12 +221,20 @@ namespace Code
                 return;
             }
 
+            // ✅ Save current Course ID and UI state
             PlayerPrefs.SetString("SelectedCourseID", courseId);
-            PlayerPrefs.Save();  // 🔹 Ensure PlayerPrefs is written to disk
+            PlayerPrefs.SetString("LastPage", "DetailPage"); 
+            PlayerPrefs.SetInt("ShowHomePage", 1);
+            PlayerPrefs.SetInt("ShowDetailPage", 1);
+            PlayerPrefs.Save();
+
             Debug.Log($"✅ Saved Course ID: {courseId}");
 
             SceneManager.LoadScene("QRScanner");
         }
+
+
+
 
         
 

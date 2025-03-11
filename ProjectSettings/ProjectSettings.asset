@@ -138,7 +138,12 @@ PlayerSettings:
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
   bundleVersion: 1.0.131
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 11400000, guid: c199e683398494f32b4cde18e73ab731, type: 2}
+  - {fileID: 5877420343849218177, guid: 7b87f403c0bb29f4994780aee884b4ec, type: 2}
+  - {fileID: -3766759289120239282, guid: 81e7021a079abab42851314d2a753051, type: 2}
+  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
+  - {fileID: 4800000, guid: 0945859e5a1034c2cb6dce53cb4fb899, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -847,7 +852,7 @@ PlayerSettings:
     PS5: UNITY_POST_PROCESSING_STACK_V2
     QNX: UNITY_POST_PROCESSING_STACK_V2
     Stadia: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
-    Standalone: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
+    Standalone: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3
     VisionOS: UNITY_POST_PROCESSING_STACK_V2
     WebGL: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
     Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2
