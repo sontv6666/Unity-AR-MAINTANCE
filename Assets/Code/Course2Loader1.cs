@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Code;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -15,7 +16,7 @@ public class CourseLoader1 : MonoBehaviour
     public GameObject homePage; 
 
     [Header("API Settings")]
-    private string endpointTemplate = "enrollment/user/{0}?isRequiredCourse=false&page=1&size=10";
+    private string endpointTemplate = "/enrollment/user/{0}?isRequiredCourse=false&page=1&size=10";
 
     void Start()
     {
