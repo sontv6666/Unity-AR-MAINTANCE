@@ -15,7 +15,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.AR;
-
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class ARQRCodeScanner : MonoBehaviour
 {
@@ -59,6 +59,8 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
     public TMP_Text courseTitleText;
+    
+    
 
 
     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
@@ -73,8 +75,15 @@ public class ARQRCodeScanner : MonoBehaviour
     private string courseID;
     private string testID= "3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
     private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
+    
+    public GameObject scanBoxUI; 
     void Start()
     {
+        if (scanBoxUI != null)
+        {
+            scanBoxUI.SetActive(true);  // Show the scan box UI
+        }
+        
         if (centerModelButton != null)
         {
             centerModelButton.onClick.AddListener(CenterModel);
@@ -108,10 +117,30 @@ public class ARQRCodeScanner : MonoBehaviour
         }
         
     }
+    
+    
+    void Update()
+    {
+        if (isScanning)
+        {
+            TryScanQRCode();
+        }
+        
+        
+  
+    }
 
 
-  void CenterModel()
+  bool isModelCentered = false;  // Add this as a global variable
+
+void CenterModel()
 {
+    if (isModelCentered)
+    {
+        Debug.Log("⚠️ Model is already centered. Skipping repositioning.");
+        return;
+    }
+
     if (modelContainer == null)
     {
         Debug.LogError("❌ Model container is NULL! Cannot center the model.");
@@ -134,63 +163,48 @@ public class ARQRCodeScanner : MonoBehaviour
 
     Vector3 cameraForward = arCamera.transform.forward.normalized;
     Vector3 cameraPosition = arCamera.transform.position;
-
-    // Set reasonable min & max distances
-    float minDistance = 0.5f;  // Don't let it get too close
-    float maxDistance = 2.0f;  // Don't put it too far away
-
-    float adjustedDistance = Mathf.Clamp(modelDistanceFromCamera, minDistance, maxDistance);
+    float adjustedDistance = Mathf.Clamp(modelDistanceFromCamera, 2f, 4f); // 2m to 4m range
     Vector3 newPosition = cameraPosition + (cameraForward * adjustedDistance);
-    Vector3 finalPosition = newPosition; // Default position if no plane is found
+    Vector3 finalPosition = newPosition;
 
-    Debug.Log($"📍 Step 1: Target position in front of camera: {newPosition}");
-
-    // Step 2: Find the nearest AR-detected plane
+    // 🔍 Find the closest AR Plane
     float minPlaneDistance = float.MaxValue;
     ARPlane closestPlane = null;
 
-    if (arPlaneManager == null)
+    if (arPlaneManager != null)
     {
-        Debug.LogError("❌ ARPlaneManager is NULL! Make sure it is assigned.");
-        return;
-    }
-
-    foreach (ARPlane plane in arPlaneManager.trackables)
-    {
-        float distance = Vector3.Distance(newPosition, plane.transform.position);
-        Debug.Log($"🔍 Checking plane at {plane.transform.position} | Distance: {distance}");
-
-        if (distance < minPlaneDistance)
+        foreach (ARPlane plane in arPlaneManager.trackables)
         {
-            minPlaneDistance = distance;
-            closestPlane = plane;
+            float distance = Vector3.Distance(newPosition, plane.transform.position);
+            if (distance < minPlaneDistance)
+            {
+                minPlaneDistance = distance;
+                closestPlane = plane;
+            }
         }
     }
 
-    // Step 3: Adjust position to detected plane
+    // ✅ Adjust position to detected plane
     if (closestPlane != null)
     {
-        Debug.Log($"✅ Closest plane found at {closestPlane.transform.position} (Distance: {minPlaneDistance})");
         finalPosition.y = closestPlane.transform.position.y;
     }
-    else
-    {
-        Debug.LogWarning("⚠️ No AR plane found. Keeping the model at the current height.");
-    }
 
-    // Step 4: Apply position to the ACTUAL MODEL inside modelContainer
     model.position = finalPosition;
     model.rotation = Quaternion.LookRotation(cameraForward);
 
-    Debug.Log($"🎯 Final Model Position: {finalPosition}");
+    Debug.Log($"🎯 Model placed at: {finalPosition}");
+    model.gameObject.SetActive(true);
 
-    // ✅ Ensure Model is Visible
-    if (!model.gameObject.activeSelf)
-    {
-        Debug.LogWarning("⚠️ Model was inactive. Reactivating it now.");
-        model.gameObject.SetActive(true);
-    }
+
 }
+
+
+public void ResetModelPosition()
+{
+    isModelCentered = false;
+}
+
 
 
 
@@ -202,25 +216,43 @@ void SetupModelInteractions(GameObject model)
         return;
     }
 
-    // Ensure it has a Collider (required for interaction)
+    // ✅ Ensure a Collider exists (required for interaction)
     if (model.GetComponent<Collider>() == null)
     {
-        model.AddComponent<BoxCollider>(); // Adjust collider if needed
-        Debug.Log("📌 Added BoxCollider to model for interactions.");
+        BoxCollider collider = model.AddComponent<BoxCollider>(); 
+        collider.size *= 1.2f; // Adjust collider size for better touch interaction
+        Debug.Log("📌 Added BoxCollider for interactions.");
     }
 
-    // Ensure the model has ARTranslationInteractable
-    if (model.GetComponent<ARTranslationInteractable>() == null)
+    // ✅ Fix Rigidbody Issues (Disable Gravity)
+    Rigidbody rb = model.GetComponent<Rigidbody>();
+    if (rb == null)
     {
-        model.AddComponent<ARTranslationInteractable>();
-        Debug.Log("📌 ARTranslationInteractable added (Drag to move).");
+        rb = model.AddComponent<Rigidbody>(); // Add if missing
+    }
+    rb.useGravity = false; // Prevent gravity from pulling it down
+    rb.isKinematic = true; // Prevent unwanted physics interactions
+
+    // ✅ Add XRGrabInteractable (Handles dragging)
+    XRGrabInteractable grabInteractable = model.GetComponent<XRGrabInteractable>();
+    if (grabInteractable == null)
+    {
+        grabInteractable = model.AddComponent<XRGrabInteractable>();
+        grabInteractable.trackPosition = false; // ❌ Disable by default to prevent unwanted movement
+        grabInteractable.trackRotation = false; 
+        grabInteractable.throwOnDetach = false;
+        Debug.Log("📌 XRGrabInteractable added (Drag to move).");
     }
 
-    // Ensure the model has ARScaleInteractable
-    if (model.GetComponent<ARScaleInteractable>() == null)
+    // ✅ Add Event Listeners to Control Movement
+    grabInteractable.selectEntered.AddListener((args) => grabInteractable.trackPosition = true); // Enable on grab
+    grabInteractable.selectExited.AddListener((args) => grabInteractable.trackPosition = false); // Disable on release
+
+    // ✅ Add manual pinch scaling script
+    if (model.GetComponent<PinchToScale>() == null)
     {
-        model.AddComponent<ARScaleInteractable>();
-        Debug.Log("📌 ARScaleInteractable added (Pinch to scale).");
+        model.AddComponent<PinchToScale>();
+        Debug.Log("📌 PinchToScale script added (Pinch to scale).");
     }
 }
 
@@ -230,41 +262,11 @@ void SetupModelInteractions(GameObject model)
 
 
 
-    void Update()
-    {
-        if (isScanning)
-        {
-            TryScanQRCode();
-        }
-        
-        //
-        // if (Input.touchCount == 2)
-        // {
-        //     // Scale using two-finger pinch
-        //     Touch touch0 = Input.GetTouch(0);
-        //     Touch touch1 = Input.GetTouch(1);
-        //
-        //     float prevDistance = (touch0.position - touch0.deltaPosition - (touch1.position - touch1.deltaPosition)).magnitude;
-        //     float currentDistance = (touch0.position - touch1.position).magnitude;
-        //     float scaleFactor = currentDistance / prevDistance;
-        //
-        //     modelContainer.transform.localScale *= scaleFactor;
-        // }
-    
-        if (Input.touchCount == 1)
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Moved)
-            {
-                Vector2 touchPos = touch.position;
-                Ray ray = Camera.main.ScreenPointToRay(touchPos);
-                if (Physics.Raycast(ray, out RaycastHit hit))
-                {
-                    modelContainer.transform.position = hit.point;
-                }
-            }
-        }
-    }
+
+
+
+
+
 
 
     
@@ -321,45 +323,88 @@ void SetupModelInteractions(GameObject model)
     }
     
     //cach 2.1
-    void TryScanQRCode()
+void TryScanQRCode()
+{
+    // 🛑 Ensure Course UI is hidden before scanning
+    if (courseUIPanel != null)
     {
-        if (!isScanning) return;
+        courseUIPanel.SetActive(false);
+    }
+    
+    if (!isScanning) return;
 
-        if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+    if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+    {
+        // 📌 Define scan area (smaller portion of the screen)
+        float scanZoneFactor = 0.3f; // Adjust for smaller area (30% of screen width/height)
+        int scanZoneWidth = (int)(image.width * scanZoneFactor);
+        int scanZoneHeight = (int)(image.height * scanZoneFactor);
+        int scanZoneX = (image.width - scanZoneWidth) / 2;
+        int scanZoneY = (image.height - scanZoneHeight) / 2;
+
+        Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, W={scanZoneWidth}, H={scanZoneHeight}");
+
+        // 🔹 Update ScanBox UI size & position
+        if (scanBoxUI != null)
         {
-            var conversionParams = new XRCpuImage.ConversionParams
+            RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
+
+            // 🛑 Set size relative to screen size
+            float scanBoxSizeFactor = 0.2f; // 30% of screen
+            scanBoxRect.sizeDelta = new Vector2(Screen.width * scanBoxSizeFactor, Screen.height * scanBoxSizeFactor);
+
+            // 🛑 Center the scan box in the screen
+            scanBoxRect.anchoredPosition = Vector2.zero; 
+
+            scanBoxUI.SetActive(true);
+        }
+
+
+        var conversionParams = new XRCpuImage.ConversionParams
+        {
+            inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneWidth, scanZoneHeight),
+            outputDimensions = new Vector2Int(scanZoneWidth, scanZoneHeight),
+            outputFormat = TextureFormat.RGBA32,
+            transformation = XRCpuImage.Transformation.None
+        };
+
+        var textureData = new Texture2D(scanZoneWidth, scanZoneHeight, TextureFormat.RGBA32, false);
+        image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
+        image.Dispose();
+        textureData.Apply();
+
+        IBarcodeReader barcodeReader = new BarcodeReader();
+        var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
+
+        Destroy(textureData); // 🛑 Prevent memory leaks
+
+        if (result != null)
+        {
+            isScanning = false;
+
+            // 🛑 Hide Scan Box after successful scan
+            if (scanBoxUI != null)
             {
-                inputRect = new RectInt(0, 0, image.width, image.height),
-                outputDimensions = new Vector2Int(image.width, image.height),
-                outputFormat = TextureFormat.RGBA32,
-                transformation = XRCpuImage.Transformation.None
-            };
-
-            var textureData = new Texture2D(image.width, image.height, TextureFormat.RGBA32, false);
-            image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
-            image.Dispose();
-            textureData.Apply();
-
-            IBarcodeReader barcodeReader = new BarcodeReader();
-            var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
-
-            Destroy(textureData); // 🛑 Prevent memory leaks
-
-            if (result != null)
-            {
-                isScanning = false;
-                Debug.Log("QR Code Scanned: " + result.Text);
-                ShowLoadingUI("Processing QR Code...");
-                UpdateUIText("Scanning...", "QR: " + result.Text);
-
-                // 🔹 Store QR Code Position & Rotation
-                qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
-                qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
-
-                StartCoroutine(CheckQRCode(result.Text, courseID));
+                scanBoxUI.SetActive(false);
             }
+
+            Debug.Log($"✅ QR Code Scanned: {result.Text}");
+            ShowLoadingUI("Processing QR Code...");
+            UpdateUIText("Scanning...", "QR: " + result.Text);
+
+            qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+            qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+
+           
+
+            StartCoroutine(CheckQRCode(result.Text, courseID));
         }
     }
+}
+
+
+
+
 
 
 
@@ -394,8 +439,12 @@ void SetupModelInteractions(GameObject model)
         {
             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
             StartCoroutine(FetchModelData(response.result));
-             
+
             StartCoroutine(DownloadAndLoadUI(response.result));
+
+            // 🔹 Ensure Model Stays Upright
+            qrCodeRotation.x = 0;  // Reset X rotation (prevents laying down)
+            qrCodeRotation.z = 0;  // Reset Z rotation (prevents tilting)
         }
         else
         {
@@ -403,6 +452,7 @@ void SetupModelInteractions(GameObject model)
             Invoke(nameof(ResetScanning), 2f);
         }
     }
+
 
 
     
@@ -536,7 +586,7 @@ void SetupModelInteractions(GameObject model)
 
     // 🔹 Apply QR Code position and rotation
     loadedModel.transform.SetParent(modelContainer.transform, false);
-   // SetupModelInteractions(loadedModel);
+   SetupModelInteractions(loadedModel);
 
     // ✅ Attach to QR code
     loadedModel.transform.position = qrCodePosition;  // Use QR Code position
@@ -797,7 +847,12 @@ void SetupModelInteractions(GameObject model)
         // ✅ Speed control buttons
         SetupSpeedControls(stepItem, firstModel, detail);
         
-      
+        // ✅ Close buttons logic
+        Button closeButtonFirst = stepItem.transform.Find("closeButtonFirst")?.GetComponent<Button>();
+        Button closeButtonSecond = stepItem.transform.Find("closeButtonSecond")?.GetComponent<Button>();
+
+        if (closeButtonFirst) closeButtonFirst.onClick.AddListener(() => ShowInstructionUI(stepItem));
+        if (closeButtonSecond) closeButtonSecond.onClick.AddListener(() => HideInstructionUI(stepItem));
 
         // ✅ Navigation buttons
         Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
@@ -819,6 +874,62 @@ void SetupModelInteractions(GameObject model)
 
     UpdateStepNavigationButtons();
 }
+   
+   
+/// ✅ Hide UI elements (except navigation & closeButtonFirst) and set image transparency to 0
+void HideInstructionUI(GameObject stepItem)
+{
+    Debug.Log("🔻 Hiding instruction UI elements (except navigation & closeButtonFirst)...");
+
+    foreach (Transform child in stepItem.transform)
+    {
+        if (child.name != "closeButtonFirst" &&
+            child.name != "instructionDetailShowStepText" &&
+            child.name != "instructionDetailPreviousButton" &&
+            child.name != "instructionDetailNextStepButton")
+        {
+            child.gameObject.SetActive(false);
+        }
+    }
+
+    // ✅ Hide images by setting transparency to 0
+    SetInstructionImageTransparency(stepItem, 0f);
+    
+    // ✅ Ensure closeButtonFirst is ACTIVE
+    Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
+    if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(true);
+}
+
+// ✅ Show all UI elements and restore image transparency to 170/255
+void ShowInstructionUI(GameObject stepItem)
+{
+    Debug.Log("🔹 Showing all instruction UI elements...");
+
+    foreach (Transform child in stepItem.transform)
+    {
+        child.gameObject.SetActive(true);
+    }
+
+    // ✅ Restore image transparency
+    SetInstructionImageTransparency(stepItem, 170f / 255f);
+    
+    // ✅ Ensure closeButtonFirst is HIDDEN
+    Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
+    if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(false);
+}
+
+// ✅ Helper function to change image transparency
+    void SetInstructionImageTransparency(GameObject stepItem, float alpha)
+    {
+        Image stepImage = stepItem.GetComponent<Image>(); // Get Image component of the prefab itself
+        if (stepImage != null)
+        {
+            Color color = stepImage.color;
+            color.a = alpha; // Set alpha transparency
+            stepImage.color = color;
+        }
+    }
+
    
 // Speed values to cycle through
 float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
