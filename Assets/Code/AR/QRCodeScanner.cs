@@ -73,8 +73,9 @@ public class ARQRCodeScanner : MonoBehaviour
     private ModelResponse cachedModelData;
 
     private string courseID;
-    private string testID= "3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+    private string testID= "c886f9f1-68f8-4596-b625-f14c5ef8addc";
     private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
+    private string testqrCode2= "97794f13-1146-4b1a-83c2-0c9b693a346e";
     
     public GameObject scanBoxUI; 
     void Start()
@@ -99,7 +100,7 @@ public class ARQRCodeScanner : MonoBehaviour
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
         arPlaneManager = FindObjectOfType<ARPlaneManager>();
 
-        // courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+         //courseID = PlayerPrefs.GetString("SelectedCourseID", "");
         courseID = testID;
         if (string.IsNullOrEmpty(courseID))
         {
@@ -468,6 +469,7 @@ void TryScanQRCode()
         if (request.result == UnityWebRequest.Result.Success)
         {
             ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
+            Debug.Log("Hello"+ modelData.result.rotation[1]);
             StartCoroutine(DownloadAndLoadModel(modelData));
         }
         else
@@ -589,11 +591,25 @@ void TryScanQRCode()
    SetupModelInteractions(loadedModel);
 
     // ✅ Attach to QR code
-    loadedModel.transform.position = qrCodePosition;  // Use QR Code position
-    loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
-    loadedModel.transform.localScale = Vector3.one * 0.1f;
+    // loadedModel.transform.position = qrCodePosition;  // Use QR Code position
+    // loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
+    // loadedModel.transform.localScale = Vector3.one * 0.1f;
+    //
+    // Debug.Log("✅ Model correctly anchored to QR Code.");
+    
+    
+    
+    // ✅ Đặt vị trí của model dựa trên vị trí QR code và thêm bù vào vị trí mới
+    loadedModel.transform.position = qrCodePosition;  
 
-    Debug.Log("✅ Model correctly anchored to QR Code.");
+    // ✅ Đặt góc quay mới từ tham số truyền vào
+    loadedModel.transform.rotation = Quaternion.Euler(rotation);  
+
+    // ✅ Đảm bảo mô hình có kích thước chuẩn
+    loadedModel.transform.localScale = Vector3.one * 0.1f;  
+
+    Debug.Log($"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
+
     }
 
 
@@ -1090,8 +1106,15 @@ void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float sp
 
 public void GoBackToMainApp()
 {
-    SceneManager.LoadScene("MainApp"); 
+    PlayerPrefs.SetString("LastPage", "DetailPage");
+    PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
+    PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
+    PlayerPrefs.Save();
+    
+    SceneManager.LoadScene("MainApp");
 }
+
+
 void TogglePlayPauseAnimation(GameObject firstModel)
 {
     if (!firstModel) return;
