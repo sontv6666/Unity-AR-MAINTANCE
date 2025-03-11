@@ -1,63 +1,82 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SceneNavigator : MonoBehaviour
 {
-    // This method activates the ProfileScreen and deactivates other screens.
+    [Header("UI Screens")]
+    public List<GameObject> screens; // Danh sách tất cả màn hình (gán trong Inspector)
+
+    private void Start()
+    {
+        // Đảm bảo chỉ có màn hình HomePage bật lúc đầu
+        ShowScreen("HomePage");
+    }
+    
+    
+    
     public void NavigateToProfile()
     {
         Debug.Log("Navigating to ProfileScreen...");
+        ShowScreen("ProfileScreen");
 
-        // Activate ProfileScreen
-        GameObject profileScreen = GameObject.Find("ProfileScreen");
-        if (profileScreen != null)
+        // 🔥 Reload profile data when navigating to ProfileScreen
+        ProfileScreenLoader profileLoader = FindObjectOfType<ProfileScreenLoader>();
+        if (profileLoader != null)
         {
-            profileScreen.SetActive(true);
-            Debug.Log("ProfileScreen activated.");
+            profileLoader.ReloadUserInfo();
+            Debug.Log("✅ Profile data reloaded!");
         }
         else
         {
-            Debug.LogError("ProfileScreen not found!");
+            Debug.LogError("❌ ProfileScreenLoader not found!");
         }
-
-        // Deactivate other screens
-        DeactivateScreen("HomePage");
-        Debug.Log("Navigated to ProfileScreen");
     }
 
-    // This method activates the Explore/HomePage and deactivates other screens.
+
     public void NavigateToExplore()
     {
         Debug.Log("Navigating to ExploreScreen...");
+        ShowScreen("HomePage");
 
-        // Activate HomePage (ExploreScreen)
-        GameObject exploreScreen = GameObject.Find("HomePage");
-        if (exploreScreen != null)
+        // 🔥 Gọi lại `ReloadCourseData()` khi vào HomePage
+        CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
+        if (courseLoader != null)
         {
-            exploreScreen.SetActive(true);
-            Debug.Log("HomePage activated.");
+            courseLoader.ReloadCourseData();
+            Debug.Log("✅ Course data reloaded!");
         }
         else
         {
-            Debug.LogError("HomePage not found!");
+            Debug.LogError("❌ CourseLoader not found!");
         }
-
-        // Deactivate other screens
-        DeactivateScreen("ProfileScreen");
-        Debug.Log("Navigated to ExploreScreen");
+    }
+    
+    public void NavigateToSearch()
+    {
+        Debug.Log("Navigating to SearchScreen...");
+        ShowScreen("SearchScreen");
     }
 
-    // Helper method to deactivate a screen by name.
-    private void DeactivateScreen(string screenName)
+    private void ShowScreen(string screenName)
     {
-        GameObject screen = GameObject.Find(screenName);
-        if (screen != null)
+        bool found = false;
+        foreach (GameObject screen in screens)
         {
-            screen.SetActive(false);
-            Debug.Log($"{screenName} deactivated.");
+            if (screen.name == screenName)
+            {
+                screen.SetActive(true);
+                found = true;
+                Debug.Log($"✅ {screenName} activated.");
+            }
+            else
+            {
+                screen.SetActive(false);
+            }
         }
-        else
+
+        if (!found)
         {
-            Debug.LogError($"{screenName} not found!");
+            Debug.LogError($"❌ Screen '{screenName}' not found in list!");
         }
     }
 }

@@ -26,8 +26,7 @@ public class ARQRCodeScanner : MonoBehaviour
     private Vector3 qrCodePosition = Vector3.zero;
     private Vector3 qrCodeRotation = Vector3.zero;
     public GameObject modelContainer;
-
-
+    
     private ARPlaneManager arPlaneManager;
     private ARSessionOrigin arSessionOrigin;
     private ARTrackedImageManager trackedImageManager;
@@ -38,15 +37,13 @@ public class ARQRCodeScanner : MonoBehaviour
     public TMP_Text uiMessageText; // in second panel
 
     public TMP_Text debugLogText; // in second panel For debugging
-
-
+    
     public GameObject courseUIPanel; //third panel
 
     public GameObject instructionLayoutGroup; //in third panel, container for instructionTemplateContent
 
     public GameObject instructionTemplateContent; // template for each instruction 
-
-
+    
 
     public GameObject instructionDetailPanel; //four panel
 
@@ -56,13 +53,9 @@ public class ARQRCodeScanner : MonoBehaviour
     public float modelDistanceFromCamera = 0.5f;
     
     public GameObject instructionDetailStepPrefab; // Prefab for each step
-
-
+    
     public TMP_Text courseTitleText;
     
-    
-
-
     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
 
     private List<InstructionDetail> currentInstructionDetails = new List<InstructionDetail>();
@@ -100,8 +93,8 @@ public class ARQRCodeScanner : MonoBehaviour
         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
         arPlaneManager = FindObjectOfType<ARPlaneManager>();
 
-         //courseID = PlayerPrefs.GetString("SelectedCourseID", "");
-        courseID = testID;
+        courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+     //   courseID = testID;
         if (string.IsNullOrEmpty(courseID))
         {
             Debug.LogError("❌ No Course ID found!");

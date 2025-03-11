@@ -22,33 +22,47 @@ public class ScreenManager : MonoBehaviour
     
     private void RestoreLastPage()
     {
+        string userId = PlayerPrefs.GetString("UserId", "");
+        if (string.IsNullOrEmpty(userId))
+        {
+            Debug.LogError("⚠ Không có UserId! Điều hướng về trang đăng nhập.");
+            ShowScreen("LoginPage");
+            return;
+        }
+
+        UserManager.UserId = userId; // Gán lại UserId từ PlayerPrefs
+
         bool showHome = PlayerPrefs.GetInt("ShowHomePage", 0) == 1;
         bool showDetail = PlayerPrefs.GetInt("ShowDetailPage", 0) == 1;
         string lastCourseId = PlayerPrefs.GetString("SelectedCourseID", "");
 
-        if (showHome)
+        if (showDetail && !string.IsNullOrEmpty(lastCourseId))
         {
-            ShowScreen("HomePage"); // ✅ Show HomePage
-        }
-
-        if (showDetail)
-        {
-            ShowScreen("DetailPage"); // ✅ Show DetailPage
-
-            // ✅ Reload course details if we have a saved Course ID
+            ShowScreen("DetailPage");
             CourseDetailLoader courseDetailLoader = FindObjectOfType<CourseDetailLoader>();
-            if (courseDetailLoader != null && !string.IsNullOrEmpty(lastCourseId))
+            if (courseDetailLoader != null)
             {
                 courseDetailLoader.LoadCourseDetails(lastCourseId);
             }
         }
+        else
+        {
+            ShowScreen("HomePage");
+            CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
+            if (courseLoader != null)
+            {
+                courseLoader.ReloadCourseData();
+            }
+        }
 
-        // ✅ Clear stored values after restoring
         PlayerPrefs.SetInt("ShowHomePage", 0);
         PlayerPrefs.SetInt("ShowDetailPage", 0);
-        PlayerPrefs.SetString("SelectedCourseID", ""); 
+        PlayerPrefs.SetString("SelectedCourseID", "");
         PlayerPrefs.Save();
     }
+
+
+
 
 
     // Show a specific screen and hide all others

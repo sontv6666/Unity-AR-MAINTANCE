@@ -52,6 +52,11 @@ public class LoginManager : MonoBehaviour
             {
                 Debug.Log("Login successful!");
 
+                
+                // Sau khi đăng nhập thành công:
+                PlayerPrefs.SetString("UserId", response.result.user.id);
+                PlayerPrefs.Save();
+
                 // Populate UserManager with user details
                 UserManager.Token = response.result.token;
                 UserManager.UserId = response.result.user.id;

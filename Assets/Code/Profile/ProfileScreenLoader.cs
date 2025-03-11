@@ -12,6 +12,11 @@ public class ProfileScreenLoader : MonoBehaviour
         LoadUserInfo();
     }
 
+    public void ReloadUserInfo() 
+    {
+        LoadUserInfo();  // 🔄 Refresh user data
+    }
+
     void LoadUserInfo()
     {
         // Ensure UserManager has data
@@ -19,9 +24,12 @@ public class ProfileScreenLoader : MonoBehaviour
         {
             Debug.Log($"Loading user info: Username = {UserManager.Username}, Company = {UserManager.CompanyName}");
 
-            // Assign values from UserManager
-            nameText.text = UserManager.Username;
-            companyText.text = UserManager.CompanyName;
+            // Ensure UI is active before updating
+            if (gameObject.activeInHierarchy) 
+            {
+                nameText.text = UserManager.Username;
+                companyText.text = UserManager.CompanyName;
+            }
         }
         else
         {

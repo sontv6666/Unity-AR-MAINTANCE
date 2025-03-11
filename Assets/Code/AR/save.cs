@@ -14,7 +14,8 @@
 // using System.Collections;
 // using System.Collections.Generic;
 // using UnityEngine.SceneManagement;
-//
+// using UnityEngine.XR.Interaction.Toolkit.AR;
+// using UnityEngine.XR.Interaction.Toolkit.Interactables;
 //
 // public class ARQRCodeScanner : MonoBehaviour
 // {
@@ -27,7 +28,7 @@
 //     public GameObject modelContainer;
 //
 //
-//
+//     private ARPlaneManager arPlaneManager;
 //     private ARSessionOrigin arSessionOrigin;
 //     private ARTrackedImageManager trackedImageManager;
 //
@@ -50,12 +51,16 @@
 //     public GameObject instructionDetailPanel; //four panel
 //
 //     public Button backButton;
-//
+//     
+//     public Button centerModelButton; 
+//     public float modelDistanceFromCamera = 0.5f;
 //     
 //     public GameObject instructionDetailStepPrefab; // Prefab for each step
 //
 //
 //     public TMP_Text courseTitleText;
+//     
+//     
 //
 //
 //     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
@@ -68,10 +73,24 @@
 //     private ModelResponse cachedModelData;
 //
 //     private string courseID;
-//     private string testID= "3494239c-709c-4ec0-8bc2-a7a33cbaf2ef";
+//     private string testID= "c886f9f1-68f8-4596-b625-f14c5ef8addc";
 //     private string testqrCode= "42be6340-c590-4477-8508-f6250717cd7b";
+//     private string testqrCode2= "97794f13-1146-4b1a-83c2-0c9b693a346e";
+//     
+//     public GameObject scanBoxUI; 
 //     void Start()
 //     {
+//         if (scanBoxUI != null)
+//         {
+//             scanBoxUI.SetActive(true);  // Show the scan box UI
+//         }
+//         
+//         if (centerModelButton != null)
+//         {
+//             centerModelButton.onClick.AddListener(CenterModel);
+//         }
+//
+//         
 //         if (backButton != null)
 //         {
 //             backButton.onClick.AddListener(GoBackToMainApp);
@@ -79,8 +98,10 @@
 //         
 //         arSessionOrigin = FindObjectOfType<ARSessionOrigin>();
 //         trackedImageManager = FindObjectOfType<ARTrackedImageManager>();
-//     
-//          courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+//         arPlaneManager = FindObjectOfType<ARPlaneManager>();
+//
+//          //courseID = PlayerPrefs.GetString("SelectedCourseID", "");
+//         courseID = testID;
 //         if (string.IsNullOrEmpty(courseID))
 //         {
 //             Debug.LogError("❌ No Course ID found!");
@@ -97,7 +118,159 @@
 //         }
 //         
 //     }
+//     
+//     
+//     void Update()
+//     {
+//         if (isScanning)
+//         {
+//             TryScanQRCode();
+//         }
+//         
+//         
+//   
+//     }
 //
+//
+//   bool isModelCentered = false;  // Add this as a global variable
+//
+// void CenterModel()
+// {
+//     if (isModelCentered)
+//     {
+//         Debug.Log("⚠️ Model is already centered. Skipping repositioning.");
+//         return;
+//     }
+//
+//     if (modelContainer == null)
+//     {
+//         Debug.LogError("❌ Model container is NULL! Cannot center the model.");
+//         return;
+//     }
+//
+//     Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+//     if (model == null)
+//     {
+//         Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+//         return;
+//     }
+//
+//     Camera arCamera = Camera.main;
+//     if (arCamera == null)
+//     {
+//         Debug.LogError("❌ No Main Camera found! Make sure your AR camera is tagged as 'MainCamera'.");
+//         return;
+//     }
+//
+//     Vector3 cameraForward = arCamera.transform.forward.normalized;
+//     Vector3 cameraPosition = arCamera.transform.position;
+//     float adjustedDistance = Mathf.Clamp(modelDistanceFromCamera, 2f, 4f); // 2m to 4m range
+//     Vector3 newPosition = cameraPosition + (cameraForward * adjustedDistance);
+//     Vector3 finalPosition = newPosition;
+//
+//     // 🔍 Find the closest AR Plane
+//     float minPlaneDistance = float.MaxValue;
+//     ARPlane closestPlane = null;
+//
+//     if (arPlaneManager != null)
+//     {
+//         foreach (ARPlane plane in arPlaneManager.trackables)
+//         {
+//             float distance = Vector3.Distance(newPosition, plane.transform.position);
+//             if (distance < minPlaneDistance)
+//             {
+//                 minPlaneDistance = distance;
+//                 closestPlane = plane;
+//             }
+//         }
+//     }
+//
+//     // ✅ Adjust position to detected plane
+//     if (closestPlane != null)
+//     {
+//         finalPosition.y = closestPlane.transform.position.y;
+//     }
+//
+//     model.position = finalPosition;
+//     model.rotation = Quaternion.LookRotation(cameraForward);
+//
+//     Debug.Log($"🎯 Model placed at: {finalPosition}");
+//     model.gameObject.SetActive(true);
+//
+//
+// }
+//
+//
+// public void ResetModelPosition()
+// {
+//     isModelCentered = false;
+// }
+//
+//
+//
+//
+// void SetupModelInteractions(GameObject model)
+// {
+//     if (model == null)
+//     {
+//         Debug.LogError("❌ No model found to setup interactions!");
+//         return;
+//     }
+//
+//     // ✅ Ensure a Collider exists (required for interaction)
+//     if (model.GetComponent<Collider>() == null)
+//     {
+//         BoxCollider collider = model.AddComponent<BoxCollider>(); 
+//         collider.size *= 1.2f; // Adjust collider size for better touch interaction
+//         Debug.Log("📌 Added BoxCollider for interactions.");
+//     }
+//
+//     // ✅ Fix Rigidbody Issues (Disable Gravity)
+//     Rigidbody rb = model.GetComponent<Rigidbody>();
+//     if (rb == null)
+//     {
+//         rb = model.AddComponent<Rigidbody>(); // Add if missing
+//     }
+//     rb.useGravity = false; // Prevent gravity from pulling it down
+//     rb.isKinematic = true; // Prevent unwanted physics interactions
+//
+//     // ✅ Add XRGrabInteractable (Handles dragging)
+//     XRGrabInteractable grabInteractable = model.GetComponent<XRGrabInteractable>();
+//     if (grabInteractable == null)
+//     {
+//         grabInteractable = model.AddComponent<XRGrabInteractable>();
+//         grabInteractable.trackPosition = false; // ❌ Disable by default to prevent unwanted movement
+//         grabInteractable.trackRotation = false; 
+//         grabInteractable.throwOnDetach = false;
+//         Debug.Log("📌 XRGrabInteractable added (Drag to move).");
+//     }
+//
+//     // ✅ Add Event Listeners to Control Movement
+//     grabInteractable.selectEntered.AddListener((args) => grabInteractable.trackPosition = true); // Enable on grab
+//     grabInteractable.selectExited.AddListener((args) => grabInteractable.trackPosition = false); // Disable on release
+//
+//     // ✅ Add manual pinch scaling script
+//     if (model.GetComponent<PinchToScale>() == null)
+//     {
+//         model.AddComponent<PinchToScale>();
+//         Debug.Log("📌 PinchToScale script added (Pinch to scale).");
+//     }
+// }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//     
 //     // step 1.1:start  download course data before scanning
 //     IEnumerator DownloadCourseBeforeScanning(string courseId)
 //     {
@@ -108,7 +281,6 @@
 //        
 //         yield return new WaitForSeconds(1f);
 //        
-//         // ✅ Now enable scanning
 //         StartScanning();
 //     }
 //
@@ -119,45 +291,7 @@
 //         scanUIPanel.SetActive(false);
 //         loadingUIPanel.SetActive(true);
 //     }
-//
-//
-//     void Update()
-//     {
-//         if (isScanning)
-//         {
-//             TryScanQRCode();
-//         }
-//         
-//         if (Input.touchCount == 2)
-//             {
-//                 Touch touch0 = Input.GetTouch(0);
-//                 Touch touch1 = Input.GetTouch(1);
-//
-//                 float prevDistance = (touch0.position - touch0.deltaPosition - (touch1.position - touch1.deltaPosition)).magnitude;
-//                 float currentDistance = (touch0.position - touch1.position).magnitude;
-//                 float scaleFactor = currentDistance / prevDistance;
-//
-//                 modelContainer.transform.localScale *= scaleFactor;
-//             }
-//         
-//             if (Input.touchCount == 1)
-//             {
-//                 Touch touch = Input.GetTouch(0);
-//                 if (touch.phase == TouchPhase.Moved)
-//                 {
-//                     Vector2 touchPos = touch.position;
-//                     Ray ray = Camera.main.ScreenPointToRay(touchPos);
-//                     if (Physics.Raycast(ray, out RaycastHit hit))
-//                     {
-//                         modelContainer.transform.position = hit.point;
-//                     }
-//                 }
-//             }
-//         
-//             
-//
-//     }
-//
+//     
 //     // step 1.2: fetch courseData to download model and UI
 //     IEnumerator FetchCourseData(string courseId) // 🔹 Now accepts courseId
 //     {
@@ -190,45 +324,88 @@
 //     }
 //     
 //     //cach 2.1
-//     void TryScanQRCode()
+// void TryScanQRCode()
+// {
+//     // 🛑 Ensure Course UI is hidden before scanning
+//     if (courseUIPanel != null)
 //     {
-//         if (!isScanning) return;
+//         courseUIPanel.SetActive(false);
+//     }
+//     
+//     if (!isScanning) return;
 //
-//         if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+//     if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+//     {
+//         // 📌 Define scan area (smaller portion of the screen)
+//         float scanZoneFactor = 0.3f; // Adjust for smaller area (30% of screen width/height)
+//         int scanZoneWidth = (int)(image.width * scanZoneFactor);
+//         int scanZoneHeight = (int)(image.height * scanZoneFactor);
+//         int scanZoneX = (image.width - scanZoneWidth) / 2;
+//         int scanZoneY = (image.height - scanZoneHeight) / 2;
+//
+//         Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, W={scanZoneWidth}, H={scanZoneHeight}");
+//
+//         // 🔹 Update ScanBox UI size & position
+//         if (scanBoxUI != null)
 //         {
-//             var conversionParams = new XRCpuImage.ConversionParams
+//             RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
+//
+//             // 🛑 Set size relative to screen size
+//             float scanBoxSizeFactor = 0.2f; // 30% of screen
+//             scanBoxRect.sizeDelta = new Vector2(Screen.width * scanBoxSizeFactor, Screen.height * scanBoxSizeFactor);
+//
+//             // 🛑 Center the scan box in the screen
+//             scanBoxRect.anchoredPosition = Vector2.zero; 
+//
+//             scanBoxUI.SetActive(true);
+//         }
+//
+//
+//         var conversionParams = new XRCpuImage.ConversionParams
+//         {
+//             inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneWidth, scanZoneHeight),
+//             outputDimensions = new Vector2Int(scanZoneWidth, scanZoneHeight),
+//             outputFormat = TextureFormat.RGBA32,
+//             transformation = XRCpuImage.Transformation.None
+//         };
+//
+//         var textureData = new Texture2D(scanZoneWidth, scanZoneHeight, TextureFormat.RGBA32, false);
+//         image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
+//         image.Dispose();
+//         textureData.Apply();
+//
+//         IBarcodeReader barcodeReader = new BarcodeReader();
+//         var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
+//
+//         Destroy(textureData); // 🛑 Prevent memory leaks
+//
+//         if (result != null)
+//         {
+//             isScanning = false;
+//
+//             // 🛑 Hide Scan Box after successful scan
+//             if (scanBoxUI != null)
 //             {
-//                 inputRect = new RectInt(0, 0, image.width, image.height),
-//                 outputDimensions = new Vector2Int(image.width, image.height),
-//                 outputFormat = TextureFormat.RGBA32,
-//                 transformation = XRCpuImage.Transformation.None
-//             };
-//
-//             var textureData = new Texture2D(image.width, image.height, TextureFormat.RGBA32, false);
-//             image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
-//             image.Dispose();
-//             textureData.Apply();
-//
-//             IBarcodeReader barcodeReader = new BarcodeReader();
-//             var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
-//
-//             Destroy(textureData); // 🛑 Prevent memory leaks
-//
-//             if (result != null)
-//             {
-//                 isScanning = false;
-//                 Debug.Log("QR Code Scanned: " + result.Text);
-//                 ShowLoadingUI("Processing QR Code...");
-//                 UpdateUIText("Scanning...", "QR: " + result.Text);
-//
-//                 // 🔹 Store QR Code Position & Rotation
-//                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
-//                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
-//
-//                 StartCoroutine(CheckQRCode(result.Text, courseID));
+//                 scanBoxUI.SetActive(false);
 //             }
+//
+//             Debug.Log($"✅ QR Code Scanned: {result.Text}");
+//             ShowLoadingUI("Processing QR Code...");
+//             UpdateUIText("Scanning...", "QR: " + result.Text);
+//
+//             qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+//             qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+//
+//            
+//
+//             StartCoroutine(CheckQRCode(result.Text, courseID));
 //         }
 //     }
+// }
+//
+//
+//
+//
 //
 //
 //
@@ -263,8 +440,12 @@
 //         {
 //             UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
 //             StartCoroutine(FetchModelData(response.result));
-//              
+//
 //             StartCoroutine(DownloadAndLoadUI(response.result));
+//
+//             // 🔹 Ensure Model Stays Upright
+//             qrCodeRotation.x = 0;  // Reset X rotation (prevents laying down)
+//             qrCodeRotation.z = 0;  // Reset Z rotation (prevents tilting)
 //         }
 //         else
 //         {
@@ -272,6 +453,7 @@
 //             Invoke(nameof(ResetScanning), 2f);
 //         }
 //     }
+//
 //
 //
 //     
@@ -287,6 +469,7 @@
 //         if (request.result == UnityWebRequest.Result.Success)
 //         {
 //             ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
+//             Debug.Log("Hello"+ modelData.result.rotation[1]);
 //             StartCoroutine(DownloadAndLoadModel(modelData));
 //         }
 //         else
@@ -405,13 +588,28 @@
 //
 //     // 🔹 Apply QR Code position and rotation
 //     loadedModel.transform.SetParent(modelContainer.transform, false);
-//     
-//     // ✅ Attach to QR code
-//     loadedModel.transform.position = qrCodePosition;  // Use QR Code position
-//     loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
-//     loadedModel.transform.localScale = Vector3.one * 0.1f;
+//    SetupModelInteractions(loadedModel);
 //
-//     Debug.Log("✅ Model correctly anchored to QR Code.");
+//     // ✅ Attach to QR code
+//     // loadedModel.transform.position = qrCodePosition;  // Use QR Code position
+//     // loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
+//     // loadedModel.transform.localScale = Vector3.one * 0.1f;
+//     //
+//     // Debug.Log("✅ Model correctly anchored to QR Code.");
+//     
+//     
+//     
+//     // ✅ Đặt vị trí của model dựa trên vị trí QR code và thêm bù vào vị trí mới
+//     loadedModel.transform.position = qrCodePosition;  
+//
+//     // ✅ Đặt góc quay mới từ tham số truyền vào
+//     loadedModel.transform.rotation = Quaternion.Euler(rotation);  
+//
+//     // ✅ Đảm bảo mô hình có kích thước chuẩn
+//     loadedModel.transform.localScale = Vector3.one * 0.1f;  
+//
+//     Debug.Log($"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
+//
 //     }
 //
 //
@@ -608,12 +806,15 @@
 //     // ✅ Hide "FirstModelAfterScan" initially
 //     firstModel.SetActive(false);
 //
+//     instructionDetailStepPrefab.SetActive(false);
+//     
 //     // ✅ Clear previous step UI instances
 //     foreach (GameObject step in instructionStepInstances)
 //     {
 //         Destroy(step);
 //     }
 //     instructionStepInstances.Clear();
+//     
 //
 //     for (int i = 0; i < currentInstructionDetails.Count; i++)
 //     {
@@ -661,6 +862,13 @@
 //
 //         // ✅ Speed control buttons
 //         SetupSpeedControls(stepItem, firstModel, detail);
+//         
+//         // ✅ Close buttons logic
+//         Button closeButtonFirst = stepItem.transform.Find("closeButtonFirst")?.GetComponent<Button>();
+//         Button closeButtonSecond = stepItem.transform.Find("closeButtonSecond")?.GetComponent<Button>();
+//
+//         if (closeButtonFirst) closeButtonFirst.onClick.AddListener(() => ShowInstructionUI(stepItem));
+//         if (closeButtonSecond) closeButtonSecond.onClick.AddListener(() => HideInstructionUI(stepItem));
 //
 //         // ✅ Navigation buttons
 //         Button backButton = stepItem.transform.Find("backInstructionPanel")?.GetComponent<Button>();
@@ -682,6 +890,62 @@
 //
 //     UpdateStepNavigationButtons();
 // }
+//    
+//    
+// /// ✅ Hide UI elements (except navigation & closeButtonFirst) and set image transparency to 0
+// void HideInstructionUI(GameObject stepItem)
+// {
+//     Debug.Log("🔻 Hiding instruction UI elements (except navigation & closeButtonFirst)...");
+//
+//     foreach (Transform child in stepItem.transform)
+//     {
+//         if (child.name != "closeButtonFirst" &&
+//             child.name != "instructionDetailShowStepText" &&
+//             child.name != "instructionDetailPreviousButton" &&
+//             child.name != "instructionDetailNextStepButton")
+//         {
+//             child.gameObject.SetActive(false);
+//         }
+//     }
+//
+//     // ✅ Hide images by setting transparency to 0
+//     SetInstructionImageTransparency(stepItem, 0f);
+//     
+//     // ✅ Ensure closeButtonFirst is ACTIVE
+//     Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
+//     if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(true);
+// }
+//
+// // ✅ Show all UI elements and restore image transparency to 170/255
+// void ShowInstructionUI(GameObject stepItem)
+// {
+//     Debug.Log("🔹 Showing all instruction UI elements...");
+//
+//     foreach (Transform child in stepItem.transform)
+//     {
+//         child.gameObject.SetActive(true);
+//     }
+//
+//     // ✅ Restore image transparency
+//     SetInstructionImageTransparency(stepItem, 170f / 255f);
+//     
+//     // ✅ Ensure closeButtonFirst is HIDDEN
+//     Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
+//     if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(false);
+// }
+//
+// // ✅ Helper function to change image transparency
+//     void SetInstructionImageTransparency(GameObject stepItem, float alpha)
+//     {
+//         Image stepImage = stepItem.GetComponent<Image>(); // Get Image component of the prefab itself
+//         if (stepImage != null)
+//         {
+//             Color color = stepImage.color;
+//             color.a = alpha; // Set alpha transparency
+//             stepImage.color = color;
+//         }
+//     }
+//
 //    
 // // Speed values to cycle through
 // float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
@@ -742,19 +1006,49 @@
 //     Animation animation = firstModel.GetComponentInChildren<Animation>(true);
 //     if (animation != null)
 //     {
+//         // ✅ Disable Animator (if any) to prevent conflicts
+//         Animator animator = firstModel.GetComponentInChildren<Animator>();
+//         if (animator != null)
+//         {
+//             Debug.LogWarning("⚠️ Animator detected! Disabling it to avoid conflicts with Animation.");
+//             animator.enabled = false;
+//         }
+//
+//         
+//         animation.Stop();
+//         animation.Rewind(); // ✅ Force rewind to first frame
+//         Debug.Log("🔄 Stopped and rewound all animations.");
 //         // ✅ Reset all animations before playing a new one
 //         foreach (AnimationState state in animation)
 //         {
-//             if (state.enabled)
+//             if (state != null)
 //             {
 //                 state.time = 0f; // Rewind to first frame
-//                 state.enabled = false; // Disable animation
+//                 state.enabled = true; // Ensure it's enabled so Sample() works
+//                 animation.Play(state.name);
+//                 animation.Stop(); // Stop immediately after playing
+//                 animation.Sample(); // Apply first frame
+//                 state.enabled = false; // Disable after sampling
 //             }
 //         }
-//         animation.Stop();
-//         animation.Sample(); // Apply first frame
+//         
+//         // ✅ Force Reset Model Transform
+//         ResetModelState(firstModel);
 //
 //         Debug.Log("🔄 Reset all previous animations.");
+//
+//         // ✅ Reset the last played animation if available
+//         if (!string.IsNullOrEmpty(lastPlayedAnimationName) && animation.GetClip(lastPlayedAnimationName) != null)
+//         {
+//             AnimationState lastState = animation[lastPlayedAnimationName];
+//             lastState.time = 0f;
+//             lastState.enabled = true;
+//             animation.Play(lastPlayedAnimationName);
+//             animation.Stop();
+//             animation.Sample();
+//             lastState.enabled = false;
+//             Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
+//         }
 //
 //         // ✅ Reset to "Idle" if available
 //         if (animation.GetClip("Idle") != null)
@@ -809,10 +1103,18 @@
 // }
 //
 //
+//
 // public void GoBackToMainApp()
 // {
-//     SceneManager.LoadScene("MainApp"); 
+//     PlayerPrefs.SetString("LastPage", "DetailPage");
+//     PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
+//     PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
+//     PlayerPrefs.Save();
+//     
+//     SceneManager.LoadScene("MainApp");
 // }
+//
+//
 // void TogglePlayPauseAnimation(GameObject firstModel)
 // {
 //     if (!firstModel) return;
@@ -832,11 +1134,17 @@
 //         }
 //
 //         // ▶️ If NO animation is playing, RESUME the last played animation
-//         if (lastPlayedAnimationName != null && animation.GetClip(lastPlayedAnimationName) != null)
+//         if (!string.IsNullOrEmpty(lastPlayedAnimationName) && animation.GetClip(lastPlayedAnimationName) != null)
 //         {
+//             AnimationState lastState = animation[lastPlayedAnimationName];
+//             lastState.time = 0f;
+//             lastState.enabled = true;
 //             animation.Play(lastPlayedAnimationName);
-//             Debug.Log($"▶️ Resumed animation: {lastPlayedAnimationName}");
+//             animation.Stop();
+//             animation.Sample();
+//             lastState.enabled = false;
 //         }
+//
 //         else
 //         {
 //             Debug.LogWarning("⚠️ No previous animation found to resume.");
@@ -902,6 +1210,8 @@
 //
 //     void BackToCourseUI()
 //     {
+//         
+//         instructionDetailStepPrefab.SetActive(true);
 //         instructionDetailPanel.SetActive(false);
 //         courseUIPanel.SetActive(true);
 //

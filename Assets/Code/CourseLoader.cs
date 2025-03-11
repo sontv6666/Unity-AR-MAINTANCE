@@ -32,6 +32,11 @@ public class CourseLoader : MonoBehaviour
         }
     }
 
+    public void ReloadCourseData()
+    {
+        Start(); // Gọi lại Start() để load dữ liệu
+    }
+    
     IEnumerator FetchCourseData(string endpoint)
     {
         Debug.Log("CourseLoader: Sending request to API.");
@@ -57,11 +62,20 @@ public class CourseLoader : MonoBehaviour
     void ProcessCourseData(string jsonData)
     {
         Debug.Log("CourseLoader: Processing course data.");
+    
         // Deserialize JSON to object
         CourseResponse1 response = JsonUtility.FromJson<CourseResponse1>(jsonData);
+    
         if (response != null && response.result != null && response.result.objectList != null)
         {
             Debug.Log($"CourseLoader: Found {response.result.objectList.Count} courses.");
+        
+            // ✅ Clear existing course panels before adding new ones
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject); // 🔥 Delete old course panels
+            }
+
             foreach (CourseData course in response.result.objectList)
             {
                 // Truncate long title and description
@@ -73,18 +87,20 @@ public class CourseLoader : MonoBehaviour
                 // Assign truncated values to course data
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;
+
                 nocourseText.SetActive(false);
-                // Create UI panel for each course
+
+                // ✅ Create new UI panel for each course
                 CreateCoursePanel(course);
             }
         }
         else
         {
             nocourseText.SetActive(true);
-
             Debug.LogError("Response data is null or invalid!");
         }
     }
+
 
     void CreateCoursePanel(CourseData course)
     {
