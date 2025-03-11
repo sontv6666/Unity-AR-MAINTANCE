@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bb55e0a843f0654ea77d0d420ce23a8, type: 3}
   m_Name: Figma Downloader
   m_EditorClassIdentifier: 
-  _personalAccessToken: figd_TGUEf1GXp_fltN2OXXBxffp54fRUg9-Wg9rnSOVI
+  _personalAccessToken: figd_tqa3qOYu3V2h1Dmkngau7RoXUDpof7W_ezt6y2xH
   _assetExtension: figma
   _assetPath: Resources/Figma/Files
   _downloadDependencies: 1
