@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using GLTFast;
 using GLTFast.Loading;
 using System.Threading.Tasks;
+using System;
 
 using System.Collections;
 using System.Collections.Generic;
@@ -656,6 +657,132 @@ public class ARQRCodeScanner : MonoBehaviour
                 UpdateUIText("Download Error", request.error);
             }
         }
+        
+        // ✅ Start File Download
+    public void StartFileDownload(string fileUrl, string fileName)
+    {
+        StartCoroutine(DownloadFileWithSizeCheck(fileUrl, fileName));
+    }
+
+    // ✅ Download with File Size Check
+    IEnumerator DownloadFileWithSizeCheck(string fileUrl, string fileName)
+    {
+        long expectedFileSize = -1;
+
+        // 🔹 Step 1: Get file size first
+        yield return StartCoroutine(GetFileSize(fileUrl, size => expectedFileSize = size));
+
+        if (expectedFileSize <= 0)
+        {
+            Debug.LogError("❌ Failed to get valid file size. Cancelling download.");
+            yield break;
+        }
+
+        string savePath = Path.Combine(Application.persistentDataPath, fileName);
+
+        // 🔹 Step 2: Check if file already exists
+        if (File.Exists(savePath))
+        {
+            long existingFileSize = new FileInfo(savePath).Length;
+
+            if (existingFileSize == expectedFileSize)
+            {
+                Debug.Log($"📌 File already fully downloaded: {fileName} (Size: {existingFileSize} bytes)");
+                yield break;
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ Incomplete file detected! {fileName} (Size: {existingFileSize}/{expectedFileSize})");
+                File.Delete(savePath); // ❌ Delete corrupted/incomplete file
+            }
+        }
+
+        // 🔹 Step 3: Start Download
+        yield return StartCoroutine(DownloadFile(fileUrl, fileName, expectedFileSize));
+    }
+
+    // ✅ Download File
+    IEnumerator DownloadFile(string fileUrl, string fileName, long expectedFileSize)
+    {
+        string savePath = Path.Combine(Application.persistentDataPath, fileName);
+        UnityWebRequest request = new UnityWebRequest(fileUrl, UnityWebRequest.kHttpVerbGET);
+        request.downloadHandler = new DownloadHandlerFile(savePath);
+
+        UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+
+        while (!operation.isDone)
+        {
+            float progress = operation.progress;
+            UpdateDownloadProgress(progress, $"Downloading: {fileName}");
+            yield return null;
+        }
+
+        // 🔹 Step 4: Verify Download Success
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            long downloadedFileSize = new FileInfo(savePath).Length;
+
+            if (downloadedFileSize == expectedFileSize)
+            {
+                Debug.Log($"✅ File successfully downloaded: {savePath} (Size: {downloadedFileSize} bytes)");
+            }
+            else
+            {
+                Debug.LogError($"❌ File size mismatch! Expected: {expectedFileSize}, Got: {downloadedFileSize}");
+                File.Delete(savePath); // ❌ Delete corrupted file
+            }
+        }
+        else
+        {
+            Debug.LogError($"❌ Download failed: {fileUrl} Error: {request.error}");
+            if (File.Exists(savePath))
+            {
+                File.Delete(savePath); // ❌ Delete incomplete file
+            }
+        }
+    }
+
+    // ✅ Get File Size
+    IEnumerator GetFileSize(string fileUrl, Action<long> onFileSizeReceived, int retries = 3)
+    {
+        for (int attempt = 1; attempt <= retries; attempt++)
+        {
+            UnityWebRequest request = UnityWebRequest.Head(fileUrl);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                long fileSize = -1;
+                
+                // ✅ Try Content-Range header first
+                string contentRange = request.GetResponseHeader("Content-Range");
+                if (!string.IsNullOrEmpty(contentRange))
+                {
+                    string[] parts = contentRange.Split('/');
+                    if (parts.Length == 2 && long.TryParse(parts[1], out fileSize))
+                    {
+                        Debug.Log($"📏 File Size (Content-Range): {fileSize} bytes");
+                        onFileSizeReceived?.Invoke(fileSize);
+                        yield break;
+                    }
+                }
+
+                // ✅ Fallback to Content-Length if Content-Range is missing
+                string contentLength = request.GetResponseHeader("Content-Length");
+                if (!string.IsNullOrEmpty(contentLength) && long.TryParse(contentLength, out fileSize))
+                {
+                    Debug.Log($"📏 File Size (Content-Length): {fileSize} bytes");
+                    onFileSizeReceived?.Invoke(fileSize);
+                    yield break;
+                }
+            }
+
+            Debug.LogError($"❌ Attempt {attempt}/{retries} - Failed to get file size: {request.error}");
+            if (attempt == retries) onFileSizeReceived?.Invoke(-1);
+            yield return new WaitForSeconds(2); // Wait before retrying
+        }
+    }
+
 
         void UpdateDownloadProgress(float progress, string message)
         {

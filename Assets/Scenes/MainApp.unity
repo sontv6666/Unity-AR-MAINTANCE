@@ -4235,6 +4235,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameText: {fileID: 1648119119}
   companyText: {fileID: 463485889}
+  emailText: {fileID: 0}
+  roleText: {fileID: 0}
+  phoneText: {fileID: 0}
+  avatarImage: {fileID: 0}
 --- !u!1 &270136322
 GameObject:
   m_ObjectHideFlags: 0
@@ -44697,6 +44701,7 @@ MonoBehaviour:
   - {fileID: 2077063458}
   - {fileID: 14642158}
   - {fileID: 1766322110}
+  - {fileID: 2139142892}
 --- !u!4 &2120011586
 Transform:
   m_ObjectHideFlags: 0
