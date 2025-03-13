@@ -429,15 +429,18 @@ public class ARQRCodeScanner : MonoBehaviour
             // ✅ Apply position & rotation
             Vector3 position = new Vector3(modelData.result.position[0], modelData.result.position[1], modelData.result.position[2]);
             Vector3 rotation = new Vector3(modelData.result.rotation[0], modelData.result.rotation[1], modelData.result.rotation[2]);
-
+            Vector3 scale = modelData.result.GetScale();  
+            
+                
             // ✅ Load the model
-            yield return StartCoroutine(Load3DModel(modelFilePath, modelContainer, position, rotation));
+            yield return StartCoroutine(Load3DModel(modelFilePath, modelContainer, position, rotation, scale));
         }
+        
 
 
         //LOAD MODEL FROM FETCH, DOWNLOAD MODEL
 
-        public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+        public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation,  Vector3 scale)
         {
             Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
@@ -538,15 +541,16 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
 
-            // ✅ Đặt vị trí của model dựa trên vị trí QR code và thêm bù vào vị trí mới
+          
+            // ✅ Apply correct position
             loadedModel.transform.position = qrCodePosition;
 
-            // ✅ Đặt góc quay mới từ tham số truyền vào
+      
+            // ✅ Apply correct rotation
             loadedModel.transform.rotation = Quaternion.Euler(rotation);
 
-            // ✅ Đảm bảo mô hình có kích thước chuẩn
-            loadedModel.transform.localScale = Vector3.one * 0.1f;
-
+            // ✅ Apply correct scale
+            loadedModel.transform.localScale = scale;
             Debug.Log(
                 $"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
 
@@ -1736,7 +1740,34 @@ public class ModelData
     public string imageUrl;
     public bool isUsed;
     public string version;
+    
     public string scale;
+    public Vector3 GetScale()
+    {
+        if (!string.IsNullOrEmpty(scale))
+        {
+            string[] scaleValues = scale.Split(',');
+
+            if (scaleValues.Length == 1) // Single scale value (e.g., "1")
+            {
+                if (float.TryParse(scaleValues[0], out float uniformScale))
+                {
+                    return Vector3.one * uniformScale; // Apply uniform scale
+                }
+            }
+            else if (scaleValues.Length == 3) // Separate x, y, z values (e.g., "1,2,3")
+            {
+                if (float.TryParse(scaleValues[0], out float x) &&
+                    float.TryParse(scaleValues[1], out float y) &&
+                    float.TryParse(scaleValues[2], out float z))
+                {
+                    return new Vector3(x, y, z);
+                }
+            }
+        }
+
+        return Vector3.one; // Default scale if parsing fails
+    }
     public float[] position;  // Position as [x, y, z]
     public float[] rotation;  // Rotation as [x, y, z]
     public string file;
