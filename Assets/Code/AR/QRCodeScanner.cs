@@ -118,7 +118,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // Use test ID for debugging
         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
-        //courseID = testID;
+       // courseID = testID;
 
         if (string.IsNullOrEmpty(courseID))
         {
@@ -138,7 +138,7 @@ public class ARQRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-            TryScanQRCode();
+            //TryScanQRCode();
         }
 
 
@@ -151,6 +151,7 @@ public class ARQRCodeScanner : MonoBehaviour
         instructionDetailPanel.SetActive(false);
         scanUIPanel.SetActive(false);
         scanBoxUI.SetActive(false);
+        centerModelButton.gameObject.SetActive(false);
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
@@ -162,13 +163,13 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(true);
-        scanBoxUI.SetActive(true);
-        
-        courseUIPanel.SetActive(false);
+        scanUIPanel.SetActive(false);
+        scanBoxUI.SetActive(false);
+        courseUIPanel.SetActive(true); 
+        centerModelButton.gameObject.SetActive(true);
         instructionDetailPanel.SetActive(false);
-
-        StartScanning();
+       
+     //   StartScanning();
     }
 
 
@@ -554,62 +555,63 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
         // AFTER LOAD FIRST 3D MODEL.IT WILL CALL THIS FOR DOWNLOAD AND LOAD UI
-     IEnumerator DownloadAndLoadUI(CourseResult course)
-{
-    string fileEndpoint = "/files/";
-
-    List<string> modelPaths = new List<string>();
-    Dictionary<string, string> imagePaths = new Dictionary<string, string>();
-
-    // ✅ Total files to download (course image + instruction assets)
-    int totalFiles = 1 + course.instructions.Sum(i => i.instructionDetailResponse.Count * 2); 
-    int completedFiles = 0;
-
-    // ✅ Download course image
-    if (!string.IsNullOrEmpty(course.imageUrl))
-    {
-        string imageFilePath = Path.Combine(Application.persistentDataPath, course.imageUrl);
-        yield return StartCoroutine(DownloadFile(fileEndpoint + course.imageUrl, course.imageUrl));
-        imagePaths[course.imageUrl] = imageFilePath;
-        completedFiles++;
-        UpdateProgress(completedFiles, totalFiles);
-    }
-
-    // ✅ Download instruction images & 3D models
-    foreach (var instruction in course.instructions)
-    {
-        foreach (var detail in instruction.instructionDetailResponse)
+        IEnumerator DownloadAndLoadUI(CourseResult course)
         {
-            // ✅ Download images
-            if (!string.IsNullOrEmpty(detail.imgString))
+            string fileEndpoint = "/files/";
+
+            List<string> modelPaths = new List<string>();
+            Dictionary<string, string> imagePaths = new Dictionary<string, string>();
+
+            // ✅ Total files to download (course image + instruction assets)
+            int totalFiles = 1 + course.instructions.Sum(i => i.instructionDetailResponse.Count * 2);
+            int completedFiles = 0;
+
+            // ✅ Download course image
+            if (!string.IsNullOrEmpty(course.imageUrl))
             {
-                string imageFilePath = Path.Combine(Application.persistentDataPath, detail.imgString);
-                yield return StartCoroutine(DownloadFile(fileEndpoint + detail.imgString, detail.imgString));
-                imagePaths[detail.imgString] = imageFilePath;
+                string imageFilePath = Path.Combine(Application.persistentDataPath, course.imageUrl);
+                yield return StartCoroutine(DownloadFile(fileEndpoint + course.imageUrl, course.imageUrl));
+                imagePaths[course.imageUrl] = imageFilePath;
                 completedFiles++;
                 UpdateProgress(completedFiles, totalFiles);
             }
 
-            // ✅ Download 3D models
-            if (!string.IsNullOrEmpty(detail.fileString))
+            // ✅ Download instruction images & 3D models
+            foreach (var instruction in course.instructions)
             {
-                yield return StartCoroutine(DownloadFile(fileEndpoint + detail.fileString, detail.fileString));
-                completedFiles++;
-                UpdateProgress(completedFiles, totalFiles);
-
-                if (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf"))
+                foreach (var detail in instruction.instructionDetailResponse)
                 {
-                    string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
-                    modelPaths.Add(modelPath);
+                    // ✅ Download images
+                    if (!string.IsNullOrEmpty(detail.imgString))
+                    {
+                        string imageFilePath = Path.Combine(Application.persistentDataPath, detail.imgString);
+                        yield return StartCoroutine(DownloadFile(fileEndpoint + detail.imgString, detail.imgString));
+                        imagePaths[detail.imgString] = imageFilePath;
+                        completedFiles++;
+                        UpdateProgress(completedFiles, totalFiles);
+                    }
+
+                    // ✅ Download 3D models
+                    if (!string.IsNullOrEmpty(detail.fileString))
+                    {
+                        yield return StartCoroutine(DownloadFile(fileEndpoint + detail.fileString, detail.fileString));
+                        completedFiles++;
+                        UpdateProgress(completedFiles, totalFiles);
+
+                        if (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf"))
+                        {
+                            string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
+                            modelPaths.Add(modelPath);
+                        }
+                    }
                 }
             }
+
+            // ✅ Load UI with local images
+            Debug.Log($"Load UI: {course.title} with {imagePaths.Count} images");
+            LoadUI(course, imagePaths);
         }
-    }
-
-    // ✅ Load UI with local images
-    LoadUI(course, imagePaths);
-}
-
+        
 
         void LoadUI(CourseResult course, Dictionary<string, string> imagePaths)
         {
@@ -830,6 +832,8 @@ public class ARQRCodeScanner : MonoBehaviour
             loadingUIPanel.SetActive(false);
             courseUIPanel.SetActive(true);
             instructionDetailPanel.SetActive(false);
+            backButton.gameObject.SetActive(true);
+            centerModelButton.gameObject.SetActive(true);
 
             // Show title
             courseTitleText.text = course.title;
@@ -883,6 +887,8 @@ public class ARQRCodeScanner : MonoBehaviour
             loadingUIPanel.SetActive(false);
             courseUIPanel.SetActive(false);
             instructionDetailPanel.SetActive(true);
+            backButton.gameObject.SetActive(false);
+
         }
 
         void UpdateInstructionStepUI(Instruction instruction)
@@ -1012,7 +1018,7 @@ public class ARQRCodeScanner : MonoBehaviour
             if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(true);
         }
 
-// ✅ Show all UI elements and restore image transparency to 170/255
+        // ✅ Show all UI elements and restore image transparency to 170/255
         void ShowInstructionUI(GameObject stepItem)
         {
             Debug.Log("🔹 Showing all instruction UI elements...");
@@ -1030,7 +1036,7 @@ public class ARQRCodeScanner : MonoBehaviour
             if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(false);
         }
 
-// ✅ Helper function to change image transparency
+        // ✅ Helper function to change image transparency
         void SetInstructionImageTransparency(GameObject stepItem, float alpha)
         {
             Image stepImage = stepItem.GetComponent<Image>(); // Get Image component of the prefab itself
@@ -1043,12 +1049,12 @@ public class ARQRCodeScanner : MonoBehaviour
         }
 
 
-// Speed values to cycle through
+        // Speed values to cycle through
         float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
         int currentSpeedIndex = 2; // Default speed index (1x)
 
-// Create buttons for each speed option
-// ✅ Create buttons for animation speed options
+    
+        // ✅ Create buttons for animation speed options
         void SetupSpeedControls(GameObject stepItem, GameObject firstModel, InstructionDetail detail)
         {
             // Find Buttons
@@ -1100,23 +1106,28 @@ public class ARQRCodeScanner : MonoBehaviour
         {
             if (!firstModel) return;
 
+            // ✅ Disable buttons at the start (force this so they don’t get overridden)
+            SetNavigationButtonsInteractable(false);
+            
+            isAnimationPlaying = true;
             // ✅ Get the Animation component
             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
             if (animation != null)
             {
-                // ✅ Disable Animator (if any) to prevent conflicts
+                
+                // ✅ Disable Animator to avoid conflicts
                 Animator animator = firstModel.GetComponentInChildren<Animator>();
-                if (animator != null)
-                {
-                    Debug.LogWarning("⚠️ Animator detected! Disabling it to avoid conflicts with Animation.");
-                    animator.enabled = false;
-                }
+                if (animator) animator.enabled = false;
+
+                animation.Stop();
+                animation.Rewind();
 
 
                 animation.Stop();
                 animation.Rewind(); // ✅ Force rewind to first frame
                 Debug.Log("🔄 Stopped and rewound all animations.");
-                // ✅ Reset all animations before playing a new one
+                
+                // ✅ Ensure all animations reset before playing a new on
                 foreach (AnimationState state in animation)
                 {
                     if (state != null)
@@ -1129,9 +1140,17 @@ public class ARQRCodeScanner : MonoBehaviour
                         state.enabled = false; // Disable after sampling
                     }
                 }
-
-                // ✅ Force Reset Model Transform
-                ResetModelState(firstModel);
+                
+                
+                // ✅ Disable looping for ALL animations
+                foreach (AnimationState state in animation)
+                {
+                    if (state != null)
+                    {
+                        state.wrapMode = WrapMode.Once; // 🔴 Prevent looping
+                    }
+                }
+                
 
                 Debug.Log("🔄 Reset all previous animations.");
 
@@ -1148,36 +1167,30 @@ public class ARQRCodeScanner : MonoBehaviour
                     lastState.enabled = false;
                     Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
                 }
-
-                // ✅ Reset to "Idle" if available
-                if (animation.GetClip("Idle") != null)
-                {
-                    animation.Play("Idle");
-                    Debug.Log("🔄 Reset model to idle animation.");
-                }
-                else
-                {
-                    Debug.LogWarning("⚠️ No 'Idle' animation found! Resetting model transforms.");
-                    ResetModelState(firstModel);
-                }
-
+                
                 // ✅ Play the new animation with speed control
                 if (animation.GetClip(detail.animationName) != null)
                 {
                     AnimationState newState = animation[detail.animationName];
                     lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
                     newState.speed = speed;
+                    newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
                     animation.Play(detail.animationName);
                     Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
+                    StartCoroutine(WaitForAnimationToEnd(animation, newState.length / speed)); // ✅ Adjust time based on speed
                 }
                 else
                 {
                     Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
+                    isAnimationPlaying = false;
+                    SetNavigationButtonsInteractable(true);
                 }
             }
             else
             {
                 Debug.LogWarning("⚠️ No Animation component found!");
+                isAnimationPlaying = false;
+                SetNavigationButtonsInteractable(true);
             }
 
             // ✅ Reset all meshes to active before hiding specific ones
@@ -1201,6 +1214,39 @@ public class ARQRCodeScanner : MonoBehaviour
             }
         }
 
+        IEnumerator WaitForAnimationToEnd(Animation animation, float duration)
+        {
+            Debug.Log($"⏳ Waiting for animation to finish... (Duration: {duration}s)");
+
+            yield return new WaitForSeconds(duration + 0.5f); // Add buffer time
+
+            Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+
+            isAnimationPlaying = false;
+            SetNavigationButtonsInteractable(true);
+        }
+
+
+        bool isAnimationPlaying = false;
+        // 🟢 Enable/Disable Previous & Next buttons dynamically
+        void UpdateStepNavigationButtons()
+        {
+            if (instructionStepInstances.Count == 0) return;
+
+            GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+            Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
+            Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
+
+            // ✅ Only update buttons if animation is not playing
+            if (!isAnimationPlaying)
+            {
+                if (prevButton) prevButton.interactable = (currentStepIndex > 0);
+                if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
+            }
+        }
+
+
 
 
         public void GoBackToMainApp()
@@ -1209,7 +1255,6 @@ public class ARQRCodeScanner : MonoBehaviour
             PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
             PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
             PlayerPrefs.Save();
-
             SceneManager.LoadScene("MainApp");
         }
 
@@ -1436,88 +1481,136 @@ public class ARQRCodeScanner : MonoBehaviour
         }
 
 
-        void BackToCourseUI()
+     void BackToCourseUI()
+{
+    // ✅ Activate UI elements correctly
+    instructionDetailStepPrefab.SetActive(true);
+    instructionDetailPanel.SetActive(false);
+    courseUIPanel.SetActive(true);
+    backButton.gameObject.SetActive(true);
+
+    Debug.Log("🔙 Returning to Course UI");
+
+    // ✅ Hide all step UI elements
+    foreach (GameObject stepItem in instructionStepInstances)
+    {
+        stepItem.SetActive(false);
+    }
+
+    // ✅ Reset to first step
+    currentStepIndex = 0;
+    isAnimationPlaying = false; // ✅ Ensure animations are marked as done
+
+    // ✅ Find "FirstModelAfterScan"
+    GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+    if (firstModel != null)
+    {
+        firstModel.SetActive(true);
+
+        // ✅ Reactivate all hidden meshes
+        foreach (Transform child in firstModel.transform)
         {
-
-            instructionDetailStepPrefab.SetActive(true);
-            instructionDetailPanel.SetActive(false);
-            courseUIPanel.SetActive(true);
-
-            Debug.Log("🔙 Returning to Course UI");
-
-            // ✅ Hide all step UI elements
-            foreach (GameObject stepItem in instructionStepInstances)
-            {
-                stepItem.SetActive(false);
-            }
-
-            // ✅ Reset to first step
-            currentStepIndex = 0;
-
-            // ✅ Reactivate "FirstModelAfterScan" and restore meshes
-            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-            if (firstModel != null)
-            {
-                firstModel.SetActive(true);
-
-                // ✅ Reactivate all hidden meshes
-                foreach (Transform child in firstModel.transform)
-                {
-                    child.gameObject.SetActive(true);
-                    Debug.Log($"✅ Reactivating mesh: {child.name}");
-                }
-
-                // ✅ Stop animation & reset to first frame
-                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-                if (animation != null)
-                {
-                    animation.Stop(); // Stop any running animation
-
-                    Debug.Log("⏹ Animation stopped and model reset to first frame.");
-                }
-            }
+            child.gameObject.SetActive(true);
+            Debug.Log($"✅ Reactivating mesh: {child.name}");
         }
 
-
-
-// 🔄 Change step logic
-        void ChangeInstructionStep(int direction)
+        // ✅ Reset Animation Component
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+        if (animation != null)
         {
-            if (instructionStepInstances.Count == 0) return;
-
-            // ✅ Hide current step UI
-            instructionStepInstances[currentStepIndex].SetActive(false);
-
-            // ✅ Move to next/previous step
-            currentStepIndex += direction;
-            currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
-
-            // ✅ Show new step UI
-            instructionStepInstances[currentStepIndex].SetActive(true);
-
-            // ✅ Play animation & update meshes
-            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-            if (firstModel != null)
+            // 🔴 Disable looping for all animations
+            foreach (AnimationState state in animation)
             {
-                PlayStepAnimation(firstModel, currentInstructionDetails[currentStepIndex]);
+                state.wrapMode = WrapMode.Once; // Prevent looping
             }
 
-            UpdateStepNavigationButtons();
+            // ✅ Stop, rewind, and apply first frame
+            animation.Stop();
+            animation.Rewind();
+            animation.Play(); // Play to apply first frame
+            animation.Stop();
+            animation.Sample(); // Force update to first frame
+            animation.enabled = false; // Ensure it's fully stopped
+
+            Debug.Log("⏹ Animation stopped and reset.");
         }
 
-// 🟢 Enable/Disable Previous & Next buttons dynamically
-        void UpdateStepNavigationButtons()
+        // ✅ Reset Animator (if exists)
+        Animator animator = firstModel.GetComponentInChildren<Animator>(true);
+        if (animator != null)
         {
-            if (instructionStepInstances.Count == 0) return;
+            animator.enabled = false; // 🔴 Temporarily disable to avoid conflicts
+            animator.Rebind(); // ✅ Reset all states
+            animator.Update(0); // Force update to first frame
+            animator.enabled = true; // Reactivate after reset
 
-            GameObject currentStep = instructionStepInstances[currentStepIndex];
-
-            Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
-            Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
-
-            if (prevButton) prevButton.interactable = (currentStepIndex > 0);
-            if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
+            Debug.Log("🎭 Animator force-reset successfully.");
         }
+    }
+    else
+    {
+        Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
+    }
+}
+
+
+
+
+
+
+
+    // 🔄 Change step logic
+    void ChangeInstructionStep(int direction)
+    {
+        if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
+
+        // ✅ Hide current step UI
+        instructionStepInstances[currentStepIndex].SetActive(false);
+
+        // ✅ Move to next/previous step
+        currentStepIndex += direction;
+        currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
+
+        // ✅ Show new step UI
+        instructionStepInstances[currentStepIndex].SetActive(true);
+
+        // ✅ Play animation & block navigation until it’s done
+        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+        if (firstModel != null)
+        {
+            InstructionDetail currentStepDetail = currentInstructionDetails[currentStepIndex];
+
+            // ✅ Block buttons
+            isAnimationPlaying = true;
+            SetNavigationButtonsInteractable(false);
+
+            PlayStepAnimation(firstModel, currentStepDetail); // Play animation
+        }
+    }
+
+
+    // 🟢 Enable/Disable Previous & Next buttons dynamically
+    void SetNavigationButtonsInteractable(bool isInteractable)
+    {
+        if (instructionStepInstances.Count == 0) return;
+
+        // ✅ Get the active step
+        GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+        // ✅ Find buttons ONLY in the current step
+        Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
+        Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
+
+        // 🔴 Ensure buttons stay disabled if an animation is still playing
+        bool canInteract = isInteractable && !isAnimationPlaying;
+
+        // ✅ Enable/Disable buttons correctly
+        if (prevButton) prevButton.interactable = canInteract && (currentStepIndex > 0);
+        if (nextButton) nextButton.interactable = canInteract && (currentStepIndex < instructionStepInstances.Count - 1);
+
+        Debug.Log($"🔘 Buttons updated: Prev={prevButton?.interactable}, Next={nextButton?.interactable}, AnimationPlaying={isAnimationPlaying}");
+    }
+
 
 
 
@@ -1549,7 +1642,6 @@ public class ARQRCodeScanner : MonoBehaviour
                 Debug.LogError($"❌ Failed to load image from: {imagePath}");
             }
         }
-
 
 
 
