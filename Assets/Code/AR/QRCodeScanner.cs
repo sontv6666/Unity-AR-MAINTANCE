@@ -83,6 +83,12 @@ public class ARQRCodeScanner : MonoBehaviour
     // Progress UI Elements
     public Slider progressBar;
     public TMP_Text progressText;
+    
+    
+    // Speed values to cycle through
+    float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
+    int currentSpeedIndex = 2; // Default speed index (1x)
+    private float lastAnimationSpeed = 1f; // Default speed is 1x
 
 
     void Start()
@@ -170,6 +176,9 @@ public class ARQRCodeScanner : MonoBehaviour
         instructionDetailPanel.SetActive(false);
        
      //   StartScanning();
+     
+     
+     
     }
 
 
@@ -540,10 +549,11 @@ public class ARQRCodeScanner : MonoBehaviour
             // Debug.Log("✅ Model correctly anchored to QR Code.");
 
 
-
+            Debug.Log(
+                $"✅ Model info {position}, Rotation: {rotation}");
           
             // ✅ Apply correct position
-            loadedModel.transform.position = qrCodePosition;
+            loadedModel.transform.position = qrCodePosition + position;;
 
       
             // ✅ Apply correct rotation
@@ -1053,10 +1063,7 @@ public class ARQRCodeScanner : MonoBehaviour
         }
 
 
-        // Speed values to cycle through
-        float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
-        int currentSpeedIndex = 2; // Default speed index (1x)
-
+     
     
         // ✅ Create buttons for animation speed options
         void SetupSpeedControls(GameObject stepItem, GameObject firstModel, InstructionDetail detail)
@@ -1091,18 +1098,36 @@ public class ARQRCodeScanner : MonoBehaviour
         }
 
 
-// ✅ Function to change animation speed
-        void ChangeAnimationSpeed(GameObject firstModel, InstructionDetail detail, float speed)
-        {
-            if (firstModel == null) return;
+    // ✅ Function to change animation speed
+    void ChangeAnimationSpeed(GameObject firstModel, InstructionDetail detail, float newSpeed)
+    {
+        if (firstModel == null) return;
 
-            Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-            if (animation != null && animation.IsPlaying(detail.animationName))
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+        if (animation != null)
+        {
+            if (animation.GetClip(detail.animationName) != null)
             {
-                animation[detail.animationName].speed = speed;
-                Debug.Log($"⏩ Animation speed set to {speed}x");
+                AnimationState state = animation[detail.animationName];
+                state.speed = newSpeed;
+                lastAnimationSpeed = newSpeed; // ✅ Save the new speed globally
+                Debug.Log($"⚡ Changed animation speed to: {newSpeed}");
             }
         }
+    }
+    
+    
+    void UpdateSpeedSliderUI(GameObject stepItem)
+    {
+        Slider speedSlider = stepItem.transform.Find("animationSpeedSlider")?.GetComponent<Slider>();
+
+        if (speedSlider)
+        {
+            speedSlider.value = 1f; // ✅ Reset speed slider to default 1x
+        }
+    }
+
+
 
 
 
@@ -1112,10 +1137,13 @@ public class ARQRCodeScanner : MonoBehaviour
 
             // ✅ Disable buttons at the start (force this so they don’t get overridden)
             SetNavigationButtonsInteractable(false);
-            
             isAnimationPlaying = true;
+            
+            SetReplayButtonInteractable(false); 
             // ✅ Get the Animation component
             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+     
+            
             if (animation != null)
             {
                 
@@ -1177,17 +1205,18 @@ public class ARQRCodeScanner : MonoBehaviour
                 {
                     AnimationState newState = animation[detail.animationName];
                     lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
-                    newState.speed = speed;
+                    newState.speed = lastAnimationSpeed;
                     newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
                     animation.Play(detail.animationName);
                     Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
-                    StartCoroutine(WaitForAnimationToEnd(animation, newState.length / speed)); // ✅ Adjust time based on speed
+                    StartCoroutine(WaitForAnimationToEnd(animation, newState));
                 }
                 else
                 {
                     Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
                     isAnimationPlaying = false;
                     SetNavigationButtonsInteractable(true);
+                    SetReplayButtonInteractable(true);
                 }
             }
             else
@@ -1217,21 +1246,58 @@ public class ARQRCodeScanner : MonoBehaviour
                 }
             }
         }
+        
+        bool isAnimationPlaying = false;
+        private bool isAnimationPaused = false; // 🔴 Track if animation was paused manually
+        // IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
+        // {
+        //     Debug.Log("⏳ Waiting for animation to finish...");
+        //
+        //     while (state.enabled && animation.IsPlaying(state.name) && !isAnimationPaused)
+        //     {
+        //         yield return null; // Wait until animation finishes or is manually paused/stopped
+        //     }
+        //
+        //
+        //     Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+        //
+        //     isAnimationPlaying = false;
+        //     SetNavigationButtonsInteractable(true);
+        // }
+        
 
-        IEnumerator WaitForAnimationToEnd(Animation animation, float duration)
+        IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
         {
-            Debug.Log($"⏳ Waiting for animation to finish... (Duration: {duration}s)");
+            Debug.Log("⏳ Waiting for animation to finish...");
 
-            yield return new WaitForSeconds(duration + 0.5f); // Add buffer time
+            SetNavigationButtonsInteractable(false); // 🚫 Disable buttons immediately
 
-            Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+            while (state.enabled && animation.IsPlaying(state.name))
+            {
+                if (isAnimationPaused) // 🛑 If paused, keep waiting and keep buttons disabled
+                {
+                    Debug.Log("⏸️ Animation paused, waiting...");
+                    yield return null;
+                }
+                else
+                {
+                    yield return null; // ✅ Continue waiting normally
+                }
+            }
 
-            isAnimationPlaying = false;
-            SetNavigationButtonsInteractable(true);
+            // ✅ Only re-enable buttons if animation finished naturally
+            if (!isAnimationPaused)
+            {
+                Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+                isAnimationPlaying = false;
+                SetNavigationButtonsInteractable(true);
+                SetReplayButtonInteractable(true); 
+            }
         }
 
+        
 
-        bool isAnimationPlaying = false;
+      
         // 🟢 Enable/Disable Previous & Next buttons dynamically
         void UpdateStepNavigationButtons()
         {
@@ -1250,18 +1316,7 @@ public class ARQRCodeScanner : MonoBehaviour
             }
         }
 
-
-
-
-        public void GoBackToMainApp()
-        {
-            PlayerPrefs.SetString("LastPage", "DetailPage");
-            PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
-            PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
-            PlayerPrefs.Save();
-            SceneManager.LoadScene("MainApp");
-        }
-
+        
         bool isModelCentered = false; // Add this as a global variable
 
         void CenterModel()
@@ -1339,7 +1394,282 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
 
-        void SetupModelInteractions(GameObject model)
+      
+
+    private string lastPlayedAnimationName = null;
+   
+    private float lastAnimationTime = 0f; // Store last animation time
+
+    public void TogglePlayPauseAnimation(GameObject firstModel)
+    {
+        if (!firstModel) return;
+
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+        if (animation != null)
+        {
+            foreach (AnimationState state in animation)
+            {
+                if (state.enabled) // 🔴 If animation is playing, PAUSE it
+                {
+                    lastPlayedAnimationName = state.name;
+                    lastAnimationTime = state.time; // Save current time before pausing
+                    state.enabled = false; // Pause animation
+                    animation.Sample(); // Keep the last frame
+                    isAnimationPaused = true; // ✅ Mark as paused
+                    Debug.Log($"⏸️ Paused animation '{state.name}' at frame: {state.time}");
+                    return;
+                }
+            }
+
+            // ▶️ If NO animation is playing, RESUME the last played animation
+            if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
+                animation.GetClip(lastPlayedAnimationName) != null)
+            {
+                AnimationState lastState = animation[lastPlayedAnimationName];
+                lastState.time = lastAnimationTime; // Resume from last saved time
+                lastState.enabled = true;
+                animation.Play(lastPlayedAnimationName);
+                isAnimationPaused = false; // ✅ Fix stuck state
+                Debug.Log($"▶️ Resumed animation '{lastPlayedAnimationName}' at frame: {lastAnimationTime}");
+
+                if (!isAnimationPlaying) // ✅ Restart waiting coroutine
+                {
+                    StartCoroutine(WaitForAnimationToEnd(animation, lastState));
+                }
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ No previous animation found to resume.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No Animation component found.");
+        }
+    }
+
+
+
+
+    public void StopCurrentAnimationAtFrame(GameObject firstModel)
+    {
+        if (firstModel == null) return;
+
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+        if (animation != null)
+        {
+            foreach (AnimationState state in animation)
+            {
+                if (state.enabled)
+                {
+                    lastPlayedAnimationName = state.name;
+                    lastAnimationTime = state.time; // Save the current frame before stopping
+                    state.enabled = false;
+                    animation.Sample(); // Apply the current frame
+                    isAnimationPaused = false; // ✅ Fix stuck state
+                    isAnimationPlaying = false; // ✅ Ensure correct state
+                    SetNavigationButtonsInteractable(true); // ✅ Re-enable buttons
+                    Debug.Log($"⏹ Stopped animation '{state.name}' at frame: {state.time}");
+                    return;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No Animation component found!");
+        }
+    }
+
+
+
+
+
+
+        void ResetModelState(GameObject model)
+        {
+
+
+            Debug.Log("🔄 Model reset to default transform state.");
+            // ✅ Reset blend shapes (if applicable)
+            SkinnedMeshRenderer[] skinnedMeshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            foreach (var skinnedMesh in skinnedMeshes)
+            {
+                Mesh mesh = skinnedMesh.sharedMesh;
+                if (mesh != null && mesh.blendShapeCount > 0)
+                {
+                    for (int i = 0; i < mesh.blendShapeCount; i++)
+                    {
+                        skinnedMesh.SetBlendShapeWeight(i, 0); // Reset all blend shapes
+                    }
+                }
+            }
+
+            Debug.Log("🔄 Model reset to default transform state.");
+        }
+
+        void SetReplayButtonInteractable(bool isInteractable)
+        {
+            if (instructionStepInstances.Count == 0) return;
+
+            // ✅ Get the active step
+            GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+            // ✅ Find the replay button ONLY in the current step
+            Button replayButton = currentStep.transform.Find("replayanimationButton")?.GetComponent<Button>();
+
+            // 🔴 Ensure the replay button stays disabled if animation is still playing
+            bool canInteract = isInteractable && !isAnimationPlaying;
+
+            // ✅ Enable/Disable replay button correctly
+            if (replayButton) replayButton.interactable = canInteract;
+
+            Debug.Log($"🔄 Replay button {(canInteract ? "enabled" : "disabled")} for step {currentStepIndex}");
+        }
+
+        
+    // 🔄 Change step logic
+    void ChangeInstructionStep(int direction)
+    {
+        if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
+
+        // ✅ Hide current step UI
+        instructionStepInstances[currentStepIndex].SetActive(false);
+
+        // ✅ Move to next/previous step
+        currentStepIndex += direction;
+        currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
+
+        // ✅ Show new step UI
+        instructionStepInstances[currentStepIndex].SetActive(true);
+        
+        // ✅ Reset speed to 1x for each step
+        lastAnimationSpeed = 1f;  
+        
+        // ✅ Update speed UI (slider)
+        UpdateSpeedSliderUI(instructionStepInstances[currentStepIndex]);
+
+        // ✅ Play animation & block navigation until it’s done
+        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+        if (firstModel != null)
+        {
+            InstructionDetail currentStepDetail = currentInstructionDetails[currentStepIndex];
+
+            // ✅ Block buttons
+            isAnimationPlaying = true;
+            SetNavigationButtonsInteractable(false);
+
+            PlayStepAnimation(firstModel, currentStepDetail); // Play animation
+        }
+    }
+
+
+    // 🟢 Enable/Disable Previous & Next buttons dynamically
+    void SetNavigationButtonsInteractable(bool isInteractable)
+    {
+        if (instructionStepInstances.Count == 0) return;
+
+        // ✅ Get the active step
+        GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+        // ✅ Find buttons ONLY in the current step
+        Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
+        Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
+
+        // 🔴 Ensure buttons stay disabled if an animation is still playing
+        bool canInteract = isInteractable && !isAnimationPlaying;
+
+        // ✅ Enable/Disable buttons correctly
+        if (prevButton) prevButton.interactable = canInteract && (currentStepIndex > 0);
+        if (nextButton) nextButton.interactable = canInteract && (currentStepIndex < instructionStepInstances.Count - 1);
+
+        Debug.Log($"🔘 Buttons updated: Prev={prevButton?.interactable}, Next={nextButton?.interactable}, AnimationPlaying={isAnimationPlaying}");
+    }
+    
+        public void GoBackToMainApp()
+        {
+            PlayerPrefs.SetString("LastPage", "DetailPage");
+            PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
+            PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
+            PlayerPrefs.Save();
+            SceneManager.LoadScene("MainApp");
+        }
+
+
+        void BackToCourseUI()
+        {
+            // ✅ Activate UI elements correctly
+            instructionDetailStepPrefab.SetActive(true);
+            instructionDetailPanel.SetActive(false);
+            courseUIPanel.SetActive(true);
+            backButton.gameObject.SetActive(true);
+
+            Debug.Log("🔙 Returning to Course UI");
+
+            // ✅ Hide all step UI elements
+            foreach (GameObject stepItem in instructionStepInstances)
+            {
+                stepItem.SetActive(false);
+            }
+
+            // ✅ Reset to first step
+            currentStepIndex = 0;
+            isAnimationPlaying = false; // ✅ Ensure animations are marked as done
+
+            // ✅ Find "FirstModelAfterScan"
+            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+            if (firstModel != null)
+            {
+                firstModel.SetActive(true);
+
+                // ✅ Reactivate all hidden meshes
+                foreach (Transform child in firstModel.transform)
+                {
+                    child.gameObject.SetActive(true);
+                    Debug.Log($"✅ Reactivating mesh: {child.name}");
+                }
+
+                // ✅ Reset Animation Component
+                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+                if (animation != null)
+                {
+                    // 🔴 Disable looping for all animations
+                    foreach (AnimationState state in animation)
+                    {
+                        state.wrapMode = WrapMode.Once; // Prevent looping
+                    }
+
+                    // ✅ Stop, rewind, and apply first frame
+                    animation.Stop();
+                    animation.Rewind();
+                    animation.Play(); // Play to apply first frame
+                    animation.Stop();
+                    animation.Sample(); // Force update to first frame
+                    animation.enabled = false; // Ensure it's fully stopped
+
+                    Debug.Log("⏹ Animation stopped and reset.");
+                }
+
+                // ✅ Reset Animator (if exists)
+                Animator animator = firstModel.GetComponentInChildren<Animator>(true);
+                if (animator != null)
+                {
+                    animator.enabled = false; // 🔴 Temporarily disable to avoid conflicts
+                    animator.Rebind(); // ✅ Reset all states
+                    animator.Update(0); // Force update to first frame
+                    animator.enabled = true; // Reactivate after reset
+
+                    Debug.Log("🎭 Animator force-reset successfully.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
+            }
+        }
+        
+        
+        
+          void SetupModelInteractions(GameObject model)
         {
             if (model == null)
             {
@@ -1389,239 +1719,7 @@ public class ARQRCodeScanner : MonoBehaviour
                 Debug.Log("📌 PinchToScale script added (Pinch to scale).");
             }
         }
-
-        void TogglePlayPauseAnimation(GameObject firstModel)
-        {
-            if (!firstModel) return;
-
-            Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-            if (animation != null)
-            {
-                foreach (AnimationState state in animation)
-                {
-                    if (state.enabled) // 🔴 If animation is playing, PAUSE it
-                    {
-                        state.enabled = false; // Pause animation
-                        animation.Sample(); // Keep the last frame
-                        Debug.Log($"⏸️ Paused animation at frame: {state.time}");
-                        return; // Stop execution here
-                    }
-                }
-
-                // ▶️ If NO animation is playing, RESUME the last played animation
-                if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
-                    animation.GetClip(lastPlayedAnimationName) != null)
-                {
-                    AnimationState lastState = animation[lastPlayedAnimationName];
-                    lastState.time = 0f;
-                    lastState.enabled = true;
-                    animation.Play(lastPlayedAnimationName);
-                    animation.Stop();
-                    animation.Sample();
-                    lastState.enabled = false;
-                }
-
-                else
-                {
-                    Debug.LogWarning("⚠️ No previous animation found to resume.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ No Animation component found.");
-            }
-        }
-
-        string lastPlayedAnimationName = null;
-
-        void StopCurrentAnimationAtFrame(GameObject firstModel)
-        {
-            if (firstModel == null) return;
-
-            // ✅ Get the Animation component
-            Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-            if (animation != null)
-            {
-                foreach (AnimationState state in animation)
-                {
-                    if (state.enabled)
-                    {
-                        // ✅ Keep the animation at the current frame
-                        state.enabled = false;
-                        animation.Sample(); // Apply the current frame
-                        Debug.Log($"⏸ Stopped animation at current frame: {state.name}");
-                        return; // Stop after pausing the first active animation
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ No Animation component found!");
-            }
-        }
-
-
-
-        void ResetModelState(GameObject model)
-        {
-
-
-            Debug.Log("🔄 Model reset to default transform state.");
-            // ✅ Reset blend shapes (if applicable)
-            SkinnedMeshRenderer[] skinnedMeshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            foreach (var skinnedMesh in skinnedMeshes)
-            {
-                Mesh mesh = skinnedMesh.sharedMesh;
-                if (mesh != null && mesh.blendShapeCount > 0)
-                {
-                    for (int i = 0; i < mesh.blendShapeCount; i++)
-                    {
-                        skinnedMesh.SetBlendShapeWeight(i, 0); // Reset all blend shapes
-                    }
-                }
-            }
-
-            Debug.Log("🔄 Model reset to default transform state.");
-        }
-
-
-     void BackToCourseUI()
-{
-    // ✅ Activate UI elements correctly
-    instructionDetailStepPrefab.SetActive(true);
-    instructionDetailPanel.SetActive(false);
-    courseUIPanel.SetActive(true);
-    backButton.gameObject.SetActive(true);
-
-    Debug.Log("🔙 Returning to Course UI");
-
-    // ✅ Hide all step UI elements
-    foreach (GameObject stepItem in instructionStepInstances)
-    {
-        stepItem.SetActive(false);
-    }
-
-    // ✅ Reset to first step
-    currentStepIndex = 0;
-    isAnimationPlaying = false; // ✅ Ensure animations are marked as done
-
-    // ✅ Find "FirstModelAfterScan"
-    GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-    if (firstModel != null)
-    {
-        firstModel.SetActive(true);
-
-        // ✅ Reactivate all hidden meshes
-        foreach (Transform child in firstModel.transform)
-        {
-            child.gameObject.SetActive(true);
-            Debug.Log($"✅ Reactivating mesh: {child.name}");
-        }
-
-        // ✅ Reset Animation Component
-        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-        if (animation != null)
-        {
-            // 🔴 Disable looping for all animations
-            foreach (AnimationState state in animation)
-            {
-                state.wrapMode = WrapMode.Once; // Prevent looping
-            }
-
-            // ✅ Stop, rewind, and apply first frame
-            animation.Stop();
-            animation.Rewind();
-            animation.Play(); // Play to apply first frame
-            animation.Stop();
-            animation.Sample(); // Force update to first frame
-            animation.enabled = false; // Ensure it's fully stopped
-
-            Debug.Log("⏹ Animation stopped and reset.");
-        }
-
-        // ✅ Reset Animator (if exists)
-        Animator animator = firstModel.GetComponentInChildren<Animator>(true);
-        if (animator != null)
-        {
-            animator.enabled = false; // 🔴 Temporarily disable to avoid conflicts
-            animator.Rebind(); // ✅ Reset all states
-            animator.Update(0); // Force update to first frame
-            animator.enabled = true; // Reactivate after reset
-
-            Debug.Log("🎭 Animator force-reset successfully.");
-        }
-    }
-    else
-    {
-        Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
-    }
-}
-
-
-
-
-
-
-
-    // 🔄 Change step logic
-    void ChangeInstructionStep(int direction)
-    {
-        if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
-
-        // ✅ Hide current step UI
-        instructionStepInstances[currentStepIndex].SetActive(false);
-
-        // ✅ Move to next/previous step
-        currentStepIndex += direction;
-        currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
-
-        // ✅ Show new step UI
-        instructionStepInstances[currentStepIndex].SetActive(true);
-
-        // ✅ Play animation & block navigation until it’s done
-        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-        if (firstModel != null)
-        {
-            InstructionDetail currentStepDetail = currentInstructionDetails[currentStepIndex];
-
-            // ✅ Block buttons
-            isAnimationPlaying = true;
-            SetNavigationButtonsInteractable(false);
-
-            PlayStepAnimation(firstModel, currentStepDetail); // Play animation
-        }
-    }
-
-
-    // 🟢 Enable/Disable Previous & Next buttons dynamically
-    void SetNavigationButtonsInteractable(bool isInteractable)
-    {
-        if (instructionStepInstances.Count == 0) return;
-
-        // ✅ Get the active step
-        GameObject currentStep = instructionStepInstances[currentStepIndex];
-
-        // ✅ Find buttons ONLY in the current step
-        Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
-        Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
-
-        // 🔴 Ensure buttons stay disabled if an animation is still playing
-        bool canInteract = isInteractable && !isAnimationPlaying;
-
-        // ✅ Enable/Disable buttons correctly
-        if (prevButton) prevButton.interactable = canInteract && (currentStepIndex > 0);
-        if (nextButton) nextButton.interactable = canInteract && (currentStepIndex < instructionStepInstances.Count - 1);
-
-        Debug.Log($"🔘 Buttons updated: Prev={prevButton?.interactable}, Next={nextButton?.interactable}, AnimationPlaying={isAnimationPlaying}");
-    }
-
-
-
-
-
-
-
-
+        
         // ReSharper disable Unity.PerformanceAnalysis
         IEnumerator LoadImageFromLocal(string imagePath, UnityEngine.UI.Image targetImage)
         {
@@ -1665,11 +1763,8 @@ public class ARQRCodeScanner : MonoBehaviour
             if (debugLogText is not null)
                 debugLogText.text = debugMessage;
         }
-
-
-
-
-    
+        
+ 
 }
 
 // API Response Classes
