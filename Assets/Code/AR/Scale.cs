@@ -5,47 +5,54 @@ using UnityEngine;
 public class Scale : MonoBehaviour
 {
     public RectTransform loginScreen;
-
-    public RectTransform scrollViewRect;
-
-    public RectTransform scrollViewProfile;
-    public float phoneHeight = 1920f; // Chiều cao thiết kế cho điện thoại
-    public float tabletHeight = 1024f; // Chiều cao thiết kế cho tablet
-
+    public RectTransform scrollView;
+    public RectTransform quizScreen1;
+    public RectTransform quizScreen2;
+    private float firstHeight = 2532f / 1170f;
+    private float changeHeight;
+    public float heightScaleDeviated;
     private Vector2 lastScreenSize;
+    private bool isTablet;
+
+    // Lưu trữ kích thước và vị trí ban đầu
+    private Vector2 loginScreenOriginalPosition;
+    private Vector2 scrollViewOriginalSize;
+    private Vector2 quizScreen1OriginalPosition;
+    private Vector2 quizScreen2OriginalPosition;
 
     // Start is called before the first frame update
     void Start()
     {
-        print("Screen width: " + Screen.width);
-        print("Screen height: " + Screen.height);
+        changeHeight = (float)Screen.height / Screen.width;
         lastScreenSize = new Vector2(Screen.width, Screen.height);
+
+        // Lưu trữ kích thước và vị trí ban đầu
         if (loginScreen != null)
         {
+            loginScreenOriginalPosition = loginScreen.anchoredPosition;
             LoginFormResize();
         }
 
-
-        if (scrollViewRect != null)
+        if (scrollView != null)
         {
-
-            AdjustScrollViewSize();
+            scrollViewOriginalSize = scrollView.sizeDelta;
+            ScaleScrollView();
         }
 
-        if (scrollViewProfile != null)
+        if (quizScreen1 != null && quizScreen2 != null)
         {
-            AdjustScrollViewProfile();
+            quizScreen1OriginalPosition = quizScreen1.anchoredPosition;
+            quizScreen2OriginalPosition = quizScreen2.anchoredPosition;
+            ScaleQuizScreen();
         }
-
-
     }
 
     // Update is called once per frame
     void Update()
     {
-
         if (Screen.width != lastScreenSize.x || Screen.height != lastScreenSize.y)
         {
+            changeHeight = (float)Screen.height / Screen.width;
             lastScreenSize = new Vector2(Screen.width, Screen.height);
 
             if (loginScreen != null)
@@ -53,81 +60,99 @@ public class Scale : MonoBehaviour
                 LoginFormResize();
             }
 
-            if (scrollViewRect != null)
+            if (scrollView != null)
             {
-                AdjustScrollViewSize();
+                ScaleScrollView();
             }
 
-            if (scrollViewProfile != null)
+            if (quizScreen1 != null && quizScreen2 != null)
             {
-                AdjustScrollViewProfile();
+                ScaleQuizScreen();
             }
         }
-
     }
 
     void LoginFormResize()
     {
         float screenHeight = Screen.height;
         float aspectRatio = (float)Screen.width / Screen.height;
+        bool currentIsTablet = aspectRatio >= 0.65f && aspectRatio <= 0.85f;
 
-        if (aspectRatio >= 0.7f && aspectRatio <= 0.8f) // Thêm điều kiện kiểm tra
+        if (currentIsTablet != isTablet)
         {
-            loginScreen.anchoredPosition = new Vector2(
-                loginScreen.anchoredPosition.x,
-                400
-            );
-        }
+            isTablet = currentIsTablet;
 
+            if (isTablet)
+            {
+                loginScreen.anchoredPosition = new Vector2(
+                    loginScreen.anchoredPosition.x,
+                    400
+                );
+            }
+            else
+            {
+                // Đặt lại vị trí ban đầu khi không phải tablet
+                loginScreen.anchoredPosition = loginScreenOriginalPosition;
+            }
+        }
     }
 
-    void AdjustScrollViewSize()
+    void ScaleScrollView()
     {
-        float screenHeight = Screen.height;
         float aspectRatio = (float)Screen.width / Screen.height;
+        bool currentIsTablet = aspectRatio >= 0.65f && aspectRatio <= 0.85f;
 
-        // Nếu tỉ lệ màn hình gần với tablet (ví dụ: 4:3)
-        if (aspectRatio >= 0.7f && aspectRatio <= 0.8f)
+        if (currentIsTablet != isTablet)
         {
-            float scaleFactor = tabletHeight / phoneHeight;
-            scrollViewRect.sizeDelta = new Vector2(
-                scrollViewRect.sizeDelta.x,
-                scrollViewRect.sizeDelta.y * scaleFactor
-            );
-            // Cập nhật vị trí Y của scrollViewRect
-            scrollViewRect.anchoredPosition = new Vector2(
-                scrollViewRect.anchoredPosition.x,
-                -scrollViewRect.sizeDelta.y
-            );
+            isTablet = currentIsTablet;
 
+            if (isTablet)
+            {
+                float scaleFactor = changeHeight / firstHeight;
+                scrollView.sizeDelta = new Vector2(
+                    scrollView.sizeDelta.x,
+                    (scrollView.sizeDelta.y * scaleFactor) - heightScaleDeviated
+                );
 
+                scrollView.anchoredPosition = new Vector2(
+                    scrollView.anchoredPosition.x,
+                    0
+                );
+            }
+            else
+            {
+                // Đặt lại kích thước ban đầu khi không phải tablet
+                scrollView.sizeDelta = scrollViewOriginalSize;
+            }
         }
     }
 
-
-    void AdjustScrollViewProfile()
+    void ScaleQuizScreen()
     {
-        float screenHeight = Screen.height;
         float aspectRatio = (float)Screen.width / Screen.height;
+        bool currentIsTablet = aspectRatio >= 0.65f && aspectRatio <= 0.85f;
 
-        // Nếu tỉ lệ màn hình gần với tablet (ví dụ: 4:3)
-        if (aspectRatio >= 0.7f && aspectRatio <= 0.8f)
+        if (currentIsTablet != isTablet)
         {
-            float scaleFactor = tabletHeight / phoneHeight;
-            scrollViewProfile.sizeDelta = new Vector2(
-                scrollViewProfile.sizeDelta.x,
-                scrollViewProfile.sizeDelta.y * scaleFactor
-            );
+            isTablet = currentIsTablet;
 
-
-            scrollViewProfile.anchoredPosition = new Vector2(
-                scrollViewProfile.anchoredPosition.x,
-                0
-            );
-
-
-
+            if (isTablet)
+            {
+                quizScreen1.anchoredPosition = new Vector2(
+                    quizScreen1.anchoredPosition.x,
+                    quizScreen1.anchoredPosition.y + 200
+                );
+                quizScreen2.anchoredPosition = new Vector2(
+                    quizScreen2.anchoredPosition.x,
+                    quizScreen2.anchoredPosition.y + 375
+                );
+            }
+            else
+            {
+                // Đặt lại vị trí ban đầu khi không phải tablet
+                quizScreen1.anchoredPosition = quizScreen1OriginalPosition;
+                quizScreen2.anchoredPosition = quizScreen2OriginalPosition;
+            }
         }
     }
-
 }
