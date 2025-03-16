@@ -288,7 +288,7 @@ namespace Code
 
                 // ✅ Transition to AR Scene after successful download
                 Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
-                SceneManager.LoadScene("QRScanner");
+                SceneManager.LoadScene("ARVRScanner");
             }
             else
             {

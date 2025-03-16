@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
+using UnityEngine.UI;
 using System.Collections;
 using System;
 
@@ -13,6 +14,10 @@ public class ProfileScreenLoader : MonoBehaviour
     public TMP_Text roleText;
     public TMP_Text phoneText;
     public UnityEngine.UI.Image avatarImage;
+    
+    public GameObject profilePage; // 🔹 Profile Page UI
+    public GameObject loginPage;   // 🔹 Login Page UI
+    public Button logoutButton;    // 🔹 Logout Button
 
     private string userId;
     private string authToken;
@@ -23,11 +28,16 @@ public class ProfileScreenLoader : MonoBehaviour
         authToken = PlayerPrefs.GetString("AuthToken", "");
         if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(authToken))
         {
-            StartCoroutine(FetchUserProfile(userId, authToken));
+            StartCoroutine(FetchUserProfile(userId));
         }
         else
         {
             Debug.LogError("❌ No User ID found! Cannot load profile.");
+        }
+        
+        if (logoutButton != null)
+        {
+            logoutButton.onClick.AddListener(OnLogout);
         }
         
     }
@@ -36,37 +46,54 @@ public class ProfileScreenLoader : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(userId))
         {
-            StartCoroutine(FetchUserProfile(userId, authToken));
+            StartCoroutine(FetchUserProfile(userId));
         }
     }
 
-    IEnumerator FetchUserProfile(string userId, string authToken)
+    private IEnumerator FetchUserProfile(string userId)
     {
-        string endpoint = "https://joey-lenient-ostrich.ngrok-free.app/api/v1/user/" + userId;
-        UnityWebRequest request = UnityWebRequest.Get(endpoint);
-        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+        string endpoint = $"/users/{userId}";  // Ensure correct API route
 
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET"))
         {
-            string jsonResponse = request.downloadHandler.text;
-            UserProfileResponse response = JsonUtility.FromJson<UserProfileResponse>(jsonResponse);
+            // Ensure AuthToken is set before sending request
+            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
 
-            if (response != null && response.code == 1000 && response.result != null)
+            Debug.Log($"📡 Fetching user profile: {endpoint}");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                UpdateUserInfo(response.result);
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log($"✅ API Response: {jsonResponse}");
+
+                try
+                {
+                    UserProfileResponse response = JsonUtility.FromJson<UserProfileResponse>(jsonResponse);
+
+                    if (response != null && response.code == 1000 && response.result != null)
+                    {
+                        UpdateUserInfo(response.result);
+                    }
+                    else
+                    {
+                        Debug.LogError("❌ Invalid API response: " + jsonResponse);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"❌ JSON Parsing Error: {e.Message}");
+                }
             }
             else
             {
-                Debug.LogError("❌ Invalid API response.");
+                Debug.LogError($"❌ API Request Failed: {request.error}");
             }
         }
-        else
-        {
-            Debug.LogError("❌ API Request Failed: " + request.error);
-        }
     }
+
+
 
     void UpdateUserInfo(UserProfile user)
     {
@@ -97,7 +124,27 @@ public class ProfileScreenLoader : MonoBehaviour
         {
             Debug.LogError("❌ Failed to load avatar image: " + request.error);
         }
+        
     }
+    
+    
+    // 🔹 LOGOUT FUNCTION
+    public void OnLogout()
+    {
+        Debug.Log("🔹 Logging out...");
+
+        // ✅ Clear stored user data
+        PlayerPrefs.DeleteKey("UserId");
+        PlayerPrefs.DeleteKey("AuthToken");
+        PlayerPrefs.Save();
+
+        // ✅ Return to Login Screen
+        if (profilePage != null) profilePage.SetActive(false);
+        if (loginPage != null) loginPage.SetActive(true);
+
+        Debug.Log("✅ User logged out!");
+    }
+
 }
 
 // ✅ Move these classes OUTSIDE of the ProfileScreenLoader class
@@ -106,44 +153,4 @@ public class UserProfileResponse
 {
     public int code;
     public UserProfile result;
-}
-
-[Serializable]
-public class UserProfile
-{
-    public string id;
-    public Role role;
-    public string roleName;
-    public Company company;
-    public string email;
-    public string avatar;
-    public string username;
-    public string phone;
-    public string status;
-    public string expirationDate;
-    public bool isPayAdmin;
-    public string createdDate;
-    public string updatedDate;
-    public string deviceId;
-}
-
-[Serializable]
-public class Role
-{
-    public string id;
-    public string roleName;
-}
-
-[Serializable]
-public class Company
-{
-    public string id;
-    public string companyName;
-}
-
-[Serializable]
-public class UpdateUserDeviceRequest
-{
-    public string id;
-    public string deviceId;
 }
