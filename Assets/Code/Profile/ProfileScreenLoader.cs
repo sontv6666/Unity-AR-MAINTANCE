@@ -52,7 +52,7 @@ public class ProfileScreenLoader : MonoBehaviour
 
     private IEnumerator FetchUserProfile(string userId)
     {
-        string endpoint = $"/users/{userId}";  // Ensure correct API route
+        string endpoint = $"/user/{userId}";  // Ensure correct API route
 
         using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET"))
         {

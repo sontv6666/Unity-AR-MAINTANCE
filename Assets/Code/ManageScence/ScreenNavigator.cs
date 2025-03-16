@@ -8,8 +8,7 @@ public class SceneNavigator : MonoBehaviour
 
     private void Start()
     {
-        // Đảm bảo chỉ có màn hình HomePage bật lúc đầu
-        ShowScreen("HomePage");
+       
     }
     
     
