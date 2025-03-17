@@ -11,7 +11,7 @@ using GLTFast;
 using GLTFast.Loading;
 using System.Threading.Tasks;
 using System;
-
+using Models;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -71,7 +71,7 @@ public class ARQRCodeScanner : MonoBehaviour
     private GameObject currentLoadedModel = null;
 
     private List<GameObject> instructionStepInstances = new List<GameObject>();
-    private ModelResponse cachedModelData;
+    private ModelDataResult cachedModelData;
 
     private string courseID;
     private string testID = "c886f9f1-68f8-4596-b625-f14c5ef8addc";
@@ -206,21 +206,31 @@ public class ARQRCodeScanner : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             string jsonResponse = request.downloadHandler.text;
-            var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
+        
+            // ✅ Correctly parse the API response
+            var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
 
-            List<IEnumerator> downloadTasks = new List<IEnumerator>();
+            if (response != null && response.result != null)
+            {
+                List<IEnumerator> downloadTasks = new List<IEnumerator>();
 
-            // ✅ Collect all download tasks
-            downloadTasks.Add(FetchModelData(response.result));
-            downloadTasks.Add(DownloadAndLoadUI(response.result));
+                // ✅ Collect all download tasks
+                downloadTasks.Add(FetchModelData(response.result));
+                downloadTasks.Add(DownloadAndLoadUI(response.result));
 
-            yield return StartCoroutine(DownloadAllFiles(downloadTasks));
+                yield return StartCoroutine(DownloadAllFiles(downloadTasks));
+            }
+            else
+            {
+                Debug.LogError("❌ Invalid API response: " + jsonResponse);
+            }
         }
         else
         {
             Debug.LogError("❌ API Request Failed: " + request.error);
         }
     }
+
     void UpdateProgress(float completed, float total)
     {
         if (progressBar != null)
@@ -379,22 +389,31 @@ public class ARQRCodeScanner : MonoBehaviour
         //cach 2.3
         void ProcessResponse(string jsonResponse, string scannedQR)
         {
-            var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
+            // ✅ Corrected JSON parsing
+            var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
 
-            if (response.code == 1000 && response.result.courseCode == scannedQR)
+            if (response != null && response.result != null)
             {
-                UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
-                StartCoroutine(FetchModelData(response.result));
+                if (response.code == 1000 && response.result.courseCode == scannedQR)
+                {
+                    UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
+                    StartCoroutine(FetchModelData(response.result));
+                    StartCoroutine(DownloadAndLoadUI(response.result));
 
-                StartCoroutine(DownloadAndLoadUI(response.result));
-
-                // 🔹 Ensure Model Stays Upright
-                qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
-                qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
+                    // 🔹 Ensure Model Stays Upright
+                    qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
+                    qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
+                }
+                else
+                {
+                    UpdateUIText("Invalid QR Code.", "Scanned: " + scannedQR);
+                    Invoke(nameof(ResetScanning), 2f);
+                }
             }
             else
             {
-                UpdateUIText("Invalid QR Code.", "Scanned: " + scannedQR);
+                Debug.LogError("❌ Invalid API Response. Could not parse JSON.");
+                UpdateUIText("Error processing QR code.", "");
                 Invoke(nameof(ResetScanning), 2f);
             }
         }
@@ -406,6 +425,12 @@ public class ARQRCodeScanner : MonoBehaviour
         // FETCH MODEL AND CALL DOWNLOAD MODEL
         IEnumerator FetchModelData(CourseResult course)
         {
+            if (string.IsNullOrEmpty(course.modelId))
+            {
+                Debug.LogError("❌ No Model ID found in CourseResult!");
+                yield break;
+            }
+
             string modelApiUrl = "/model/" + course.modelId;
             UnityWebRequest request = ApiConfig.CreateRequest(modelApiUrl);
 
@@ -413,11 +438,21 @@ public class ARQRCodeScanner : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
-                Debug.Log("📌 Model Rotation Y: " + modelData.result.rotation[1]);
-        
-                // ✅ Add to progress tracking
-                yield return StartCoroutine(DownloadAndLoadModel(modelData));
+                // ✅ Correctly parse API response
+                var response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(request.downloadHandler.text);
+
+                if (response != null && response.result != null)
+                {
+                    Debug.Log("📌 Model Rotation Y: " + response.result.rotation[1]);
+
+                    // ✅ Add to progress tracking
+                    yield return StartCoroutine(DownloadAndLoadModel(response.result));
+                }
+                else
+                {
+                    Debug.LogError("❌ Invalid API response for model data.");
+                    UpdateUIText("Error", "Invalid model data.");
+                }
             }
             else
             {
@@ -426,19 +461,20 @@ public class ARQRCodeScanner : MonoBehaviour
             }
         }
 
+
         // DOWNLOAD MODEL FROM FETCH CALL LOAD MODEL
-        IEnumerator DownloadAndLoadModel(ModelResponse modelData)
+        IEnumerator DownloadAndLoadModel(ModelDataResult modelData)
         {
             string fileEndpoint = "/files/";
-            string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.result.file);
+            string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.file);
 
             // ✅ Download model file
-            yield return StartCoroutine(DownloadFile(fileEndpoint + modelData.result.file, modelData.result.file));
+            yield return StartCoroutine(DownloadFile(fileEndpoint + modelData.file, modelData.file));
 
             // ✅ Apply position & rotation
-            Vector3 position = new Vector3(modelData.result.position[0], modelData.result.position[1], modelData.result.position[2]);
-            Vector3 rotation = new Vector3(modelData.result.rotation[0], modelData.result.rotation[1], modelData.result.rotation[2]);
-            Vector3 scale = modelData.result.GetScale();  
+            Vector3 position = new Vector3(modelData.position[0], modelData.position[1], modelData.position[2]);
+            Vector3 rotation = new Vector3(modelData.rotation[0], modelData.rotation[1], modelData.rotation[2]);
+            Vector3 scale = modelData.GetScale();  
             
                 
             // ✅ Load the model
@@ -1767,104 +1803,7 @@ public class ARQRCodeScanner : MonoBehaviour
  
 }
 
-// API Response Classes
-[System.Serializable]
-public class ApiResponse
-{
-    public int code;
-    public CourseResult result;
-}
 
-[System.Serializable]
-public class CourseResult
-{
-    public string id;
-    public string courseCode;
-    public string modelId;
-    public string title;
-    public string description;
-    public string imageUrl;
-    public Instruction[] instructions;
-}
 
-// Instruction Data Model
-[System.Serializable]
-public class Instruction
-{
-    public string id;
-    public string courseId;
-    public int orderNumber;
-    public string name;
-    public string description;
-    public string position;
-    public string rotation;
-    public List<InstructionDetail> instructionDetailResponse;
-}
 
-[System.Serializable]
-public class InstructionDetail
-{
-    public string id;
-    public string instructionId;
-    public string name;
-    public List<string> meshes;
-    public string animationName;
-    public int orderNumber;
-    public string description;
-    public string fileString;
-    public string imgString;
-}
-[System.Serializable]
-public class ModelResponse
-{
-    public int code;
-    public ModelData result;
-}
 
-[System.Serializable]
-public class ModelData
-{
-    public string id;
-    public string modelTypeId;
-    public string modelTypeName;
-    public string modelCode;
-    public string status;
-    public string name;
-    public string companyId;
-    public string description;
-    public string imageUrl;
-    public bool isUsed;
-    public string version;
-    
-    public string scale;
-    public Vector3 GetScale()
-    {
-        if (!string.IsNullOrEmpty(scale))
-        {
-            string[] scaleValues = scale.Split(',');
-
-            if (scaleValues.Length == 1) // Single scale value (e.g., "1")
-            {
-                if (float.TryParse(scaleValues[0], out float uniformScale))
-                {
-                    return Vector3.one * uniformScale; // Apply uniform scale
-                }
-            }
-            else if (scaleValues.Length == 3) // Separate x, y, z values (e.g., "1,2,3")
-            {
-                if (float.TryParse(scaleValues[0], out float x) &&
-                    float.TryParse(scaleValues[1], out float y) &&
-                    float.TryParse(scaleValues[2], out float z))
-                {
-                    return new Vector3(x, y, z);
-                }
-            }
-        }
-
-        return Vector3.one; // Default scale if parsing fails
-    }
-    public float[] position;  // Position as [x, y, z]
-    public float[] rotation;  // Rotation as [x, y, z]
-    public string file;
-    public string courseName;
-}

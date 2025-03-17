@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using Models;
 
 public class CourseLoader : MonoBehaviour
 {
@@ -36,6 +37,17 @@ public class CourseLoader : MonoBehaviour
         else
         {
             Debug.LogError("CourseLoader: UserId is not set. Unable to fetch courses!");
+        }
+
+	        if (!string.IsNullOrEmpty(UserManager.UserId))
+        {
+            string endpoint = string.Format(userEndpoint, UserManager.UserId);
+            Debug.Log($"CourseLoader: Fetching user data for userId: {UserManager.UserId}");
+            StartCoroutine(FetchUserData(endpoint));
+        }
+        else
+        {
+            Debug.LogError("CourseLoader: UserId is not set. Unable to fetch user data!");
         }
     }
     
@@ -98,21 +110,28 @@ public class CourseLoader : MonoBehaviour
 
 
 
-    void ProcessUserData(string jsonData)
-    {
-        UserResponse response = JsonUtility.FromJson<UserResponse>(jsonData);
-        if (response != null && response.result != null)
-        {
-            UserProfile user = response.result;
-            usernameText.text = user.username;
-            Debug.Log($"User: {user.username}");
+   void ProcessUserData(string jsonData)
+{
+    // ✅ Parse JSON using ApiResponse<UserProfile>
+    ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
 
-            if (!string.IsNullOrEmpty(user.avatar))
-            {
-                StartCoroutine(DownloadAndLoadProfileImage(user.avatar));
-            }
+    if (response != null && response.result != null)
+    {
+        UserProfileResult user = response.result;
+        usernameText.text = user.username;
+        Debug.Log($"👤 User: {user.username}");
+
+        // ✅ Start avatar download if available
+        if (!string.IsNullOrEmpty(user.avatar))
+        {
+            StartCoroutine(DownloadAndLoadProfileImage(user.avatar));
         }
     }
+    else
+    {
+        Debug.LogError("❌ Failed to parse user data.");
+    }
+}
 
     IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
@@ -168,50 +187,49 @@ public class CourseLoader : MonoBehaviour
         }
     }
 
-    void ProcessCourseData(string jsonData)
+  void ProcessCourseData(string jsonData)
+{
+    Debug.Log("📡 CourseLoader: Processing course data.");
+
+    // ✅ Parse JSON using a wrapper class
+    ApiResponse<CourseListResponse> response = JsonUtility.FromJson<ApiResponse<CourseListResponse>>(jsonData);
+
+    if (response != null && response.result != null && response.result.objectList != null && response.result.objectList.Count > 0)
     {
-        Debug.Log("CourseLoader: Processing course data.");
-    
-        // Deserialize JSON to object
-        CourseResponse1 response = JsonUtility.FromJson<CourseResponse1>(jsonData);
-    
-        if (response != null && response.result != null && response.result.objectList != null)
+        Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
+
+        // ✅ Clear existing course panels before adding new ones
+        foreach (Transform child in contentParent)
         {
-            Debug.Log($"CourseLoader: Found {response.result.objectList.Count} courses.");
-        
-            // ✅ Clear existing course panels before adding new ones
-            foreach (Transform child in contentParent)
-            {
-                Destroy(child.gameObject); // 🔥 Delete old course panels
-            }
-
-            foreach (CourseData course in response.result.objectList)
-            {
-                // Truncate long title and description
-                string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
-                string truncatedDescription = course.description.Length > 10
-                    ? course.description.Substring(0, 10) + "..."
-                    : course.description;
-
-                // Assign truncated values to course data
-                course.title = truncatedTitle;
-                course.description = truncatedDescription;
-
-                nocourseText.SetActive(false);
-
-                // ✅ Create new UI panel for each course
-                CreateCoursePanel(course);
-            }
+            Destroy(child.gameObject); // 🔥 Delete old course panels
         }
-        else
+
+        foreach (CourseResult course in response.result.objectList)
         {
-            nocourseText.SetActive(true);
-            Debug.LogError("Response data is null or invalid!");
+            // Truncate long title and description
+            string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
+            string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
+
+            // Assign truncated values to course data
+            course.title = truncatedTitle;
+            course.description = truncatedDescription;
+
+            nocourseText.SetActive(false);
+
+            // ✅ Create new UI panel for each course
+            CreateCoursePanel(course);
         }
     }
+    else
+    {
+        nocourseText.SetActive(true);
+        Debug.LogError("❌ Response data is null or invalid!");
+    }
+}
 
 
-    void CreateCoursePanel(CourseData course)
+
+    void CreateCoursePanel(CourseResult course)
     {
         Debug.Log($"CourseLoader: Creating panel for course: {course.title}");
         GameObject panel = Instantiate(coursePanelPrefab, contentParent);
@@ -368,66 +386,3 @@ public class CourseLoader : MonoBehaviour
 
 
 
-[System.Serializable]
-public class CourseResponse1
-{
-    public int code;
-    public ResultData1 result;
-}
-[System.Serializable]
-public class CourseResponse2
-{
-    public int code;
-    public ResultData2 result;
-}
-
-[System.Serializable]
-
-
-public class ResultData1
-{
-    public int page;
-    public int size;
-    public int totalItems;
-    public int totalPages;
-    public List<CourseData> objectList; 
-}
-[System.Serializable]
-public class ResultData2
-{
-    public int page;
-    public int size;
-    public int totalItems;
-    public int totalPages;
-    public List<EnrollmentData> objectList; // Keep objectList as CourseData
-}
-
-[System.Serializable]
-public class EnrollmentData
-{
-    public string id;
-    public CourseData courseResponse; // ✅ This should exist in the JSON!
-    public string userId;
-    public string enrollmentDate;
-    public string deadline;
-    public bool isCompleted;
-    public string completionDate;
-}
-[System.Serializable]
-public class CourseData
-{
-    public string id;
-    public string companyId;
-    public string title;
-    public string description;
-    public int duration;
-    public bool isMandatory;
-    public string imageUrl;
-    public int? numberOfLessons;
-    public int? numberOfParticipants;
-    public string status;
-    public string type;
-}
-
-[System.Serializable]
-public class UserResponse { public UserProfile result; }

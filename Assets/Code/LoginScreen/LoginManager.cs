@@ -5,7 +5,7 @@ using System.Collections;
 using System.Text;
 using System;
 using Newtonsoft.Json;
-
+using Models;
 public class LoginManager : MonoBehaviour
 {
     
@@ -83,7 +83,7 @@ public class LoginManager : MonoBehaviour
 
         if (response.code == 1000 && response.result.message == "Login successfully" && response.result.token != null)
         {
-            UserProfile user = response.result.user;
+            UserProfileResult user = response.result.user;
 
             if (user.roleName == "STAFF" && user.status == "ACTIVE")
             {
@@ -95,17 +95,17 @@ public class LoginManager : MonoBehaviour
                 else
                 {
                     SaveUserData(response.result.token, user);
+					SwitchToHomePage();
 
-                    if (string.IsNullOrEmpty(user.deviceId))
-                    {
-                        string updateRequestBody = JsonConvert.SerializeObject(new UpdateUserDeviceRequest { id = user.id, deviceId = deviceId });
-                        StartCoroutine(UpdateUserDeviceId(updateRequestBody));
-                    }
-                    else
-                    {
-                        Debug.Log("✅ Switching to Home Page...");
-                        SwitchToHomePage();
-                    }
+                    //if (string.IsNullOrEmpty(user.deviceId))
+                    //{
+                    //    string updateRequestBody = JsonConvert.SerializeObject(new UpdateUserDeviceRequest { id = user.id, deviceId = deviceId });
+                   //     StartCoroutine(UpdateUserDeviceId(updateRequestBody));
+                  //  }
+                  //  else
+                  //  {
+                   //     Debug.Log("✅ Switching to Home Page...");   
+                  //  }
                 }
             }
             else
@@ -147,7 +147,7 @@ public class LoginManager : MonoBehaviour
     }
     
     
-    private void SaveUserData(string token, UserProfile user)
+    private void SaveUserData(string token, UserProfileResult user)
     {
         PlayerPrefs.SetString("AuthToken", token);
         PlayerPrefs.SetString("UserId", user.id);
@@ -182,69 +182,3 @@ public class LoginManager : MonoBehaviour
 
 }
 
-
-// ✅ Move these classes OUTSIDE of LoginManager
-
-[Serializable]
-public class LoginRequest
-{
-    public string email;
-    public string password;
-}
-
-[Serializable]
-public class LoginResponse
-{
-    public int code;
-    public string message;
-    public ResultData result;
-}
-
-[Serializable]
-public class ResultData
-{
-    public string token;
-    public string message;
-    public UserProfile user;
-}
-
-[Serializable]
-public class UserProfile
-{
-    public string id;
-    public Role role;  // ✅ Correctly mapping role as an object
-    public string roleName;
-    public Company company;
-    public string email;
-    public string currentPlan;
-    public string avatar;
-    public string username;
-    public string deviceId;
-    public string phone;
-    public string status;
-    public string expirationDate;
-    public bool isPayAdmin;
-    public string createdDate;
-    public string updatedDate;
-}
-
-[Serializable]
-public class Role
-{
-    public string id;
-    public string roleName;
-}
-
-[Serializable]
-public class Company
-{
-    public string id;
-    public string companyName;
-}
-
-[Serializable]
-public class UpdateUserDeviceRequest
-{
-    public string id;
-    public string deviceId;
-}

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using System;
-
+using Models;
 public class ProfileScreenLoader : MonoBehaviour
 {
     [Header("UI References")] 
@@ -50,64 +50,95 @@ public class ProfileScreenLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator FetchUserProfile(string userId)
+   private IEnumerator FetchUserProfile(string userId)
+{
+    string endpoint = $"/user/{userId}";
+    UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET");
+    request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+
+    Debug.Log($"📡 Fetching user profile: {endpoint}");
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
     {
-        string endpoint = $"/user/{userId}";  // Ensure correct API route
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log($"✅ API Response: {jsonResponse}");
 
-        using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET"))
+        try
         {
-            // Ensure AuthToken is set before sending request
-            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
-
-            Debug.Log($"📡 Fetching user profile: {endpoint}");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            // ✅ Debug before deserializing
+            if (string.IsNullOrEmpty(jsonResponse))
             {
-                string jsonResponse = request.downloadHandler.text;
-                Debug.Log($"✅ API Response: {jsonResponse}");
+                Debug.LogError("❌ Empty JSON response!");
+                yield break;
+            }
 
-                try
+            ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonResponse);
+
+            if (response != null && response.code == 1000)
+            {
+                if (response.result == null)
                 {
-                    UserProfileResponse response = JsonUtility.FromJson<UserProfileResponse>(jsonResponse);
-
-                    if (response != null && response.code == 1000 && response.result != null)
-                    {
-                        UpdateUserInfo(response.result);
-                    }
-                    else
-                    {
-                        Debug.LogError("❌ Invalid API response: " + jsonResponse);
-                    }
+                    Debug.LogError("❌ API returned NULL result object!");
                 }
-                catch (Exception e)
+                else
                 {
-                    Debug.LogError($"❌ JSON Parsing Error: {e.Message}");
+                    UpdateUserInfo(response.result);
                 }
             }
             else
             {
-                Debug.LogError($"❌ API Request Failed: {request.error}");
+                Debug.LogError($"❌ Invalid API response: {jsonResponse}");
             }
         }
-    }
-
-
-
-    void UpdateUserInfo(UserProfile user)
-    {
-        if (gameObject.activeInHierarchy)
+        catch (Exception e)
         {
-            nameText.text = user.username;
-            companyText.text = user.company.companyName;
-            emailText.text = user.email;
-            roleText.text = user.roleName;
-            phoneText.text = user.phone;
-
-            StartCoroutine(LoadAvatarImage(user.avatar));
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\n{e.StackTrace}");
         }
     }
+    else
+    {
+        Debug.LogError($"❌ API Request Failed: {request.error}");
+    }
+
+    request.Dispose(); // ✅ Dispose request to prevent memory leaks
+}
+
+
+
+
+
+   void UpdateUserInfo(UserProfileResult user)
+{
+    if (user == null)
+    {
+        Debug.LogError("❌ UserProfileResult is NULL!");
+        return;
+    }
+
+    if (gameObject.activeInHierarchy)
+    {
+        // Check each field before assigning
+        nameText.text = !string.IsNullOrEmpty(user.username) ? user.username : "N/A";
+        companyText.text = (user.company != null && !string.IsNullOrEmpty(user.company.companyName)) ? user.company.companyName : "N/A";
+        emailText.text = !string.IsNullOrEmpty(user.email) ? user.email : "N/A";
+        roleText.text = !string.IsNullOrEmpty(user.roleName) ? user.roleName : "N/A";
+        phoneText.text = !string.IsNullOrEmpty(user.phone) ? user.phone : "N/A";
+
+        Debug.Log($"✅ Loaded User: {user.username} | Company: {companyText.text} | Role: {roleText.text}");
+
+        if (!string.IsNullOrEmpty(user.avatar))
+        {
+            StartCoroutine(LoadAvatarImage(user.avatar));
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No avatar URL provided.");
+        }
+    }
+}
+
 
     IEnumerator LoadAvatarImage(string url)
     {
@@ -147,10 +178,3 @@ public class ProfileScreenLoader : MonoBehaviour
 
 }
 
-// ✅ Move these classes OUTSIDE of the ProfileScreenLoader class
-[Serializable]
-public class UserProfileResponse
-{
-    public int code;
-    public UserProfile result;
-}
