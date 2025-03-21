@@ -3,14 +3,15 @@ using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine.UI;
 
 public class APIRealTime : MonoBehaviour
 {
     public Transform dataLayoutGroup;
     public GameObject dataRowPrefab;
-    private Dictionary<string, string> previousData = new Dictionary<string, string>();
+    public GameObject categoryHeaderPrefab;
+    private string previousJson = "";
 
     void Start()
     {
@@ -24,21 +25,21 @@ public class APIRealTime : MonoBehaviour
 
     IEnumerator GetDataFromAPI()
     {
-        string url = "https://demoapicallgetlaptopinfo.onrender.com/ram";
+        string url = "https://demoapicallgetlaptopinfo.onrender.com/cpu";
         UnityWebRequest request = UnityWebRequest.Get(url);
-        
         request.SetRequestHeader("API_KEY", "my_secure_token_123");
 
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            Dictionary<string, string> newData = JsonConvert.DeserializeObject<Dictionary<string, string>>(request.downloadHandler.text);
-            
-            if (!IsDataSame(previousData, newData))
+            string jsonResponse = request.downloadHandler.text;
+
+            if (jsonResponse != previousJson) // Chỉ cập nhật nếu dữ liệu thay đổi
             {
-                DisplayData(newData);
-                previousData = new Dictionary<string, string>(newData);
+                JObject parsedData = JObject.Parse(jsonResponse);
+                DisplayData(parsedData);
+                previousJson = jsonResponse;
             }
         }
         else
@@ -47,7 +48,7 @@ public class APIRealTime : MonoBehaviour
         }
     }
 
-    void DisplayData(Dictionary<string, string> data)
+    void DisplayData(JObject data)
     {
         // Xóa dữ liệu cũ trước khi cập nhật
         foreach (Transform child in dataLayoutGroup)
@@ -55,53 +56,86 @@ public class APIRealTime : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        foreach (var entry in data)
+        foreach (var category in data)
         {
-            GameObject newRow = Instantiate(dataRowPrefab, dataLayoutGroup);
+            string categoryName = category.Key;
+            JToken categoryValues = category.Value;
 
-            TMP_Text keyText = newRow.transform.Find("KeyText").GetComponent<TMP_Text>();
-            TMP_Text valueText = newRow.transform.Find("ValueText").GetComponent<TMP_Text>();
-
-            // 🔹 Kiểm tra xem có Image không trước khi truy cập
-            Image background = newRow.GetComponent<Image>();
-            if (background == null)
+            if (categoryValues.Type == JTokenType.Object) // 🔹 Nếu là nhóm dữ liệu
             {
-                background = newRow.AddComponent<Image>(); // Nếu không có, thêm mới
-            }
-
-            // 🔥 Thiết lập UI đẹp hơn
-            keyText.text = entry.Key + ":";
-            keyText.fontStyle = FontStyles.Bold;
-            keyText.alignment = TextAlignmentOptions.Right;
-            keyText.fontSize = 30;
-
-            valueText.text = entry.Value;
-            valueText.fontStyle = FontStyles.Normal;
-            valueText.alignment = TextAlignmentOptions.Left;
-            valueText.fontSize = 30;
-
-            // 🎨 Đổi màu valueText theo giá trị
-            if (entry.Key.ToLower().Contains("percent") || entry.Key.ToLower().Contains("usage"))
-            {
-                float value;
-                if (float.TryParse(entry.Value.Replace("%", ""), out value))
+                AddCategoryHeader(categoryName);
+                foreach (var item in categoryValues.Children<JProperty>())
                 {
-                    if (value > 80) valueText.color = Color.red; // 🔴 Cảnh báo
-                    else if (value > 50) valueText.color = new Color(1f, 0.5f, 0f); // 🟠 Màu cam
-                    else valueText.color = Color.green; // 🟢 Bình thường
+                    AddDataRow(item.Name, FormatValue(item.Value));
                 }
             }
-
-            // 🎨 Bo góc và đổi màu nền
-            background.color = new Color(1f, 1f, 1f, 0.85f); // Màu nền trắng nhạt
-            background.GetComponent<RectTransform>().sizeDelta = new Vector2(500, 70);
-            background.maskable = true;
-
-            // 🎬 Hiệu ứng Fade-in
-            CanvasGroup canvasGroup = newRow.AddComponent<CanvasGroup>();
-            canvasGroup.alpha = 0;
-            StartCoroutine(FadeIn(canvasGroup, 0.5f));
+            else
+            {
+                AddDataRow(categoryName, FormatValue(categoryValues));
+            }
         }
+    }
+
+    // 🔹 Chuẩn hóa giá trị hiển thị
+    string FormatValue(JToken value)
+    {
+        if (value.Type == JTokenType.Null || (value.Type == JTokenType.String && string.IsNullOrWhiteSpace(value.ToString())))
+        {
+            return "Unknown"; // Nếu rỗng, hiển thị "Unknown"
+        }
+
+        if (value.Type == JTokenType.Float || value.Type == JTokenType.Integer)
+        {
+            return $"{value:F2}"; // Format số thực (2 chữ số thập phân)
+        }
+
+        return value.ToString(); // Các kiểu khác giữ nguyên
+    }
+
+    // 🔹 Thêm hàng key-value
+    void AddDataRow(string key, string value)
+    {
+        GameObject newRow = Instantiate(dataRowPrefab, dataLayoutGroup);
+        TMP_Text keyText = newRow.transform.Find("KeyText").GetComponent<TMP_Text>();
+        TMP_Text valueText = newRow.transform.Find("ValueText").GetComponent<TMP_Text>();
+
+        keyText.text = key + ":";
+        keyText.fontStyle = FontStyles.Bold;
+        keyText.alignment = TextAlignmentOptions.Right;
+        keyText.fontSize = 28;
+
+        valueText.text = value;
+        valueText.fontStyle = FontStyles.Normal;
+        valueText.alignment = TextAlignmentOptions.Left;
+        valueText.fontSize = 28;
+
+        // 🎨 Đổi màu chữ nếu giá trị là phần trăm
+        if (key.ToLower().Contains("percent") || key.ToLower().Contains("usage"))
+        {
+            if (float.TryParse(value.Replace("%", ""), out float percentage))
+            {
+                valueText.color = percentage > 80 ? Color.red :
+                                  percentage > 50 ? new Color(1f, 0.5f, 0f) :
+                                  Color.green;
+            }
+        }
+
+        // 🎬 Hiệu ứng Fade-in
+        CanvasGroup canvasGroup = newRow.AddComponent<CanvasGroup>();
+        canvasGroup.alpha = 0;
+        StartCoroutine(FadeIn(canvasGroup, 0.5f));
+    }
+
+    // 🔹 Thêm tiêu đề nhóm
+    void AddCategoryHeader(string title)
+    {
+        GameObject newHeader = Instantiate(categoryHeaderPrefab, dataLayoutGroup);
+        TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
+
+        headerText.text = title.ToUpper(); // Viết hoa tiêu đề
+        headerText.fontSize = 34;
+        headerText.fontStyle = FontStyles.Bold;
+        headerText.alignment = TextAlignmentOptions.Center;
     }
 
     // 🎬 Hiệu ứng Fade-in
@@ -115,16 +149,5 @@ public class APIRealTime : MonoBehaviour
             yield return null;
         }
         canvasGroup.alpha = 1;
-    }
-
-    bool IsDataSame(Dictionary<string, string> oldData, Dictionary<string, string> newData)
-    {
-        if (oldData.Count != newData.Count) return false;
-        foreach (var key in newData.Keys)
-        {
-            if (!oldData.ContainsKey(key) || oldData[key] != newData[key])
-                return false;
-        }
-        return true;
     }
 }
