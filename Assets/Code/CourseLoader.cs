@@ -15,7 +15,7 @@ public class CourseLoader : MonoBehaviour
     public GameObject nocourseText;
     public GameObject detailPage;
     public GameObject homePage;
-    [Header("API Settings")] private string endpointTemplate = "/course?page=1&size=50&userId={0}";
+    [Header("API Settings")] private string endpointTemplate = "/course?page=1&size=50&userId={0}&status=ACTIVE";
 
     void Start()
     {

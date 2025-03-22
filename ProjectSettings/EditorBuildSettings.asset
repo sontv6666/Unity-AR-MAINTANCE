@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainApp.unity
     guid: 40271f966d744dc4080952b410e65c32
   - enabled: 1
+    path: Assets/Scenes/ARVRScanner.unity
+    guid: 7aed6024121cdee478f5521922eabbfe
+  - enabled: 0
     path: Assets/Scenes/QRScanner.unity
     guid: 03f9b116aab94af4d82ab4f3cf85b2f7
   - enabled: 0
