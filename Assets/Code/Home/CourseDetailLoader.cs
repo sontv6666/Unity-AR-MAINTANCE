@@ -307,6 +307,26 @@ namespace Code
                 loadingUIPanel.SetActive(false);
             }
         }
+        
+        public void BackToHomePage()
+        {
+            Debug.Log("🔙 Hiding Course Detail Page and returning to Home...");
+
+            // ✅ Hide the Detail Page
+            if (detailPage != null)
+            {
+                detailPage.SetActive(false);
+            }
+
+            // ✅ Show Home Page (if needed)
+            GameObject homePage = GameObject.Find("HomePage"); // Change this to your actual Home Page GameObject name
+            if (homePage != null)
+            {
+                homePage.SetActive(true);
+            }
+        }
+
+
 
 
     }

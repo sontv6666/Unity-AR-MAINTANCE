@@ -8,8 +8,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.IO;
 using Models;
-
-public class CourseLoader : MonoBehaviour
+using Newtonsoft.Json; 
+public class CourseLoader: MonoBehaviour
 {
     [Header("UI References")] 
     public TMP_Text greetingText;
@@ -22,7 +22,8 @@ public class CourseLoader : MonoBehaviour
     public GameObject homePage;
     
     private string userEndpoint = "/user/{0}"; // API to fetch user details
-    [Header("API Settings")] private string endpointTemplate = "/course?page=1&size=50&userId={0}&status=ACTIVE";
+    [Header("API Settings")] 
+    private string endpointTemplate = "/course/company/{0}?page=1&size=4";
 
     void Start()
     {
@@ -32,7 +33,8 @@ public class CourseLoader : MonoBehaviour
         {
             string endpoint = string.Format(endpointTemplate, UserManager.UserId);
             Debug.Log($"CourseLoader: Fetching course data for userId: {UserManager.UserId}");
-            StartCoroutine(FetchCourseData(endpoint));
+            // ✅ Chờ UserManager có CompanyId rồi mới gọi API khóa học
+            StartCoroutine(WaitForCompanyIdAndFetchCourses());
         }
         else
         {
@@ -49,6 +51,19 @@ public class CourseLoader : MonoBehaviour
         {
             Debug.LogError("CourseLoader: UserId is not set. Unable to fetch user data!");
         }
+    }
+    
+    IEnumerator WaitForCompanyIdAndFetchCourses()
+    {
+        while (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            Debug.Log("⌛ Waiting for CompanyId...");
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId);
+        Debug.Log($"📡 Fetching courses for Company ID: {UserManager.CompanyId}");
+        StartCoroutine(FetchCourseData(endpoint));
     }
     
     void SetGreetingMessage()
@@ -110,28 +125,34 @@ public class CourseLoader : MonoBehaviour
 
 
 
-   void ProcessUserData(string jsonData)
-{
-    // ✅ Parse JSON using ApiResponse<UserProfile>
-    ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
-
-    if (response != null && response.result != null)
+    void ProcessUserData(string jsonData)
     {
-        UserProfileResult user = response.result;
-        usernameText.text = user.username;
-        Debug.Log($"👤 User: {user.username}");
+        ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
 
-        // ✅ Start avatar download if available
-        if (!string.IsNullOrEmpty(user.avatar))
+        if (response != null && response.result != null)
         {
-            StartCoroutine(DownloadAndLoadProfileImage(user.avatar));
+            UserProfileResult user = response.result;
+            usernameText.text = user.username;
+            Debug.Log($"👤 User: {user.username}");
+
+            // ✅ Lưu company.id vào UserManager
+            if (user.company != null && !string.IsNullOrEmpty(user.company.id))
+            {
+                UserManager.CompanyId = user.company.id;
+                Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
+            }
+        
+            if (!string.IsNullOrEmpty(user.avatar))
+            {
+                StartCoroutine(DownloadAndLoadProfileImage(user.avatar));
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ Failed to parse user data.");
         }
     }
-    else
-    {
-        Debug.LogError("❌ Failed to parse user data.");
-    }
-}
+
 
     IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
@@ -187,45 +208,57 @@ public class CourseLoader : MonoBehaviour
         }
     }
 
-  void ProcessCourseData(string jsonData)
-{
-    Debug.Log("📡 CourseLoader: Processing course data.");
-
-    // ✅ Parse JSON using a wrapper class
-    ApiResponse<CourseListResponse> response = JsonUtility.FromJson<ApiResponse<CourseListResponse>>(jsonData);
-
-    if (response != null && response.result != null && response.result.objectList != null && response.result.objectList.Count > 0)
+    void ProcessCourseData(string jsonData)
     {
-        Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
+        Debug.Log("📡 CourseLoader: Processing course data.");
+        Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON trước khi parse
 
-        // ✅ Clear existing course panels before adding new ones
-        foreach (Transform child in contentParent)
+        try
         {
-            Destroy(child.gameObject); // 🔥 Delete old course panels
+            // ✅ Parse JSON với ApiResponseList
+            var response = JsonConvert.DeserializeObject<ApiResponseList>(jsonData);
+
+            if (response == null || response.result == null || response.result.Count == 0)
+            {
+                Debug.LogError("❌ No courses found or invalid response.");
+                nocourseText.SetActive(true);
+                return;
+            }
+
+            Debug.Log($"📌 Found {response.result.Count} courses.");
+
+            // ✅ Xóa tất cả các panel cũ trước khi thêm mới
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            foreach (CourseResult course in response.result)
+            {
+                if (string.IsNullOrEmpty(course.title) || string.IsNullOrEmpty(course.description))
+                {
+                    Debug.LogWarning("⚠️ Course title or description is missing!");
+                    continue;
+                }
+
+                // ✅ Cắt ngắn title và description
+                string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
+                string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
+
+                course.title = truncatedTitle;
+                course.description = truncatedDescription;
+
+                nocourseText.SetActive(false);
+
+                // ✅ Tạo UI panel
+                CreateCoursePanel(course);
+            }
         }
-
-        foreach (CourseResult course in response.result.objectList)
+        catch (Exception e)
         {
-            // Truncate long title and description
-            string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
-            string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
-
-            // Assign truncated values to course data
-            course.title = truncatedTitle;
-            course.description = truncatedDescription;
-
-            nocourseText.SetActive(false);
-
-            // ✅ Create new UI panel for each course
-            CreateCoursePanel(course);
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
-    else
-    {
-        nocourseText.SetActive(true);
-        Debug.LogError("❌ Response data is null or invalid!");
-    }
-}
 
 
 

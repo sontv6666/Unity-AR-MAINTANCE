@@ -39,10 +39,10 @@ namespace Models
         public string imageUrl;
         public string status;
         public string type;
-        public int duration;
+        public int? duration;
         public bool isMandatory;
-        public int numberOfLessons;
-        public int numberOfParticipants;
+        public int? numberOfLessons;
+        public int? numberOfParticipants;
         public Instruction[] instructions;
     }
 
