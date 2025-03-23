@@ -20,7 +20,7 @@ public class CourseLoader: MonoBehaviour
     public GameObject nocourseText;
     public GameObject detailPage;
     public GameObject homePage;
-    
+    public GameObject seeAllPage; 
     private string userEndpoint = "/user/{0}"; // API to fetch user details
     [Header("API Settings")] 
     private string endpointTemplate = "/course/company/{0}?page=1&size=4";
@@ -208,15 +208,75 @@ public class CourseLoader: MonoBehaviour
         }
     }
 
+//     void ProcessCourseData(string jsonData)
+// {
+//     Debug.Log("📡 CourseLoader: Processing course data.");
+//     Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON trước khi parse
+//
+//     try
+//     {
+//         // ✅ Parse JSON with correct structure
+//         var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
+//
+//         if (response == null || response.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
+//         {
+//             Debug.LogError("❌ No courses found or invalid response.");
+//             nocourseText.SetActive(true);
+//             
+//             // ✅ Clear UI if no courses exist
+//             foreach (Transform child in contentParent)
+//             {
+//                 Destroy(child.gameObject);
+//             }
+//             
+//             return;
+//         }
+//
+//         Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
+//
+//         // ✅ Clear old UI elements
+//         foreach (Transform child in contentParent)
+//         {
+//             Destroy(child.gameObject);
+//         }
+//
+//         // ✅ Iterate over course list
+//         foreach (CourseResult course in response.result.objectList)
+//         {
+//             if (string.IsNullOrEmpty(course.title) || string.IsNullOrEmpty(course.description))
+//             {
+//                 Debug.LogWarning("⚠️ Course title or description is missing!");
+//                 continue;
+//             }
+//
+//             // ✅ Truncate title and description
+//             string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
+//             string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
+//
+//             course.title = truncatedTitle;
+//             course.description = truncatedDescription;
+//
+//             nocourseText.SetActive(false);
+//
+//             // ✅ Create UI panel
+//             CreateCoursePanel(course);
+//         }
+//     }
+//     catch (Exception e)
+//     {
+//         Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
+//     }
+// }
+
     void ProcessCourseData(string jsonData)
     {
         Debug.Log("📡 CourseLoader: Processing course data.");
-        Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON trước khi parse
+        Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON before parsing
 
         try
         {
-            // ✅ Parse JSON với ApiResponseList
-            var response = JsonConvert.DeserializeObject<ApiResponseList>(jsonData);
+            // ✅ Use the generic ApiResponseList<T> to properly deserialize
+            var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
 
             if (response == null || response.result == null || response.result.Count == 0)
             {
@@ -227,7 +287,7 @@ public class CourseLoader: MonoBehaviour
 
             Debug.Log($"📌 Found {response.result.Count} courses.");
 
-            // ✅ Xóa tất cả các panel cũ trước khi thêm mới
+            // ✅ Clear old UI panels before adding new ones
             foreach (Transform child in contentParent)
             {
                 Destroy(child.gameObject);
@@ -241,7 +301,7 @@ public class CourseLoader: MonoBehaviour
                     continue;
                 }
 
-                // ✅ Cắt ngắn title và description
+                // ✅ Shorten title and description
                 string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
                 string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
 
@@ -250,7 +310,7 @@ public class CourseLoader: MonoBehaviour
 
                 nocourseText.SetActive(false);
 
-                // ✅ Tạo UI panel
+                // ✅ Create the UI panel
                 CreateCoursePanel(course);
             }
         }
@@ -259,7 +319,6 @@ public class CourseLoader: MonoBehaviour
             Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
-
 
 
     void CreateCoursePanel(CourseResult course)
@@ -414,6 +473,20 @@ public class CourseLoader: MonoBehaviour
         }
     }
 
+    public void GoToSeeAllPage()
+    {
+        Debug.Log("📌 Navigating to See All Page...");
+
+        if (homePage != null)
+        {
+            homePage.SetActive(false); // Hide Home Page
+        }
+
+        if (seeAllPage != null)
+        {
+            seeAllPage.SetActive(true); // Show See All Page
+        }
+    }
 }
 
 

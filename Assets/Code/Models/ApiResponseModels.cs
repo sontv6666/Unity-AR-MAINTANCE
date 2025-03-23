@@ -11,10 +11,28 @@ namespace Models
     }
 
     
-    [System.Serializable]
-    public class ApiResponseList
+    // [Serializable]
+    // public class ApiResponseList<T>
+    // {
+    //     public int code;
+    //     public PaginationResult<T> result;
+    // }
+    [Serializable]
+    public class ApiResponseList<T>
     {
-        public List<CourseResult> result;
+        public int code;
+        public List<T> result;  // ✅ Correctly handles array in "result"
+    }
+
+    // ✅ Pagination structure (matches API response)
+    [Serializable]
+    public class PaginationResult<T>
+    {
+        public int page;
+        public int size;
+        public int totalItems;
+        public int totalPages;
+        public List<T> objectList;
     }
     [Serializable]
     public class CourseListResponse
@@ -33,8 +51,8 @@ namespace Models
         public string modelId;
         public string title;
         public string description;
-        public string shortDescription;
-        public string targetAudience;
+        public string? shortDescription;
+        public string? targetAudience;
         public string companyId;
         public string imageUrl;
         public string status;
