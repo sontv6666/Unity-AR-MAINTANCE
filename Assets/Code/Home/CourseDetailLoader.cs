@@ -279,34 +279,43 @@ namespace Code
         }
 
 
-        IEnumerator DownloadModelFile(string modelId)
+       IEnumerator DownloadModelFile(string modelId)
+{
+    string endpoint = modelApiEndpoint + modelId;
+    UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log("📡 API Response: " + jsonResponse);
+
+        ApiResponse<ModelDataResult> response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(jsonResponse);
+
+        if (response == null || response.result == null || string.IsNullOrEmpty(response.result.file))
         {
-            string endpoint = modelApiEndpoint + modelId;
-            UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                ModelDataResult modelData = JsonUtility.FromJson<ModelDataResult>(request.downloadHandler.text);
-                string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.file);
-
-                if (!File.Exists(modelFilePath))
-                {
-                    yield return StartCoroutine(DownloadFile(fileDownloadBaseUrl + modelData.file,
-                        modelData.file));
-                }
-
-                // ✅ Transition to AR Scene after successful download
-                Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
-                SceneManager.LoadScene("ARVRScanner");
-            }
-            else
-            {
-                Debug.LogError("❌ Failed to fetch model data: " + request.error);
-                loadingUIPanel.SetActive(false);
-            }
+            Debug.LogError("❌ modelData.file is null or API response is invalid!");
+            yield break; // Stop execution
         }
+
+        string modelFilePath = Path.Combine(Application.persistentDataPath, response.result.file);
+
+        if (!File.Exists(modelFilePath))
+        {
+            yield return StartCoroutine(DownloadFile(fileDownloadBaseUrl + response.result.file, response.result.file));
+        }
+
+        Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
+        SceneManager.LoadScene("ARVRScanner");
+    }
+    else
+    {
+        Debug.LogError("❌ Failed to fetch model data: " + request.error);
+        loadingUIPanel.SetActive(false);
+    }
+}
+
         
         public void BackToHomePage()
         {
