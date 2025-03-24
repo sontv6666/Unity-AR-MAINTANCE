@@ -6,6 +6,9 @@ public class ScreenManager : MonoBehaviour
 {
     [Header("Screens")] public List<GameObject> screens; // Drag and drop all UI screens here in the Inspector
 
+    
+    public SceneNavigator sceneNavigator; // Assign in Inspector
+    
     private void Start()
     {
         // Optional: Hide all screens at the start except the first one
