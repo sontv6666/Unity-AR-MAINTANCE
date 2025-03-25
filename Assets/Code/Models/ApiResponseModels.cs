@@ -102,14 +102,14 @@ namespace Models
     [Serializable]
     public class HeaderResponse
     {
-        public string key;
-        public string value;
+        public string keyHeader;
+        public string valueOfKey;
     }
 
     [Serializable]
     public class MachineTypeValueResponse
     {
-        public string id;
+        public string? id;
         public string machineTypeAttributeId;
         public string machineTypeAttributeName;
         public string valueAttribute;

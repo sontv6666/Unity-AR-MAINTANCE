@@ -335,7 +335,7 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 300}
-  m_Pivot: {x: 0.5, y: 1.7}
+  m_Pivot: {x: 0.5, y: 2}
 --- !u!225 &5421057
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -12478,7 +12478,7 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 300}
-  m_Pivot: {x: 0.5, y: 1.7}
+  m_Pivot: {x: 0.5, y: 2}
 --- !u!225 &510868512
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -28309,7 +28309,7 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 300}
-  m_Pivot: {x: 0.5, y: 1.7}
+  m_Pivot: {x: 0.5, y: 2}
 --- !u!225 &1038632944
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -32651,6 +32651,7 @@ MonoBehaviour:
   screens: []
   sceneNavigator: {fileID: 0}
   transitionSpeed: 2
+  splashDuration: 3
 --- !u!114 &1171726868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33919,7 +33920,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1220088745}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4cb5aa0d56ff65e468f3f716cf66fac3, type: 3}
   m_Name: 
@@ -44566,6 +44567,7 @@ GameObject:
   - component: {fileID: 1656554573}
   - component: {fileID: 1656554572}
   - component: {fileID: 1656554571}
+  - component: {fileID: 1656554575}
   m_Layer: 5
   m_Name: LogoMain
   m_TagString: Untagged
@@ -44662,6 +44664,50 @@ MonoBehaviour:
   _bindingKey: 
   _tags: []
   _logs: []
+--- !u!114 &1656554575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656554569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1656554572}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1670233225
 GameObject:
   m_ObjectHideFlags: 0
@@ -54522,7 +54568,6 @@ GameObject:
   - component: {fileID: 2077063461}
   - component: {fileID: 2077063460}
   - component: {fileID: 2077063459}
-  - component: {fileID: 2077063463}
   m_Layer: 5
   m_Name: HomePage
   m_TagString: Untagged
@@ -54615,21 +54660,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &2077063463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2077063458}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c5be01269f84a94790c0ce1b62e4b22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  screens: []
-  sceneNavigator: {fileID: 0}
-  transitionSpeed: 2
 --- !u!1 &2077445949
 GameObject:
   m_ObjectHideFlags: 0
@@ -55258,6 +55288,7 @@ MonoBehaviour:
   screens: []
   sceneNavigator: {fileID: 0}
   transitionSpeed: 2
+  splashDuration: 3
 --- !u!114 &2113893431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55559,8 +55590,11 @@ MonoBehaviour:
   - {fileID: 2030535955}
   - {fileID: 42911515}
   - {fileID: 1220088749}
+  - {fileID: 2077063462}
+  - {fileID: 2139142896}
   sceneNavigator: {fileID: 2120011585}
   transitionSpeed: 2
+  splashDuration: 3
 --- !u!1 &2127919486
 GameObject:
   m_ObjectHideFlags: 0
@@ -56192,6 +56226,7 @@ MonoBehaviour:
   mandatoryText: {fileID: 1556426135}
   numberOfLessonsText: {fileID: 8468995932206633289}
   companyIdText: {fileID: 0}
+  homePage: {fileID: 2077063458}
   loadingUIPanel: {fileID: 1123131927}
   progressBar: {fileID: 1275276366}
   progressText: {fileID: 288120569}

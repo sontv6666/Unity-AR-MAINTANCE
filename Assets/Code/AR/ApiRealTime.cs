@@ -94,12 +94,28 @@ IEnumerator FetchMachineDataRoutine(string machineCode, string secondValue, stri
             UpdateMachineUI(machine);
 
             // 🔹 Xử lý Header nếu bị thiếu
-            apiHeaders.Clear();
+            apiHeaders.Clear(); // ✅ Reset trước khi thêm mới
+
             if (machine.headerResponses != null && machine.headerResponses.Count > 0)
             {
                 foreach (var header in machine.headerResponses)
                 {
-                    apiHeaders[header.key] = header.value;
+                    if (!string.IsNullOrEmpty(header.keyHeader) && !string.IsNullOrEmpty(header.valueOfKey))
+                    {
+                        if (!apiHeaders.ContainsKey(header.keyHeader))
+                        {
+                            apiHeaders[header.keyHeader] = header.valueOfKey;
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"⚠️ Key '{header.keyHeader}' already exists. Skipping.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("⚠️ Found null or empty key in headerResponses.");
+                    }
+                   
                 }
             }
             else
@@ -107,11 +123,18 @@ IEnumerator FetchMachineDataRoutine(string machineCode, string secondValue, stri
                 apiHeaders["API_KEY"] = "my_secure_token_123"; // ✅ Thêm API_KEY mặc định
             }
 
+
             // 🔹 Nếu có API URL, bắt đầu real-time fetch khi panel mở
             if (!string.IsNullOrEmpty(machine.apiUrl))
             {
+               
                 StartCoroutine(FetchRealTimeData(machine.apiUrl));
             }
+            else
+            {
+                Debug.LogError("❌ Failed to call api real tine response.");
+            }
+
         }
         else
         {
