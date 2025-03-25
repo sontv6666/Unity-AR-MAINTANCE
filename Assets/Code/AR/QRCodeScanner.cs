@@ -136,7 +136,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // Use test ID for debugging
         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
-      //  courseID = testID;
+           //  courseID = testID;
 
       
        
@@ -184,13 +184,13 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(false);
-        scanBoxUI.SetActive(false);
+        scanUIPanel.SetActive(true);
+        scanBoxUI.SetActive(true);
         courseUIPanel.SetActive(true); 
         centerModelButton.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
-       StartScanning();
+        StartScanning();
      
      
       // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
@@ -296,6 +296,8 @@ public class ARQRCodeScanner : MonoBehaviour
         //cach 2.1
         void TryScanQRCode()
         {
+            
+            Debug.Log($"Check Scan QR Code");
             // 🛑 Ensure Course UI is hidden before scanning
             if (courseUIPanel != null)
             {
