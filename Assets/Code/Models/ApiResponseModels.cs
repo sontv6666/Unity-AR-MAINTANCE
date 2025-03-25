@@ -97,7 +97,6 @@ namespace Models
         public string token;
         public string qrCode;
         public List<MachineTypeValueResponse> machineTypeValueResponses;
-        public List<MachineQrResponse> machineQrsResponses;
     }
 
     [Serializable]

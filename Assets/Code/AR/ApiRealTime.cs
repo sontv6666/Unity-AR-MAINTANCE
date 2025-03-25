@@ -4,64 +4,194 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Newtonsoft.Json.Linq;
+using Models;
 using UnityEngine.UI;
+using Newtonsoft.Json;
 
 public class APIRealTime : MonoBehaviour
 {
+    public static APIRealTime Instance;
+
+    [Header("UI Elements")]
     public Transform dataLayoutGroup;
     public GameObject dataRowPrefab;
     public GameObject categoryHeaderPrefab;
+    public TMP_Text machineNameText;
+    public TMP_Text machineTypeText;
+    public GameObject apiRealTimePanel; // Panel to toggle visibility
+    public Button togglePanelButton; // Button to open/close the panel
+
     private string previousJson = "";
+    private Dictionary<string, string> apiHeaders = new Dictionary<string, string>();
+    private bool isPanelVisible = false; // Track visibility state
+    
+    private string currentMachineCode = "";
 
-    void Start()
+    private void Awake()
     {
-        InvokeRepeating(nameof(FetchAPIData), 0f, 3f);
+        Instance = this;
     }
 
-    void FetchAPIData()
+    private void Start()
     {
-        StartCoroutine(GetDataFromAPI());
+        togglePanelButton.onClick.AddListener(TogglePanel);
+    
+        // 🔹 Nếu có nút đóng, gán sự kiện đóng panel
+        Button closeButton = apiRealTimePanel.transform.Find("CloseButton")?.GetComponent<Button>();
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(ClosePanel);
+        }
+
+        apiRealTimePanel.SetActive(false); // Panel starts hidden
     }
 
-    IEnumerator GetDataFromAPI()
+
+    void TogglePanel()
     {
-        string url = "https://demoapicallgetlaptopinfo.onrender.com/cpu";
+        isPanelVisible = !isPanelVisible;
+        apiRealTimePanel.SetActive(isPanelVisible);
+
+        // ✅ Ensure QRCodeScanner exists before accessing it
+        if (ARQRCodeScanner.Instance != null && isPanelVisible)
+        {
+            currentMachineCode = ARQRCodeScanner.Instance.currentMachineCode; // ✅ Get latest machine code
+
+            if (!string.IsNullOrEmpty(currentMachineCode))
+            {
+                StartCoroutine(FetchMachineDataRoutine(currentMachineCode, "", ""));
+            }
+        }
+    }
+
+
+
+    public void FetchMachineData(string machineCode, string secondValue, string courseId)
+    {
+        StartCoroutine(FetchMachineDataRoutine(machineCode, secondValue, courseId));
+    }
+
+IEnumerator FetchMachineDataRoutine(string machineCode, string secondValue, string courseId)
+{
+    currentMachineCode = machineCode;
+    string endpoint = "/machine/code/" + machineCode;
+    UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+
+    Debug.Log($"📡 Sending API Request to: {endpoint}");
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log($"✅ Machine API Response: {jsonResponse}");
+
+        ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+
+        if (response != null && response.result != null)
+        {
+            MachineResponse machine = response.result;
+            UpdateMachineUI(machine);
+
+            // 🔹 Xử lý Header nếu bị thiếu
+            apiHeaders.Clear();
+            if (machine.headerResponses != null && machine.headerResponses.Count > 0)
+            {
+                foreach (var header in machine.headerResponses)
+                {
+                    apiHeaders[header.key] = header.value;
+                }
+            }
+            else
+            {
+                apiHeaders["API_KEY"] = "my_secure_token_123"; // ✅ Thêm API_KEY mặc định
+            }
+
+            // 🔹 Nếu có API URL, bắt đầu real-time fetch khi panel mở
+            if (!string.IsNullOrEmpty(machine.apiUrl))
+            {
+                StartCoroutine(FetchRealTimeData(machine.apiUrl));
+            }
+        }
+        else
+        {
+            Debug.LogError("❌ Failed to parse machine response.");
+            UpdateUIText("Failed to get machine data!", "");
+        }
+    }
+    else
+    {
+        Debug.LogError($"❌ Machine API Request Failed: {request.error}");
+        UpdateUIText("Failed to get machine data!", "");
+    }
+}
+
+IEnumerator FetchRealTimeData(string url)
+{
+    while (isPanelVisible) // Chỉ gọi API khi panel đang mở
+    {
         UnityWebRequest request = UnityWebRequest.Get(url);
-        request.SetRequestHeader("API_KEY", "my_secure_token_123");
+
+        foreach (var header in apiHeaders)
+        {
+            request.SetRequestHeader(header.Key, header.Value);
+        }
 
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
             string jsonResponse = request.downloadHandler.text;
+            Debug.Log($"✅ Real-time API Response: {jsonResponse}");
 
-            if (jsonResponse != previousJson) // Chỉ cập nhật nếu dữ liệu thay đổi
+            if (jsonResponse != previousJson)
             {
                 JObject parsedData = JObject.Parse(jsonResponse);
-                DisplayData(parsedData);
+                DisplayRealTimeData(parsedData);
                 previousJson = jsonResponse;
             }
         }
         else
         {
-            Debug.LogError("API Error: " + request.error);
+            Debug.LogError($"❌ Real-time API Failed: {request.error}");
         }
+
+        yield return new WaitForSeconds(5f); // Chờ 5 giây trước khi gọi lại API
+    }
+}
+
+
+    public void UpdateMachineUI(MachineResponse machine)
+    {
+        machineNameText.text = $"Machine: {machine.machineName ?? "Unknown"}";  
+        machineTypeText.text = $"Type: {machine.machineType ?? "Unknown"}";
+
+        ClearUI();
+
+        if (machine.machineTypeValueResponses != null)
+        {
+            foreach (MachineTypeValueResponse attribute in machine.machineTypeValueResponses)
+            {
+                AddDataRow(attribute.machineTypeAttributeName, attribute.valueAttribute);
+            }
+        }
+
+      
     }
 
-    void DisplayData(JObject data)
+    
+
+
+    void DisplayRealTimeData(JObject data)
     {
-        // Xóa dữ liệu cũ trước khi cập nhật
-        foreach (Transform child in dataLayoutGroup)
-        {
-            Destroy(child.gameObject);
-        }
+        ClearUI();
 
         foreach (var category in data)
         {
             string categoryName = category.Key;
             JToken categoryValues = category.Value;
 
-            if (categoryValues.Type == JTokenType.Object) // 🔹 Nếu là nhóm dữ liệu
+            if (categoryValues.Type == JTokenType.Object)
             {
                 AddCategoryHeader(categoryName);
                 foreach (var item in categoryValues.Children<JProperty>())
@@ -76,23 +206,19 @@ public class APIRealTime : MonoBehaviour
         }
     }
 
-    // 🔹 Chuẩn hóa giá trị hiển thị
     string FormatValue(JToken value)
     {
         if (value.Type == JTokenType.Null || (value.Type == JTokenType.String && string.IsNullOrWhiteSpace(value.ToString())))
         {
-            return "Unknown"; // Nếu rỗng, hiển thị "Unknown"
+            return "Unknown";
         }
-
         if (value.Type == JTokenType.Float || value.Type == JTokenType.Integer)
         {
-            return $"{value:F2}"; // Format số thực (2 chữ số thập phân)
+            return $"{value:F2}";
         }
-
-        return value.ToString(); // Các kiểu khác giữ nguyên
+        return value.ToString();
     }
 
-    // 🔹 Thêm hàng key-value
     void AddDataRow(string key, string value)
     {
         GameObject newRow = Instantiate(dataRowPrefab, dataLayoutGroup);
@@ -109,7 +235,6 @@ public class APIRealTime : MonoBehaviour
         valueText.alignment = TextAlignmentOptions.Left;
         valueText.fontSize = 28;
 
-        // 🎨 Đổi màu chữ nếu giá trị là phần trăm
         if (key.ToLower().Contains("percent") || key.ToLower().Contains("usage"))
         {
             if (float.TryParse(value.Replace("%", ""), out float percentage))
@@ -120,25 +245,30 @@ public class APIRealTime : MonoBehaviour
             }
         }
 
-        // 🎬 Hiệu ứng Fade-in
         CanvasGroup canvasGroup = newRow.AddComponent<CanvasGroup>();
         canvasGroup.alpha = 0;
         StartCoroutine(FadeIn(canvasGroup, 0.5f));
     }
 
-    // 🔹 Thêm tiêu đề nhóm
     void AddCategoryHeader(string title)
     {
         GameObject newHeader = Instantiate(categoryHeaderPrefab, dataLayoutGroup);
         TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
 
-        headerText.text = title.ToUpper(); // Viết hoa tiêu đề
+        headerText.text = title.ToUpper();
         headerText.fontSize = 34;
         headerText.fontStyle = FontStyles.Bold;
         headerText.alignment = TextAlignmentOptions.Center;
     }
 
-    // 🎬 Hiệu ứng Fade-in
+    void ClearUI()
+    {
+        foreach (Transform child in dataLayoutGroup)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
     IEnumerator FadeIn(CanvasGroup canvasGroup, float duration)
     {
         float time = 0;
@@ -150,4 +280,20 @@ public class APIRealTime : MonoBehaviour
         }
         canvasGroup.alpha = 1;
     }
+
+    public void UpdateUIText(string title, string message)
+    {
+        machineNameText.text = title;
+        machineTypeText.text = message;
+    }
+    
+    public void ClosePanel() 
+    {
+        // 🚫 Đóng panel hiển thị trước đó
+        apiRealTimePanel.SetActive(false);
+        isPanelVisible = false; // Cập nhật trạng thái panel
+
+        Debug.Log("❌ Panel closed.");
+    }
+
 }

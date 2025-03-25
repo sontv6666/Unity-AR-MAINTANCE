@@ -12,15 +12,20 @@ using GLTFast.Loading;
 using System.Threading.Tasks;
 using System;
 using Models;
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.AR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using Newtonsoft.Json;
 
 public class ARQRCodeScanner : MonoBehaviour
 {
 
+    public static ARQRCodeScanner Instance; 
+    public string currentMachineCode = "";
+    
     // AR Elementss
     public ARCameraManager arCameraManager;
     private bool isScanning = true;
@@ -54,6 +59,8 @@ public class ARQRCodeScanner : MonoBehaviour
     public Button backButton;
 
     public Button centerModelButton;
+    
+    public Button realDataButton;
     public float modelDistanceFromCamera = 0.5f;
 
     public GameObject instructionDetailStepPrefab; // Prefab for each step
@@ -62,7 +69,7 @@ public class ARQRCodeScanner : MonoBehaviour
     public TMP_Text courseTitleText;
 
 
-
+   
 
     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
 
@@ -75,8 +82,8 @@ public class ARQRCodeScanner : MonoBehaviour
 
     private string courseID;
     private string testID = "c886f9f1-68f8-4596-b625-f14c5ef8addc";
-    private string testqrCode = "42be6340-c590-4477-8508-f6250717cd7b";
-    private string testqrCode2 = "97794f13-1146-4b1a-83c2-0c9b693a346e";
+    private string testqrCode1 = "b25a4808b6";
+    private string testqrCode2 = "db06fbad-ed26-449a-b6f9-0efa244abb33";
 
     public GameObject scanBoxUI;
     
@@ -91,6 +98,11 @@ public class ARQRCodeScanner : MonoBehaviour
     private float lastAnimationSpeed = 1f; // Default speed is 1x
 
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+    
     void Start()
     {
         if (scanBoxUI != null)
@@ -124,8 +136,10 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // Use test ID for debugging
         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
-       // courseID = testID;
+      //  courseID = testID;
 
+      
+       
         if (string.IsNullOrEmpty(courseID))
         {
             Debug.LogError("❌ No Course ID found!");
@@ -144,7 +158,7 @@ public class ARQRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-            TryScanQRCode();
+           TryScanQRCode();
         }
 
 
@@ -158,6 +172,7 @@ public class ARQRCodeScanner : MonoBehaviour
         scanUIPanel.SetActive(false);
         scanBoxUI.SetActive(false);
         centerModelButton.gameObject.SetActive(false);
+        realDataButton.gameObject.SetActive(false);
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
@@ -172,13 +187,13 @@ public class ARQRCodeScanner : MonoBehaviour
         scanUIPanel.SetActive(false);
         scanBoxUI.SetActive(false);
         courseUIPanel.SetActive(true); 
-        centerModelButton.gameObject.SetActive(true);
+        centerModelButton.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
-       
-           StartScanning();
+        realDataButton.gameObject.SetActive(false);
+       StartScanning();
      
      
-     
+      // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -208,7 +223,8 @@ public class ARQRCodeScanner : MonoBehaviour
             string jsonResponse = request.downloadHandler.text;
         
             // ✅ Correctly parse the API response
-            var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
+            var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
+
 
             if (response != null && response.result != null)
             {
@@ -345,23 +361,81 @@ public class ARQRCodeScanner : MonoBehaviour
                     }
 
                     Debug.Log($"✅ QR Code Scanned: {result.Text}");
-                    ShowLoadingUI("Processing QR Code...");
+                   
                     UpdateUIText("Scanning...", "QR: " + result.Text);
-
+                    
+                    string[] values = result.Text.Split('@');
+                    if (values.Length != 2)
+                    {
+                        Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
+                        UpdateUIText("Invalid QR Code format!", "");
+                        Invoke(nameof(ResetScanning), 2f);
+                        return;
+                    }
+                    
+                    string firstValue = values[0].Trim();  // Giá trị đầu tiên (máy)
+                    string secondValue = values[1].Trim(); // Giá trị thứ hai (khóa học)
+                    ShowLoadingUI("Processing QR Code...");
                     qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
                     qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 
+                    Debug.Log($"✅ Course Id: {courseID}");
+                    StartCoroutine(FetchMachineData(firstValue, secondValue,courseID));
 
-
-                    StartCoroutine(CheckQRCode(result.Text, courseID));
+                
                 }
             }
         }
     
 
 
+        IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
+        {
+            currentMachineCode = machineCode; 
+            
+            string endpoint = "/machine/code/" + machineCode;
+            UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string jsonResponse = request.downloadHandler.text;
+                Debug.Log($"✅ Machine API Response: {jsonResponse}");
+
+                // 🔹 Parse JSON response into MachineResponse model
+                ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+                
+                if (response != null && response.result != null)
+                {
+                    MachineResponse machine = response.result;
+                
+                    // 🔹 Send data to UI
+                    APIRealTime.Instance.UpdateMachineUI(machine);
+                    
+
+                    // Continue with QR logic
+                    StartCoroutine(CheckQRCode(secondValue, courseId));
+                }
+                else
+                {
+                    Debug.LogError("❌ Failed to parse machine response.");
+                    APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
+                    Invoke(nameof(ResetScanning), 2f);
+                }
+            }
+            else
+            {
+                Debug.LogError($"❌ Machine API Request Failed: {request.error}");
+                UpdateUIText("Failed to get machine data!", "");
+                Invoke(nameof(ResetScanning), 2f);
+            }
+        }
 
 
+
+
+     
 
 
     //cach 2.2
@@ -376,13 +450,16 @@ public class ARQRCodeScanner : MonoBehaviour
             {
                 string jsonResponse = request.downloadHandler.text;
                 Debug.Log("API Response: " + jsonResponse);
+                Debug.Log($"✅ Course ID: {courseID}");
                 ProcessResponse(jsonResponse, qrValue);
+                
+                
             }
             else
             {
                 Debug.LogError("API Request Failed: " + request.error);
                 UpdateUIText("Scan failed. Try again.", "");
-                Invoke(nameof(ResetScanning), 2f); // 🔥 Added to reset scanning after failure
+                Invoke(nameof(ResetScanning), 2f); 
             }
         }
 
@@ -390,7 +467,8 @@ public class ARQRCodeScanner : MonoBehaviour
         void ProcessResponse(string jsonResponse, string scannedQR)
         {
             // ✅ Corrected JSON parsing
-            var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
+            var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
+
 
             if (response != null && response.result != null)
             {
@@ -439,7 +517,7 @@ public class ARQRCodeScanner : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 // ✅ Correctly parse API response
-                var response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(request.downloadHandler.text);
+                var response = JsonConvert.DeserializeObject<ApiResponse<ModelDataResult>>(request.downloadHandler.text);
 
                 if (response != null && response.result != null)
                 {
@@ -884,6 +962,7 @@ public class ARQRCodeScanner : MonoBehaviour
             instructionDetailPanel.SetActive(false);
             backButton.gameObject.SetActive(true);
             centerModelButton.gameObject.SetActive(true);
+            realDataButton.gameObject.SetActive(true);
 
             // Show title
             courseTitleText.text = course.title;

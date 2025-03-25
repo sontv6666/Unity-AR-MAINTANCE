@@ -2,48 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class ScreenManagers : MonoBehaviour
+using Code;
+public class ScreenManager : MonoBehaviour
 {
-    public List<RectTransform> screens; // 🛠 Use RectTransform instead of GameObject
+    [Header("📌 UI Screens")]
+    public List<RectTransform> screens; // ✅ Supports RectTransform-based UI
     private int currentScreenIndex = 0;
-    private bool isFirstScreen = true; // Track if we are on the first screen
+    private bool isFirstScreen = true; // ✅ Prevents multiple fast taps
 
-    public SceneNavigator sceneNavigator; // Assign in Inspector
-    public float transitionSpeed = 2f; // 🛠 Adjust speed for smooth transition
+    public SceneNavigator sceneNavigator; // ✅ Assign in Inspector
+    public float transitionSpeed = 2f; // ✅ Adjust speed for smooth transitions
 
-    void Start()
+    private void Start()
     {
-        // Ensure only the first screen is visible
-        for (int i = 0; i < screens.Count; i++)
+        // 🔥 Check if user is already logged in
+        if (IsUserLoggedIn())
         {
-            if (screens[i] != null)
-            {
-                screens[i].gameObject.SetActive(i == currentScreenIndex);
-            }
+            Debug.Log("✅ User already logged in! Skipping intro screens...");
+            RestoreLastPage();
+        }
+        else
+        {
+            Debug.Log("🔄 New user or session expired. Showing first screen.");
+            ShowScreen(screens[0].name);
         }
     }
 
-    void Update()
+    private bool IsUserLoggedIn()
     {
-        if (isFirstScreen && (Input.GetMouseButtonDown(0) || Input.touchCount > 0))
-        {
-            // Prevent multiple rapid clicks
-            isFirstScreen = false;
-            StartCoroutine(GoToNextScreenWithDelay());
-        }
-    }
-
-    private IEnumerator GoToNextScreenWithDelay()
-    {
-        yield return new WaitForSeconds(1f); // 👈 Adjust delay as needed (1 second here)
-        GoToNextScreen();
+        string userId = PlayerPrefs.GetString("UserId", "");
+        return !string.IsNullOrEmpty(userId);
     }
 
     public void GoToNextScreen()
     {
-        Debug.Log("Current Screen: " + currentScreenIndex);
-
         if (currentScreenIndex < screens.Count - 1)
         {
             int nextScreenIndex = currentScreenIndex + 1;
@@ -76,39 +68,44 @@ public class ScreenManagers : MonoBehaviour
 
         previousScreen.gameObject.SetActive(false);
         currentScreenIndex = nextScreenIndex;
-
-        AssignButtonEvents(nextScreenIndex);
-
-        if (screens[nextScreenIndex].name == "LoginPage" && sceneNavigator != null)
-        {
-            sceneNavigator.gameObject.SetActive(true);
-            Debug.Log("✅ SceneNavigator Activated!");
-        }
     }
 
-    private void AssignButtonEvents(int screenIndex)
+    private void RestoreLastPage()
     {
-        if (screenIndex >= screens.Count - 1)
-        {
-            Debug.Log($"🚫 No button assignment for the last screen: {screens[screenIndex].name}");
-            return; // ❌ Skip assigning buttons for the last page (LoginPage)
-        }
+        bool showHome = PlayerPrefs.GetInt("ShowHomePage", 0) == 1;
+        bool showDetail = PlayerPrefs.GetInt("ShowDetailPage", 0) == 1;
+        string lastCourseId = PlayerPrefs.GetString("SelectedCourseID", "");
 
-        Button nextButton = screens[screenIndex].GetComponentInChildren<Button>();
-        if (nextButton != null)
+        if (showDetail && !string.IsNullOrEmpty(lastCourseId))
         {
-            nextButton.onClick.RemoveAllListeners();
-            nextButton.onClick.AddListener(() => GoToNextScreen());
-            Debug.Log($"✅ Button reassigned on Screen {screenIndex}");
+            ShowScreen("DetailPage");
+            CourseDetailLoader courseDetailLoader = FindObjectOfType<CourseDetailLoader>();
+            if (courseDetailLoader != null)
+            {
+                courseDetailLoader.LoadCourseDetails(lastCourseId);
+            }
         }
         else
         {
-            Debug.LogWarning($"⚠ No button found on Screen {screenIndex}");
+            ShowScreen("HomePage");
+            CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
+            if (courseLoader != null)
+            {
+                courseLoader.ReloadCourseData();
+            }
         }
+
+        PlayerPrefs.SetInt("ShowHomePage", 0);
+        PlayerPrefs.SetInt("ShowDetailPage", 0);
+        PlayerPrefs.SetString("SelectedCourseID", "");
+        PlayerPrefs.Save();
     }
 
+    public void ShowScreen(string screenName)
+    {
+        foreach (RectTransform screen in screens)
+        {
+            screen.gameObject.SetActive(screen.name == screenName);
+        }
+    }
 }
-
-
-
-    
