@@ -144,7 +144,7 @@ public class ARQRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-            //TryScanQRCode();
+            TryScanQRCode();
         }
 
 
@@ -175,7 +175,7 @@ public class ARQRCodeScanner : MonoBehaviour
         centerModelButton.gameObject.SetActive(true);
         instructionDetailPanel.SetActive(false);
        
-     //   StartScanning();
+           StartScanning();
      
      
      

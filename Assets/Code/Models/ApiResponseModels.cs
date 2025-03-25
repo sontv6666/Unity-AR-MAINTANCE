@@ -62,7 +62,62 @@ namespace Models
         public int? numberOfLessons;
         public int? numberOfParticipants;
         public Instruction[] instructions;
+        
+        public string machineTypeId;
+       
     }
+    [Serializable]
+    public class MachineTypeResponse
+    {
+        public string machineTypeId;
+        public string machineTypeName;
+        public string description;
+        public List<MachineTypeAttributeResponse> machineTypeAttributeResponses;
+        public int numOfAttribute;
+    }
+
+    [Serializable]
+    public class MachineTypeAttributeResponse
+    {
+        public string id;
+        public string modelTypeId;
+        public string attributeName;
+        public string valueAttribute;
+    }
+
+    [Serializable]
+    public class MachineResponse
+    {
+        public string id;
+        public string machineName;
+        public string machineType;
+        public string machineCode;
+        public string apiUrl;
+        public List<HeaderResponse> headerResponses;
+        public string token;
+        public string qrCode;
+        public List<MachineTypeValueResponse> machineTypeValueResponses;
+        public List<MachineQrResponse> machineQrsResponses;
+    }
+
+    [Serializable]
+    public class HeaderResponse
+    {
+        public string key;
+        public string value;
+    }
+
+    [Serializable]
+    public class MachineTypeValueResponse
+    {
+        public string id;
+        public string machineTypeAttributeId;
+        public string machineTypeAttributeName;
+        public string valueAttribute;
+    }
+    
+    
+    
 
     [Serializable]
     public class Instruction
