@@ -36,7 +36,7 @@ public class ScreenManager : MonoBehaviour
 
     public void GoToNextScreen()
     {
-        if (currentScreenIndex < screens.Count - 1)
+        if (currentScreenIndex < screens.Count - 3)
         {
             int nextScreenIndex = currentScreenIndex + 1;
             StartCoroutine(SlideTransition(nextScreenIndex));
@@ -72,34 +72,45 @@ public class ScreenManager : MonoBehaviour
 
     private void RestoreLastPage()
     {
-        bool showHome = PlayerPrefs.GetInt("ShowHomePage", 0) == 1;
         bool showDetail = PlayerPrefs.GetInt("ShowDetailPage", 0) == 1;
         string lastCourseId = PlayerPrefs.GetString("SelectedCourseID", "");
 
         if (showDetail && !string.IsNullOrEmpty(lastCourseId))
         {
+            Debug.Log("📌 Restoring Detail Page...");
             ShowScreen("DetailPage");
+
             CourseDetailLoader courseDetailLoader = FindObjectOfType<CourseDetailLoader>();
             if (courseDetailLoader != null)
             {
                 courseDetailLoader.LoadCourseDetails(lastCourseId);
             }
+        
+            int detailPageIndex = screens.FindIndex(s => s.name == "DetailPage");
+            currentScreenIndex = (detailPageIndex >= 0) ? detailPageIndex : 0; // ✅ Ensure valid index
         }
         else
         {
+            Debug.Log("🏠 Restoring Home Page...");
             ShowScreen("HomePage");
+
             CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
             if (courseLoader != null)
             {
                 courseLoader.ReloadCourseData();
             }
+        
+            int homePageIndex = screens.FindIndex(s => s.name == "HomePage");
+            currentScreenIndex = (homePageIndex >= 0) ? homePageIndex : 0; // ✅ Ensure valid index
         }
 
+        // 🛑 Reset PlayerPrefs to prevent conflicts on next launch
         PlayerPrefs.SetInt("ShowHomePage", 0);
         PlayerPrefs.SetInt("ShowDetailPage", 0);
         PlayerPrefs.SetString("SelectedCourseID", "");
         PlayerPrefs.Save();
     }
+
 
     public void ShowScreen(string screenName)
     {

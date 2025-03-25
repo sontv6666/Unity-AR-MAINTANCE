@@ -25,6 +25,8 @@ namespace Code
         public TMP_Text numberOfLessonsText;
         public TMP_Text companyIdText;
 
+        
+        public GameObject homePage;
         public GameObject loadingUIPanel; // ✅ Show loading UI
         public Slider progressBar;
         public TMP_Text progressText;
@@ -316,24 +318,25 @@ namespace Code
     }
 }
 
-        
-        public void BackToHomePage()
-        {
-            Debug.Log("🔙 Hiding Course Detail Page and returning to Home...");
 
-            // ✅ Hide the Detail Page
-            if (detailPage != null)
-            {
-                detailPage.SetActive(false);
-            }
+public void BackToHomePage()
+{
+    Debug.Log("🔙 Hiding Course Detail Page and returning to Home...");
 
-            // ✅ Show Home Page (if needed)
-            GameObject homePage = GameObject.Find("HomePage"); // Change this to your actual Home Page GameObject name
-            if (homePage != null)
-            {
-                homePage.SetActive(true);
-            }
-        }
+    if (detailPage != null)
+    {
+        detailPage.SetActive(false); // ✅ Hide Detail Page
+    }
+
+    if (homePage != null)
+    {
+        homePage.SetActive(true); // ✅ Show Home Page even if it was inactive
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ HomePage reference is missing! Make sure to assign it.");
+    }
+}
 
 
 

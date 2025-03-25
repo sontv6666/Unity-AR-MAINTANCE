@@ -5,6 +5,8 @@ public class SceneNavigator : MonoBehaviour
 {
     [Header("UI Screens")]
     public List<GameObject> screens; // Danh sách tất cả màn hình (gán trong Inspector)
+    
+    
 
     private void Start()
     {

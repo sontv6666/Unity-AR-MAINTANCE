@@ -27,31 +27,33 @@ public class CourseLoader: MonoBehaviour
 
     void Start()
     {
-        SetGreetingMessage(); // Set greeting message based on time of day
-        // Ensure userId is set in UserManager
+        SetGreetingMessage(); // ✅ Set greeting message based on time of day
+
+        // ✅ Ensure UserId is set from PlayerPrefs
+        if (string.IsNullOrEmpty(UserManager.UserId))
+        {
+            UserManager.UserId = PlayerPrefs.GetString("UserId", "");
+        }
+
         if (!string.IsNullOrEmpty(UserManager.UserId))
         {
             string endpoint = string.Format(endpointTemplate, UserManager.UserId);
             Debug.Log($"CourseLoader: Fetching course data for userId: {UserManager.UserId}");
-            // ✅ Chờ UserManager có CompanyId rồi mới gọi API khóa học
+        
+            // ✅ Wait for CompanyId before fetching courses
             StartCoroutine(WaitForCompanyIdAndFetchCourses());
-        }
-        else
-        {
-            Debug.LogError("CourseLoader: UserId is not set. Unable to fetch courses!");
-        }
 
-	        if (!string.IsNullOrEmpty(UserManager.UserId))
-        {
-            string endpoint = string.Format(userEndpoint, UserManager.UserId);
+            // ✅ Fetch user data
+            string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
             Debug.Log($"CourseLoader: Fetching user data for userId: {UserManager.UserId}");
-            StartCoroutine(FetchUserData(endpoint));
+            StartCoroutine(FetchUserData(userEndpointFormatted));
         }
         else
         {
-            Debug.LogError("CourseLoader: UserId is not set. Unable to fetch user data!");
+            Debug.LogError("CourseLoader: UserId is not set. Unable to fetch courses or user data!");
         }
     }
+
     
     IEnumerator WaitForCompanyIdAndFetchCourses()
     {
