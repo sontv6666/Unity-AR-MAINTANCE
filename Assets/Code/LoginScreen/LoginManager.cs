@@ -44,7 +44,7 @@ public class LoginManager : MonoBehaviour
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            warningText.text = "⚠️ Please enter both email and password!";
+            warningText.text = "Please enter both email and password!";
             return;
         }
 

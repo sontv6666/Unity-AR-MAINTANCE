@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/ApiConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/ApiConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Examples &amp; Extras/Resources/Fonts &amp; Materials/Anton SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Examples &amp; Extras/Resources/Fonts &amp; Materials/Anton SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/TMP Settings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/TMP Settings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,7 +45,14 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/Packages/com.unity.muse.common/Settings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/LoginScreen/LoginManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/aa/bc61bf7c/SetupCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/b1/2f523881/MonoBehaviour.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b4bf55bf6893420ebddeeda99394cb6d469400/f9/4b16fe7c/IEnumerator.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo">{
@@ -47,11 +65,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
     "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Standalone Player.Start Unity.executor": "Run",
-    "git-widget-placeholder": "main",
+    "XThreadsFramesViewSplitterKey": "0.6744548",
+    "git-widget-placeholder": "feature/login-ui-enhance",
     "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -64,7 +84,7 @@
 }]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/2022.3.16f1/Unity.app/Contents/MacOS/Unity" />
+      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.0.43f1/Unity.app/Contents/MacOS/Unity" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath $PROJECT_DIR$ -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -72,33 +92,37 @@
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/2022.3.16f1/Unity.app/Contents/MacOS/Unity" />
+      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.0.43f1/Unity.app/Contents/MacOS/Unity" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath $PROJECT_DIR$ -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="USE_EXTERNAL_CONSOLE" value="0" />
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="20352">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="20352" />
       <option name="projectPathOnTarget" />
       <option name="runtimes">
-        <list />
+        <list>
+          <MonoRuntime />
+        </list>
       </option>
       <option name="selectedOptions">
         <list />
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="20352">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="20352" />
       <option name="projectPathOnTarget" />
       <option name="runtimes">
-        <list />
+        <list>
+          <MonoRuntime />
+        </list>
       </option>
       <option name="selectedOptions">
         <list />
@@ -118,6 +142,7 @@
       <workItem from="1742646292047" duration="899000" />
       <workItem from="1742723454952" duration="1429000" />
       <workItem from="1742991049999" duration="375000" />
+      <workItem from="1743003588098" duration="2069000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -140,10 +165,108 @@
     <option name="unityProject" value="true" />
     <option name="unityProjectFolder" value="true" />
   </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="config files" />
     <option name="LAST_COMMIT_MESSAGE" value="config files" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>62</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
+            <startOffsets>
+              <option value="1850" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1940" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>
+          <line>52</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
+            <startOffsets>
+              <option value="1870" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1959" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>131</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SaveUserData'">
+            <startOffsets>
+              <option value="4470" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4511" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>111</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
+            <startOffsets>
+              <option value="3824" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3866" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>100</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
+            <startOffsets>
+              <option value="3322" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3368" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>32</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'Start'">
+            <startOffsets>
+              <option value="846" />
+            </startOffsets>
+            <endOffsets>
+              <option value="891" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+          <line>70</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
+            <startOffsets>
+              <option value="2158" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2211" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
