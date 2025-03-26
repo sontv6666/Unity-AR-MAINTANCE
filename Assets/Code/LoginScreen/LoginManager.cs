@@ -44,7 +44,7 @@ public class LoginManager : MonoBehaviour
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
         {
-            warningText.text = "⚠️ Please enter both email and password!";
+            warningText.text = "Please enter both email and password!";
             return;
         }
 
@@ -71,7 +71,7 @@ public class LoginManager : MonoBehaviour
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"❌ Login Error: {request.error}");
-                warningText.text = "⚠️ Unable to connect to the server!";
+                warningText.text = "Email or passsword is incorrect.";
             }
             else
             {
@@ -86,7 +86,7 @@ public class LoginManager : MonoBehaviour
                 catch (Exception e)
                 {
                     Debug.LogError($"❌ JSON Parsing Error: {e.Message}");
-                    warningText.text = "⚠️ Unexpected response from server!";
+                    warningText.text = "Unexpected response from server!";
                 }
             }
         }
@@ -104,7 +104,7 @@ public class LoginManager : MonoBehaviour
             {
                 if (!string.IsNullOrEmpty(user.deviceId) && user.deviceId != deviceId)
                 {
-                    warningText.text = "⚠️ Your account is linked to another device!";
+                    warningText.text = "Your account is linked to another device!";
                     Debug.LogWarning("❌ Device ID mismatch! User is already linked to another device.");
                 }
                 else
@@ -115,13 +115,13 @@ public class LoginManager : MonoBehaviour
             }
             else
             {
-                warningText.text = "⚠️ Only STAFF with ACTIVE status can log in.";
+                warningText.text = "Only STAFF with ACTIVE status can log in.";
                 Debug.LogWarning("❌ User is not STAFF or not ACTIVE.");
             }
         }
         else
         {
-            warningText.text = "⚠️ Login failed: " + response.result.message;
+            warningText.text = "Login failed: " + response.result.message;
             Debug.LogWarning($"❌ Login failed: {response.result.message}");
         }
     }
