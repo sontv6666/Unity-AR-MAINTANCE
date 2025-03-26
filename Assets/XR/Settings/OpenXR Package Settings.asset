@@ -267,11 +267,11 @@ MonoBehaviour:
   m_Name: MetaQuestTouchPlusControllerProfile Android
   m_EditorClassIdentifier: 
   m_enabled: 0
-  nameUi: 
-  version: 
-  featureIdInternal: 
-  openxrExtensionStrings: 
-  company: 
+  nameUi: Meta Quest Touch Plus Controller Profile
+  version: 0.0.1
+  featureIdInternal: com.unity.openxr.feature.input.metaquestplus
+  openxrExtensionStrings: XR_META_touch_controller_plus
+  company: Unity
   priority: 0
   required: 0
 --- !u!114 &-5275385136310592685
@@ -329,11 +329,11 @@ MonoBehaviour:
   m_Name: XrPerformanceSettingsFeature Android
   m_EditorClassIdentifier: 
   m_enabled: 0
-  nameUi: 
-  version: 
-  featureIdInternal: 
-  openxrExtensionStrings: 
-  company: 
+  nameUi: XR Performance Settings
+  version: 1.0.0
+  featureIdInternal: com.unity.openxr.feature.extension.performance_settings
+  openxrExtensionStrings: XR_EXT_performance_settings
+  company: Unity
   priority: 0
   required: 0
 --- !u!114 &-4084950813052234669
@@ -372,10 +372,12 @@ MonoBehaviour:
   - {fileID: -5623487199723145131}
   - {fileID: -6326873396401122729}
   - {fileID: -7707638215930697881}
+  - {fileID: 3212699968256299409}
   - {fileID: 4056258710083683225}
   - {fileID: -7966339148555272214}
   - {fileID: 1691976453836799190}
   - {fileID: 8011986672243925224}
+  - {fileID: -5302398141289534001}
   - {fileID: -136232158102068297}
   - {fileID: -7115136633767581221}
   - {fileID: -6959343774103606055}
@@ -383,6 +385,7 @@ MonoBehaviour:
   - {fileID: -9068692673236012213}
   - {fileID: -5985534236873081153}
   - {fileID: 1058527684668682124}
+  - {fileID: -4481311633151166036}
   m_renderMode: 1
   m_autoColorSubmissionMode: 1
   m_colorSubmissionModes:
@@ -546,17 +549,16 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: 
   features:
-  - {fileID: -8415517424625323198}
-  - {fileID: -1601649585855549944}
-  - {fileID: -2304328057799579678}
   - {fileID: -4084950813052234669}
   - {fileID: 6550523403735951606}
   - {fileID: 5621923105274934733}
+  - {fileID: -2304328057799579678}
   - {fileID: 8090469492625992865}
   - {fileID: -6214898377229752043}
   - {fileID: 5993561115145529199}
   - {fileID: 9058439643248267213}
   - {fileID: -8889903639622733320}
+  - {fileID: -8415517424625323198}
   - {fileID: -4601253641497282661}
   - {fileID: 8362228053939054061}
   - {fileID: 4085136415951482585}
@@ -565,6 +567,7 @@ MonoBehaviour:
   - {fileID: 4537507757559201524}
   - {fileID: -5275385136310592685}
   - {fileID: 7625310737148885593}
+  - {fileID: -1601649585855549944}
   m_renderMode: 1
   m_autoColorSubmissionMode: 1
   m_colorSubmissionModes:
@@ -587,11 +590,13 @@ MonoBehaviour:
   m_Name: FoveatedRenderingFeature Android
   m_EditorClassIdentifier: 
   m_enabled: 0
-  nameUi: 
-  version: 
-  featureIdInternal: 
-  openxrExtensionStrings: 
-  company: 
+  nameUi: Foveated Rendering
+  version: 1
+  featureIdInternal: com.unity.openxr.feature.foveatedrendering
+  openxrExtensionStrings: XR_UNITY_foveation XR_FB_foveation XR_FB_foveation_configuration
+    XR_FB_swapchain_update_state XR_FB_foveation_vulkan XR_META_foveation_eye_tracked
+    XR_META_vulkan_swapchain_create_info
+  company: Unity
   priority: 0
   required: 0
 --- !u!114 &4056258710083683225
