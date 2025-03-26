@@ -6,9 +6,9 @@ using System.Text;
 using System;
 using Newtonsoft.Json;
 using Models;
+
 public class LoginManager : MonoBehaviour
 {
-    
     [Header("UI References")]
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
@@ -17,6 +17,10 @@ public class LoginManager : MonoBehaviour
     public GameObject loginCanvas;
     public GameObject homeCanvas;
     public GameObject profileCanvas;
+
+    // Thêm Circular Progress Spinner và Overlay
+    public GameObject loadingSpinner;  // Spinner Circular
+    public GameObject overlay;         // Màn hình mờ
 
     [Header("API Settings")]
     private string loginEndpoint = "/login";
@@ -28,6 +32,9 @@ public class LoginManager : MonoBehaviour
     {
         deviceId = SystemInfo.deviceUniqueIdentifier; // Get device ID
         Debug.Log($"📱 Device ID: {deviceId}");
+        // Ẩn Spinner và Overlay khi bắt đầu
+        loadingSpinner.SetActive(false);
+        overlay.SetActive(false);
     }
 
     public void OnLogin()
@@ -42,16 +49,24 @@ public class LoginManager : MonoBehaviour
         }
 
         string requestBody = JsonConvert.SerializeObject(new LoginRequest { email = username, password = password });
+        
+        // Hiển thị Spinner và Overlay khi gọi API
+        loadingSpinner.SetActive(true);
+        overlay.SetActive(true);
+
         StartCoroutine(SendLoginRequest(requestBody));
     }
 
-    
     private IEnumerator SendLoginRequest(string jsonBody)
     {
         Debug.Log("🔄 Sending login request...");
         using (UnityWebRequest request = ApiConfig.CreateRequest(loginEndpoint, "POST", jsonBody))
         {
             yield return request.SendWebRequest();
+
+            // Ẩn Spinner và Overlay khi hoàn tất API call
+            loadingSpinner.SetActive(false);
+            overlay.SetActive(false);
 
             if (request.result != UnityWebRequest.Result.Success)
             {
@@ -95,17 +110,7 @@ public class LoginManager : MonoBehaviour
                 else
                 {
                     SaveUserData(response.result.token, user);
-					SwitchToHomePage();
-
-                    //if (string.IsNullOrEmpty(user.deviceId))
-                    //{
-                    //    string updateRequestBody = JsonConvert.SerializeObject(new UpdateUserDeviceRequest { id = user.id, deviceId = deviceId });
-                   //     StartCoroutine(UpdateUserDeviceId(updateRequestBody));
-                  //  }
-                  //  else
-                  //  {
-                   //     Debug.Log("✅ Switching to Home Page...");   
-                  //  }
+                    SwitchToHomePage();
                 }
             }
             else
@@ -121,32 +126,6 @@ public class LoginManager : MonoBehaviour
         }
     }
 
-    
-    
-  
-
-
-    private IEnumerator UpdateUserDeviceId(string jsonBody)
-    {
-        Debug.Log($"🔄 Updating Device ID...");
-        using (UnityWebRequest request = ApiConfig.CreateRequest(updateDeviceEndpoint, "POST", jsonBody))
-        {
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("✅ Device ID updated successfully!");
-                SwitchToHomePage();
-            }
-            else
-            {
-                Debug.LogError("❌ Failed to update device ID: " + request.error);
-                SwitchToHomePage();
-            }
-        }
-    }
-    
-    
     private void SaveUserData(string token, UserProfileResult user)
     {
         PlayerPrefs.SetString("AuthToken", token);
@@ -179,6 +158,4 @@ public class LoginManager : MonoBehaviour
 
         Debug.Log($"✅ UI State - loginCanvas: {loginCanvas.activeSelf}, homeCanvas: {homeCanvas.activeSelf}, profileCanvas: {profileCanvas.activeSelf}");
     }
-
 }
-
