@@ -110,6 +110,7 @@ public class LoginManager : MonoBehaviour
                 else
                 {
                     SaveUserData(response.result.token, user);
+                    PlayerPrefs.Save();
                     SwitchToHomePage();
                 }
             }
@@ -132,6 +133,7 @@ public class LoginManager : MonoBehaviour
         PlayerPrefs.SetString("UserId", user.id);
         PlayerPrefs.SetString("RoleName", user.roleName);
         PlayerPrefs.SetString("CompanyName", user.company.companyName);
+        PlayerPrefs.SetString("CompanyId", user.company.id);
         PlayerPrefs.SetString("Email", user.email);
         PlayerPrefs.SetString("Username", user.username);
         PlayerPrefs.SetString("Phone", user.phone);

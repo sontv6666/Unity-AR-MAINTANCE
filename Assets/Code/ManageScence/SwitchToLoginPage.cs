@@ -75,15 +75,20 @@ public class ScreenManager : MonoBehaviour
     {
         for (int i = 0; i < screens.Count; i++)
         {
-            Button button = screens[i].GetComponentInChildren<Button>(); // 🔍 Find Button in each screen
-            if (button != null)
+            // Chỉ xử lý các screen có tên chứa "LoadingScreen"
+            if (screens[i].name.Contains("LoadingScreen"))
             {
-                int nextIndex = i + 1; // Set next screen index
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => GoToScreen(nextIndex)); // ✅ Assign click action
+                Button button = screens[i].GetComponentInChildren<Button>(); // 🔍 Tìm Button trong mỗi screen
+                if (button != null)
+                {
+                    int nextIndex = i + 1; // Xác định chỉ số của screen tiếp theo
+                    button.onClick.RemoveAllListeners();
+                    button.onClick.AddListener(() => GoToScreen(nextIndex)); // ✅ Gán sự kiện click
+                }
             }
         }
     }
+
 
     private void GoToScreen(int index)
     {
