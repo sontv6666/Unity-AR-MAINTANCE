@@ -71,36 +71,34 @@ public class CourseAllLoader : MonoBehaviour
         
     }
 
-    void ProcessCourseData(string jsonData)
+    private void ProcessCourseData(string jsonData)
     {
-        try
+        if (string.IsNullOrWhiteSpace(jsonData))
         {
-            if (string.IsNullOrWhiteSpace(jsonData))
-            {
-                Debug.LogError("❌ JSON Error: API trả về chuỗi rỗng!");
-                return;
-            }
-
-            var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
-
-            if (response == null || response.result == null || response.result.Count == 0)
-            {
-                Debug.Log("✅ Không có khóa học nào.");
-                noCourseText.SetActive(true);
-                return;
-            }
-
-            Debug.Log($"📌 Đã tải {response.result.Count} khóa học.");
-            noCourseText.SetActive(false);
-
-            foreach (CourseResult course in response.result)
-            {
-                CreateCoursePanel(course);
-            }
+            Debug.LogError("❌ JSON Error: Empty response");
+            return;
         }
-        catch (Exception e)
+
+        var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
+        if (response?.result == null || response.result.Count == 0)
         {
-            Debug.LogError($"❌ JSON Parsing Exception: {e.Message}");
+            Debug.Log("✅ No courses found.");
+            noCourseText.SetActive(true);
+            return;
+        }
+
+        Debug.Log($"📌 Loaded {response.result.Count} courses.");
+        noCourseText.SetActive(false);
+
+        // Clear existing course UI before adding new ones
+        foreach (Transform child in contentParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (var course in response.result)
+        {
+            CreateCoursePanel(course);
         }
     }
 
