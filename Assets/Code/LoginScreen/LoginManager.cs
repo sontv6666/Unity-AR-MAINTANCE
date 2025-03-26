@@ -4,9 +4,12 @@ using TMPro;
 using System.Collections;
 using System.Text;
 using System;
-
+using Newtonsoft.Json;
+using Models;
 public class LoginManager : MonoBehaviour
 {
+    
+    [Header("UI References")]
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
     public TMP_Text warningText;
@@ -15,9 +18,9 @@ public class LoginManager : MonoBehaviour
     public GameObject homeCanvas;
     public GameObject profileCanvas;
 
-    private const string LOGIN_URL = "https://joey-lenient-ostrich.ngrok-free.app/api/v1/login";
-    private const string UPDATE_USER_URL = "/users/update"; // Endpoint for updating user details
-
+    [Header("API Settings")]
+    private string loginEndpoint = "/login";
+    private string updateDeviceEndpoint = "/users/update";
     public static string UserId;
     private string deviceId;
 
@@ -29,79 +32,124 @@ public class LoginManager : MonoBehaviour
 
     public void OnLogin()
     {
-        string username = usernameInput.text;
-        string password = passwordInput.text;
-        StartCoroutine(LoginRequestAPI(username, password));
+        string username = usernameInput.text.Trim();
+        string password = passwordInput.text.Trim();
+
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+        {
+            warningText.text = "⚠️ Please enter both email and password!";
+            return;
+        }
+
+        string requestBody = JsonConvert.SerializeObject(new LoginRequest { email = username, password = password });
+        StartCoroutine(SendLoginRequest(requestBody));
     }
 
-    private IEnumerator LoginRequestAPI(string email, string password)
+    
+    private IEnumerator SendLoginRequest(string jsonBody)
     {
-        string jsonBody = JsonUtility.ToJson(new LoginRequest { email = email, password = password });
-
-        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(LOGIN_URL, ""))
+        Debug.Log("🔄 Sending login request...");
+        using (UnityWebRequest request = ApiConfig.CreateRequest(loginEndpoint, "POST", jsonBody))
         {
-            byte[] jsonToSend = Encoding.UTF8.GetBytes(jsonBody);
-            request.uploadHandler = new UploadHandlerRaw(jsonToSend);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("✅ Login Response: " + request.downloadHandler.text);
-                LoginResponse response = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
-
-                if (response.code == 1000 && response.result.message == "Login successfully" &&
-                    response.result.token != null)
-                {
-                    UserProfile user = response.result.user;
-
-                    if (user.roleName == "STAFF" && user.status == "ACTIVE")
-                    {
-                        if (!string.IsNullOrEmpty(user.deviceId) && user.deviceId != deviceId)
-                        {
-                            warningText.text = "⚠️ Your account is linked to another device!";
-                            Debug.LogWarning("❌ Device ID mismatch! User is already linked to another device.");
-                        }
-                        else
-                        {
-                            SaveUserData(response.result.token, user);
-
-                            if (string.IsNullOrEmpty(user.deviceId))
-                            {
-                                StartCoroutine(UpdateUserDeviceId(user.id));
-                            }
-                            else
-                            {
-                                SwitchToHomePage();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        warningText.text = "⚠️ Only STAFF with ACTIVE status can log in.";
-                        Debug.LogWarning("❌ User is not STAFF or not ACTIVE.");
-                    }
-                }
-                else
-                {
-                    warningText.text = "⚠️ Login failed: " + response.result.message;
-                    Debug.LogWarning("❌ Login failed: " + response.result.message);
-                }
+                Debug.LogError($"❌ Login Error: {request.error}");
+                warningText.text = "⚠️ Unable to connect to the server!";
             }
             else
             {
-                Debug.LogError("❌ Error: " + request.error);
-                warningText.text = "⚠️ Unable to connect to the server!";
+                string responseText = request.downloadHandler.text;
+                Debug.Log($"✅ Login Response: {responseText}");
+
+                try
+                {
+                    LoginResponse response = JsonConvert.DeserializeObject<LoginResponse>(responseText);
+                    ProcessLoginResponse(response);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"❌ JSON Parsing Error: {e.Message}");
+                    warningText.text = "⚠️ Unexpected response from server!";
+                }
             }
         }
     }
 
-    private void SaveUserData(string token, UserProfile user)
+    private void ProcessLoginResponse(LoginResponse response)
     {
-        // ✅ Save token and user data in PlayerPrefs
-        PlayerPrefs.SetString("AuthToken", token);  // Store Token
+        Debug.Log($"🔍 Checking API Response: Code={response.code}, Message={response.result.message}");
+
+        if (response.code == 1000 && response.result.message == "Login successfully" && response.result.token != null)
+        {
+            UserProfileResult user = response.result.user;
+
+            if (user.roleName == "STAFF" && user.status == "ACTIVE")
+            {
+                if (!string.IsNullOrEmpty(user.deviceId) && user.deviceId != deviceId)
+                {
+                    warningText.text = "⚠️ Your account is linked to another device!";
+                    Debug.LogWarning("❌ Device ID mismatch! User is already linked to another device.");
+                }
+                else
+                {
+                    SaveUserData(response.result.token, user);
+					SwitchToHomePage();
+
+                    //if (string.IsNullOrEmpty(user.deviceId))
+                    //{
+                    //    string updateRequestBody = JsonConvert.SerializeObject(new UpdateUserDeviceRequest { id = user.id, deviceId = deviceId });
+                   //     StartCoroutine(UpdateUserDeviceId(updateRequestBody));
+                  //  }
+                  //  else
+                  //  {
+                   //     Debug.Log("✅ Switching to Home Page...");   
+                  //  }
+                }
+            }
+            else
+            {
+                warningText.text = "⚠️ Only STAFF with ACTIVE status can log in.";
+                Debug.LogWarning("❌ User is not STAFF or not ACTIVE.");
+            }
+        }
+        else
+        {
+            warningText.text = "⚠️ Login failed: " + response.result.message;
+            Debug.LogWarning($"❌ Login failed: {response.result.message}");
+        }
+    }
+
+    
+    
+  
+
+
+    private IEnumerator UpdateUserDeviceId(string jsonBody)
+    {
+        Debug.Log($"🔄 Updating Device ID...");
+        using (UnityWebRequest request = ApiConfig.CreateRequest(updateDeviceEndpoint, "POST", jsonBody))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                Debug.Log("✅ Device ID updated successfully!");
+                SwitchToHomePage();
+            }
+            else
+            {
+                Debug.LogError("❌ Failed to update device ID: " + request.error);
+                SwitchToHomePage();
+            }
+        }
+    }
+    
+    
+    private void SaveUserData(string token, UserProfileResult user)
+    {
+        PlayerPrefs.SetString("AuthToken", token);
         PlayerPrefs.SetString("UserId", user.id);
         PlayerPrefs.SetString("RoleName", user.roleName);
         PlayerPrefs.SetString("CompanyName", user.company.companyName);
@@ -109,75 +157,28 @@ public class LoginManager : MonoBehaviour
         PlayerPrefs.SetString("Username", user.username);
         PlayerPrefs.SetString("Phone", user.phone);
         PlayerPrefs.SetString("Status", user.status);
-    
-        PlayerPrefs.Save();  // ✅ Ensure data is saved!
+        PlayerPrefs.SetString("DeviceId", deviceId); 
+        PlayerPrefs.Save();
 
-        // ✅ Debugging
         Debug.Log($"🔐 Token Saved: {token}");
         Debug.Log($"👤 User ID Saved: {user.id}");
 
-        // ✅ Also store in UserManager if needed
         UserManager.Token = token;
         UserManager.UserId = user.id;
         UserManager.RoleName = user.roleName;
         UserManager.CompanyName = user.company.companyName;
     }
 
-
-    private IEnumerator UpdateUserDeviceId(string userId)
-    {
-        Debug.Log($"🔄 Updating Device ID for User: {userId}");
-
-        string jsonBody = JsonUtility.ToJson(new UpdateUserDeviceRequest
-        {
-            id = userId,
-            deviceId = deviceId
-        });
-
-        UnityWebRequest request = ApiConfig.CreateRequest(UPDATE_USER_URL, "POST", jsonBody);
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            Debug.Log("✅ Device ID updated successfully!");
-            SwitchToHomePage();
-        }
-        else
-        {
-            Debug.LogError("❌ Failed to update device ID: " + request.error);
-        }
-    }
-
     private void SwitchToHomePage()
     {
+        Debug.Log("🔄 Switching UI: Hiding Login, Showing Home & Profile...");
+    
         loginCanvas.SetActive(false);
         homeCanvas.SetActive(true);
         profileCanvas.SetActive(true);
+
+        Debug.Log($"✅ UI State - loginCanvas: {loginCanvas.activeSelf}, homeCanvas: {homeCanvas.activeSelf}, profileCanvas: {profileCanvas.activeSelf}");
     }
+
 }
 
-// ✅ Move these classes OUTSIDE of LoginManager
-
-[Serializable]
-public class LoginRequest
-{
-    public string email;
-    public string password;
-}
-
-[Serializable]
-public class LoginResponse
-{
-    public int code;
-    public string message;
-    public ResultData result;
-}
-
-[Serializable]
-public class ResultData
-{
-    public string token;
-    public string message;
-    public UserProfile user;
-}

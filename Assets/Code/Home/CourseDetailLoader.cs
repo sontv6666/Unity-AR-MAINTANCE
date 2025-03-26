@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Models;
 
 namespace Code
 {
@@ -24,6 +25,8 @@ namespace Code
         public TMP_Text numberOfLessonsText;
         public TMP_Text companyIdText;
 
+        
+        public GameObject homePage;
         public GameObject loadingUIPanel; // ✅ Show loading UI
         public Slider progressBar;
         public TMP_Text progressText;
@@ -64,7 +67,9 @@ namespace Code
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string jsonResponse = request.downloadHandler.text;
-                var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
+
+                // ✅ Use the correct class
+                var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
 
                 if (response != null && response.result != null)
                 {
@@ -79,7 +84,8 @@ namespace Code
 
 
 
-        private void UpdateUI(CourseResult course)
+
+        private void UpdateUI(Models.CourseResult  course)
         {
             if (courseTitleText != null) courseTitleText.text = course.title;
             if (courseDescriptionText != null) courseDescriptionText.text = course.description;
@@ -227,10 +233,10 @@ namespace Code
 
             Debug.Log($"🔄 Loading AR Scene for Course ID: {courseId}");
 
-            
+
             // ✅ Save current Course ID and UI state
             PlayerPrefs.SetString("SelectedCourseID", courseId);
-            PlayerPrefs.SetString("LastPage", "DetailPage"); 
+            PlayerPrefs.SetString("LastPage", "DetailPage");
             PlayerPrefs.SetInt("ShowHomePage", 1);
             PlayerPrefs.SetInt("ShowDetailPage", 1);
             PlayerPrefs.Save();
@@ -248,17 +254,23 @@ namespace Code
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                CourseResult courseData = JsonUtility.FromJson<ApiResponse>(request.downloadHandler.text).result;
+                // ✅ Correctly parse the response
+                var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(request.downloadHandler.text);
 
-                if (!string.IsNullOrEmpty(courseData.modelId))
+                if (response != null && response.result != null)
                 {
-                    Debug.Log($"✅ Found Model ID: {courseData.modelId}, starting download...");
-                    yield return StartCoroutine(DownloadModelFile(courseData.modelId));
-                }
-                else
-                {
-                    Debug.LogError("❌ No Model ID found for this course.");
-                    loadingUIPanel.SetActive(false);
+                    CourseResult courseData = response.result;
+
+                    if (!string.IsNullOrEmpty(courseData.modelId))
+                    {
+                        Debug.Log($"✅ Found Model ID: {courseData.modelId}, starting download...");
+                        yield return StartCoroutine(DownloadModelFile(courseData.modelId));
+                    }
+                    else
+                    {
+                        Debug.LogError("❌ No Model ID found for this course.");
+                        loadingUIPanel.SetActive(false);
+                    }
                 }
             }
             else
@@ -268,79 +280,67 @@ namespace Code
             }
         }
 
-        IEnumerator DownloadModelFile(string modelId)
+
+       IEnumerator DownloadModelFile(string modelId)
+{
+    string endpoint = modelApiEndpoint + modelId;
+    UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log("📡 API Response: " + jsonResponse);
+
+        ApiResponse<ModelDataResult> response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(jsonResponse);
+
+        if (response == null || response.result == null || string.IsNullOrEmpty(response.result.file))
         {
-            string endpoint = modelApiEndpoint + modelId;
-            UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
-                string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.result.file);
-
-                if (!File.Exists(modelFilePath))
-                {
-                    yield return StartCoroutine(DownloadFile(fileDownloadBaseUrl + modelData.result.file,
-                        modelData.result.file));
-                }
-
-                // ✅ Transition to AR Scene after successful download
-                Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
-                SceneManager.LoadScene("QRScanner");
-            }
-            else
-            {
-                Debug.LogError("❌ Failed to fetch model data: " + request.error);
-                loadingUIPanel.SetActive(false);
-            }
+            Debug.LogError("❌ modelData.file is null or API response is invalid!");
+            yield break; // Stop execution
         }
 
+        string modelFilePath = Path.Combine(Application.persistentDataPath, response.result.file);
 
+        if (!File.Exists(modelFilePath))
+        {
+            yield return StartCoroutine(DownloadFile(fileDownloadBaseUrl + response.result.file, response.result.file));
+        }
 
+        Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
+        SceneManager.LoadScene("ARVRScanner");
     }
-
-
-    [System.Serializable]
-    public class ApiResponse
+    else
     {
-        public int code;
-        public CourseResult result;
+        Debug.LogError("❌ Failed to fetch model data: " + request.error);
+        loadingUIPanel.SetActive(false);
     }
+}
 
-    [System.Serializable]
-    public class CourseResult
+
+public void BackToHomePage()
+{
+    Debug.Log("🔙 Hiding Course Detail Page and returning to Home...");
+
+    if (detailPage != null)
     {
-        public string id;
-        public string title;
-        public string description;
-        public string modelId;
-
-        public string companyId; // Added
-        public string shortDescription; // Added
-        public string targetAudience; // Added
-        public int duration;
-        public bool isMandatory; // Added
-        public string imageUrl;
-        public int numberOfLessons; // Added
-        public int numberOfParticipants;
-        public string status; // Added
-        public string type;
+        detailPage.SetActive(false); // ✅ Hide Detail Page
     }
 
-    [System.Serializable]
-    public class ModelResponse
+    if (homePage != null)
     {
-        public int code;
-        public ModelData result;
+        homePage.SetActive(true); // ✅ Show Home Page even if it was inactive
+    }
+    else
+    {
+        Debug.LogWarning("⚠️ HomePage reference is missing! Make sure to assign it.");
+    }
+}
+
+
+
+
     }
 
-    [System.Serializable]
-    public class ModelData
-    {
-        public string file;
-        public float[] position;
-        public float[] rotation;
-    }
 }
