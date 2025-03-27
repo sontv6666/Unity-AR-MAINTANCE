@@ -20,10 +20,10 @@ using UnityEngine.XR.Interaction.Toolkit.AR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Newtonsoft.Json;
 
-public class ARQRCodeScanner : MonoBehaviour
+public class QRCodeScanner : MonoBehaviour
 {
 
-    public static ARQRCodeScanner Instance; 
+    public static QRCodeScanner Instance; 
     public string currentMachineCode = "";
     
     // AR Elementss
@@ -81,16 +81,18 @@ public class ARQRCodeScanner : MonoBehaviour
     private ModelDataResult cachedModelData;
 
     private string courseID;
-    private string testID = "c886f9f1-68f8-4596-b625-f14c5ef8addc";
-    private string testqrCode1 = "b25a4808b6";
-    private string testqrCode2 = "db06fbad-ed26-449a-b6f9-0efa244abb33";
+    private string testID = "70c1030a-5b92-4f47-bccf-b84665f7a1fd";
+    private string testqrCode1 = "12345678";
+    private string testqrCode2 = "7ce86d98-14b4-47b5-91f1-63341c1b8062";
 
     public GameObject scanBoxUI;
     
     // Progress UI Elements
     public Slider progressBar;
     public TMP_Text progressText;
-    
+     private Slider animationProgressSlider;
+     private TMP_Text animationTimeText; // Optional
+
     
     // Speed values to cycle through
     float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
@@ -158,7 +160,7 @@ public class ARQRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-           TryScanQRCode();
+      //     TryScanQRCode();
         }
 
 
@@ -184,16 +186,16 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(true);
-        scanBoxUI.SetActive(true);
+        scanUIPanel.SetActive(false); //true
+        scanBoxUI.SetActive(false); //true
         courseUIPanel.SetActive(true); 
         centerModelButton.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
-        StartScanning();
+      //  StartScanning();
      
      
-      // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+       StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -479,7 +481,8 @@ public class ARQRCodeScanner : MonoBehaviour
                     UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
                     StartCoroutine(FetchModelData(response.result));
                     StartCoroutine(DownloadAndLoadUI(response.result));
-
+                    centerModelButton.gameObject.SetActive(true);
+                    realDataButton.gameObject.SetActive(true);
                     // 🔹 Ensure Model Stays Upright
                     qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
                     qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
@@ -555,7 +558,7 @@ public class ARQRCodeScanner : MonoBehaviour
             Vector3 position = new Vector3(modelData.position[0], modelData.position[1], modelData.position[2]);
             Vector3 rotation = new Vector3(modelData.rotation[0], modelData.rotation[1], modelData.rotation[2]);
             Vector3 scale = modelData.GetScale();  
-            
+           
                 
             // ✅ Load the model
             yield return StartCoroutine(Load3DModel(modelFilePath, modelContainer, position, rotation, scale));
@@ -963,8 +966,7 @@ public class ARQRCodeScanner : MonoBehaviour
             courseUIPanel.SetActive(true);
             instructionDetailPanel.SetActive(false);
             backButton.gameObject.SetActive(true);
-            centerModelButton.gameObject.SetActive(true);
-            realDataButton.gameObject.SetActive(true);
+        
 
             // Show title
             courseTitleText.text = course.title;
@@ -1075,6 +1077,10 @@ public class ARQRCodeScanner : MonoBehaviour
                     Image stepImage = stepItem.transform.Find("instructionDetailImageShow")?.GetComponent<Image>();
                     if (stepImage) StartCoroutine(LoadImageFromLocal(imagePath, stepImage));
                 }
+                
+                Slider animationProgressSlider = stepItem.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+                TMP_Text animationTimeText = stepItem.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+                
 
                 // ✅ Play/Stop animation button logic
                 Button replayAnimationButton = stepItem.transform.Find("replayanimationButton")?.GetComponent<Button>();
@@ -1082,7 +1088,7 @@ public class ARQRCodeScanner : MonoBehaviour
                 if (replayAnimationButton)
                 {
                     replayAnimationButton.onClick.RemoveAllListeners();
-                    replayAnimationButton.onClick.AddListener(() => { PlayStepAnimation(firstModel, detail); });
+                    replayAnimationButton.onClick.AddListener(() => { PlayStepAnimation(firstModel, detail, animationProgressSlider, animationTimeText); });
                 }
 
                 Button playAndStopAnimationButton =
@@ -1119,7 +1125,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
             // ✅ Show first step model & animation
             firstModel.SetActive(true);
-            PlayStepAnimation(firstModel, currentInstructionDetails[0]);
+            PlayStepAnimation(firstModel, currentInstructionDetails[0], instructionStepInstances[0].transform.Find("animationProgressSlider")?.GetComponent<Slider>(), instructionStepInstances[0].transform.Find("animationTimeText")?.GetComponent<TMP_Text>());
 
             UpdateStepNavigationButtons();
         }
@@ -1248,7 +1254,7 @@ public class ARQRCodeScanner : MonoBehaviour
 
 
 
-        void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float speed = 1f)
+    void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, Slider animationProgressSlider, TMP_Text animationTimeText, float speed = 1f)
         {
             if (!firstModel) return;
 
@@ -1327,6 +1333,7 @@ public class ARQRCodeScanner : MonoBehaviour
                     animation.Play(detail.animationName);
                     Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
                     StartCoroutine(WaitForAnimationToEnd(animation, newState));
+                    StartCoroutine(UpdateAnimationProgress(animation, newState, animationProgressSlider, animationTimeText)); // ✅ Pass UI
                 }
                 else
                 {
@@ -1363,6 +1370,42 @@ public class ARQRCodeScanner : MonoBehaviour
                 }
             }
         }
+        
+        
+    IEnumerator UpdateAnimationProgress(Animation animation, AnimationState state, Slider animationProgressSlider, TMP_Text animationTimeText)
+    {
+        if (animationProgressSlider == null) yield break;
+
+        float duration = state.length;
+        float elapsedTime = 0f;
+
+        animationProgressSlider.gameObject.SetActive(true);
+        animationTimeText.gameObject.SetActive(true);
+        animationProgressSlider.value = 0;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            animationProgressSlider.value = elapsedTime / duration;
+        
+            if (animationTimeText)
+            {
+                float remainingTime = duration - elapsedTime;
+                animationTimeText.text = $"{remainingTime:F1}s";
+            }
+
+            yield return null;
+        }
+
+        animationProgressSlider.value = 1;
+        if (animationTimeText) animationTimeText.text = "0.0s";
+
+        yield return new WaitForSeconds(0.5f);
+        animationProgressSlider.gameObject.SetActive(false);
+        animationTimeText.gameObject.SetActive(false);
+    }
+
+
         
         bool isAnimationPlaying = false;
         private bool isAnimationPaused = false; // 🔴 Track if animation was paused manually
@@ -1658,12 +1701,16 @@ public class ARQRCodeScanner : MonoBehaviour
 
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
-        
+    
         // ✅ Reset speed to 1x for each step
         lastAnimationSpeed = 1f;  
-        
+    
         // ✅ Update speed UI (slider)
         UpdateSpeedSliderUI(instructionStepInstances[currentStepIndex]);
+
+        // ✅ Get UI elements for animation control
+        Slider animationProgressSlider = instructionStepInstances[currentStepIndex].transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+        TMP_Text animationTimeText = instructionStepInstances[currentStepIndex].transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
 
         // ✅ Play animation & block navigation until it’s done
         GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
@@ -1675,9 +1722,13 @@ public class ARQRCodeScanner : MonoBehaviour
             isAnimationPlaying = true;
             SetNavigationButtonsInteractable(false);
 
-            PlayStepAnimation(firstModel, currentStepDetail); // Play animation
+            PlayStepAnimation(firstModel, currentStepDetail, animationProgressSlider, animationTimeText); // ✅ Pass step-specific UI
         }
     }
+
+
+    
+   
 
 
     // 🟢 Enable/Disable Previous & Next buttons dynamically

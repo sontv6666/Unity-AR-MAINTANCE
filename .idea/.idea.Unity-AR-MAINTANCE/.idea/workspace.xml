@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update UI">
-      <change afterPath="$PROJECT_DIR$/Assets/Code/Profile/RequestPointScreenLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Code/Profile/RequestPointScreenLoader.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/Profile/RequestPointManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Profile/RequestPointManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SonMainApp.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SonMainApp.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="add">
+      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/ApiRealTime.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/ApiRealTime.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/ARVRScanner.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/ARVRScanner.unity" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,7 +175,23 @@
       <option name="project" value="LOCAL" />
       <updated>1743081660762</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="add request list page">
+      <option name="closed" value="true" />
+      <created>1743107126481</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743107126481</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add">
+      <option name="closed" value="true" />
+      <created>1743107170289</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1743107170289</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,7 +210,9 @@
     <MESSAGE value="config files" />
     <MESSAGE value="Update" />
     <MESSAGE value="Update UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update UI" />
+    <MESSAGE value="add request list page" />
+    <MESSAGE value="add" />
+    <option name="LAST_COMMIT_MESSAGE" value="add" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
