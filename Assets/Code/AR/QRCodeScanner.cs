@@ -1233,11 +1233,25 @@ public class QRCodeScanner : MonoBehaviour
             {
                 AnimationState state = animation[detail.animationName];
                 state.speed = newSpeed;
-                lastAnimationSpeed = newSpeed; // ✅ Save the new speed globally
+                lastAnimationSpeed = newSpeed; // ✅ Save speed globally
+
+                // ✅ Find the current step's UI elements
+                GameObject currentStepUI = instructionStepInstances[currentStepIndex];
+                Slider progressSlider = currentStepUI.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+                TMP_Text timeText = currentStepUI.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+
+                // ✅ Restart progress update only if animation is playing
+                StopCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+                if (!isAnimationPaused) 
+                {
+                    StartCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+                }
+
                 Debug.Log($"⚡ Changed animation speed to: {newSpeed}");
             }
         }
     }
+
     
     
     void UpdateSpeedSliderUI(GameObject stepItem)
@@ -1374,29 +1388,30 @@ public class QRCodeScanner : MonoBehaviour
         
     IEnumerator UpdateAnimationProgress(Animation animation, AnimationState state, Slider animationProgressSlider, TMP_Text animationTimeText)
     {
-        if (animationProgressSlider == null) yield break;
+        if (animationProgressSlider == null || state == null) yield break;
 
         float duration = state.length;
-        float elapsedTime = 0f;
-
         animationProgressSlider.gameObject.SetActive(true);
         animationTimeText.gameObject.SetActive(true);
         animationProgressSlider.value = 0;
 
-        while (elapsedTime < duration)
+        while (state.enabled && animation.isPlaying)
         {
-            elapsedTime += Time.deltaTime;
-            animationProgressSlider.value = elapsedTime / duration;
-        
+            // ✅ Use AnimationState.time instead of manually tracking elapsedTime
+            float progress = state.time / duration;
+            animationProgressSlider.value = progress;
+
+            // ✅ Update remaining time dynamically
             if (animationTimeText)
             {
-                float remainingTime = duration - elapsedTime;
+                float remainingTime = duration - state.time;
                 animationTimeText.text = $"{remainingTime:F1}s";
             }
 
-            yield return null;
+            yield return null; // ✅ Update every frame
         }
 
+        // ✅ Ensure progress is fully completed
         animationProgressSlider.value = 1;
         if (animationTimeText) animationTimeText.text = "0.0s";
 
@@ -1404,6 +1419,7 @@ public class QRCodeScanner : MonoBehaviour
         animationProgressSlider.gameObject.SetActive(false);
         animationTimeText.gameObject.SetActive(false);
     }
+
 
 
         
@@ -1567,6 +1583,11 @@ public class QRCodeScanner : MonoBehaviour
         Animation animation = firstModel.GetComponentInChildren<Animation>(true);
         if (animation != null)
         {
+            // ✅ Find current step's UI elements
+            GameObject currentStepUI = instructionStepInstances[currentStepIndex];
+            Slider progressSlider = currentStepUI.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+            TMP_Text timeText = currentStepUI.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+            
             foreach (AnimationState state in animation)
             {
                 if (state.enabled) // 🔴 If animation is playing, PAUSE it
@@ -1576,6 +1597,9 @@ public class QRCodeScanner : MonoBehaviour
                     state.enabled = false; // Pause animation
                     animation.Sample(); // Keep the last frame
                     isAnimationPaused = true; // ✅ Mark as paused
+                    // ✅ Stop updating the progress slider when paused
+                    StopCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+
                     Debug.Log($"⏸️ Paused animation '{state.name}' at frame: {state.time}");
                     return;
                 }
@@ -1592,6 +1616,10 @@ public class QRCodeScanner : MonoBehaviour
                 isAnimationPaused = false; // ✅ Fix stuck state
                 Debug.Log($"▶️ Resumed animation '{lastPlayedAnimationName}' at frame: {lastAnimationTime}");
 
+      
+                // ✅ Restart progress update
+                StartCoroutine(UpdateAnimationProgress(animation, lastState, progressSlider, timeText));
+                
                 if (!isAnimationPlaying) // ✅ Restart waiting coroutine
                 {
                     StartCoroutine(WaitForAnimationToEnd(animation, lastState));
