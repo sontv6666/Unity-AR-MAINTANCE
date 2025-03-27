@@ -122,11 +122,8 @@ public class ProfileScreenLoader : MonoBehaviour
         // Check each field before assigning
         nameText.text = !string.IsNullOrEmpty(user.username) ? user.username : "N/A";
         companyText.text = (user.company != null && !string.IsNullOrEmpty(user.company.companyName)) ? user.company.companyName : "N/A";
-        emailText.text = !string.IsNullOrEmpty(user.email) ? user.email : "N/A";
-        roleText.text = !string.IsNullOrEmpty(user.roleName) ? user.roleName : "N/A";
-        phoneText.text = !string.IsNullOrEmpty(user.phone) ? user.phone : "N/A";
 
-        Debug.Log($"✅ Loaded User: {user.username} | Company: {companyText.text} | Role: {roleText.text}");
+        Debug.Log($"✅ Loaded User: {user.username} | Company: {companyText.text}");
 
         if (!string.IsNullOrEmpty(user.avatar))
         {
