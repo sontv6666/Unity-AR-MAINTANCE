@@ -12,12 +12,12 @@ namespace Code
 {
     public class CourseDetailLoader : MonoBehaviour
     {
-        [Header("UI References")] public TMP_Text courseTitleText;
+        [Header("UI References")] 
+        public TMP_Text courseTitleText;
         public TMP_Text courseDescriptionText;
         public TMP_Text courseDurationText;
         public TMP_Text courseParticipantsText;
         public TMP_Text courseTypeText;
-        public Button ARButton;
         public TMP_Text shortDescriptionText;
         public TMP_Text targetAudienceText;
         public TMP_Text statusText;
@@ -26,62 +26,64 @@ namespace Code
         public TMP_Text companyIdText;
 
         
-        public GameObject homePage;
-        public GameObject loadingUIPanel; // ✅ Show loading UI
-        public Slider progressBar;
+        [Header("Machine Type UI")]
+        public TMP_Text machineTypeNameText; // ✅ UI for Machine Type Name
+        public Transform machineAttributesContainer; // ✅ Parent for attributes
+        public GameObject machineAttributePrefab; // ✅ Prefab for attributes (TMP_Text)
+
+        
+        
+        public Button ARButton;
+        public Image courseImage;
         public TMP_Text progressText;
+        public Slider progressBar;
+        public GameObject homePage, loadingUIPanel, detailPage;
 
 
-        [Header("API Settings")] private string courseApiEndpoint = "/course/";
-        private string modelApiEndpoint = "/model/";
-        private string fileDownloadBaseUrl = "/files/";
 
-
-        public Image courseImage; // UI Image component for the course image
-        public GameObject detailPage; // Assign in Inspector (DetailPage)
-
+        [Header("API Settings")]
+        private const string CourseApiEndpoint = "/course/";
+        private const string ModelApiEndpoint = "/model/";
+        private const string FileDownloadBaseUrl = "/files/";
+        
 
         private string selectedCourseId;
         private bool isDownloading = false;
-
+        private CourseResult cachedCourseData;
+        
         public void LoadCourseDetails(string courseId)
         {
-            if (!string.IsNullOrEmpty(courseId))
-            {
-                selectedCourseId = courseId;
-                StartCoroutine(FetchCourseData(courseId));
-            }
-            else
+            if (string.IsNullOrEmpty(courseId))
             {
                 Debug.LogError("❌ No Course ID provided!");
+                return;
             }
+
+            selectedCourseId = courseId;
+            StartCoroutine(FetchCourseData(courseId));
         }
 
         private IEnumerator FetchCourseData(string courseId)
         {
-            string endpoint = courseApiEndpoint + courseId;
-            UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            string endpoint = CourseApiEndpoint + courseId;
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
             {
-                string jsonResponse = request.downloadHandler.text;
+                yield return request.SendWebRequest();
 
-                // ✅ Use the correct class
-                var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(jsonResponse);
-
-                if (response != null && response.result != null)
+                if (request.result != UnityWebRequest.Result.Success)
                 {
-                    UpdateUI(response.result);
+                    Debug.LogError($"❌ API Request Failed: {request.error}");
+                    yield break;
+                }
+
+                var response = JsonUtility.FromJson<ApiResponse<CourseResult>>(request.downloadHandler.text);
+                if (response?.result != null)
+                {
+                    cachedCourseData = response.result; // Cache course data
+                    UpdateUI(cachedCourseData);
                 }
             }
-            else
-            {
-                Debug.LogError("❌ API Request Failed: " + request.error);
-            }
         }
-
 
 
 
@@ -103,11 +105,17 @@ namespace Code
             if (numberOfLessonsText != null) numberOfLessonsText.text = $"Lessons: {course.numberOfLessons}";
             if (companyIdText != null) companyIdText.text = $"Company ID: {course.companyId}";
 
-            if (!string.IsNullOrEmpty(course.imageUrl) && courseImage != null)
+            
+            if (!string.IsNullOrEmpty(course.imageUrl))
             {
-                StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, courseImage));
+                StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl));
             }
-
+            
+            if (!string.IsNullOrEmpty(course.machineTypeId))
+            {
+                StartCoroutine(FetchMachineTypeDetails(course.machineTypeId));
+            }
+            
             if (detailPage != null)
             {
                 detailPage.SetActive(true);
@@ -125,15 +133,14 @@ namespace Code
             }
         }
 
-        private IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
+        private IEnumerator DownloadAndLoadCourseImage(string imageUrl)
         {
             string filename = Path.GetFileName(imageUrl);
             string localPath = Path.Combine(Application.persistentDataPath, filename);
 
             if (File.Exists(localPath))
             {
-                Debug.Log($"📂 Loading cached image: {localPath}");
-                yield return LoadImageFromLocal(localPath, imageComponent);
+                yield return LoadImageFromLocal(localPath);
                 yield break;
             }
 
@@ -144,20 +151,75 @@ namespace Code
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     Texture2D texture = DownloadHandlerTexture.GetContent(request);
-                    if (texture != null)
-                    {
-                        File.WriteAllBytes(localPath, texture.EncodeToPNG());
-                        imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                            Vector2.one * 0.5f);
-                    }
+                    File.WriteAllBytes(localPath, texture.EncodeToPNG());
+                    ApplyTextureToImage(texture);
                 }
                 else
                 {
-                    Debug.LogError($"Image Download Error: {request.error}");
+                    Debug.LogError($"❌ Image Download Error: {request.error}");
                 }
             }
         }
 
+
+        private IEnumerator FetchMachineTypeDetails(string machineTypeId)
+        {
+            if (string.IsNullOrEmpty(machineTypeId))
+            {
+                Debug.LogWarning("⚠️ No Machine Type ID found!");
+                yield break;
+            }
+
+            string endpoint = "/machine-type/" + machineTypeId;
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"❌ Failed to fetch Machine Type: {request.error}");
+                    yield break;
+                }
+
+                var response = JsonUtility.FromJson<ApiResponse<MachineTypeResponse>>(request.downloadHandler.text);
+                if (response?.result != null)
+                {
+                    DisplayMachineType(response.result);
+                }
+            }
+        }
+
+        
+        private void DisplayMachineType(MachineTypeResponse machineType)
+        {
+            if (machineTypeNameText != null)
+            {
+                machineTypeNameText.text = machineType.machineTypeName;
+            }
+
+            // ✅ Xóa thuộc tính cũ trước khi thêm mới
+            foreach (Transform child in machineAttributesContainer)
+            {
+                Destroy(child.gameObject);
+            }
+
+            // ✅ Hiển thị danh sách thuộc tính của máy
+            foreach (var attribute in machineType.machineTypeAttributeResponses)
+            {
+                GameObject newAttribute = Instantiate(machineAttributePrefab, machineAttributesContainer);
+        
+                // 🔹 Tìm TMP_Text trong "MachineType"
+                Transform machineTypeTransform = newAttribute.transform.Find("MachineType");
+                if (machineTypeTransform != null)
+                {
+                    TMP_Text attributeText = machineTypeTransform.GetComponent<TMP_Text>();
+                    if (attributeText != null)
+                    {
+                        attributeText.text = $"{attribute.attributeName}: {attribute.valueAttribute}";
+                    }
+                }
+            }
+        }
 
 
 
@@ -208,16 +270,20 @@ namespace Code
             Debug.Log($"{title}: {message}");
         }
 
-        IEnumerator LoadImageFromLocal(string path, Image imageComponent)
+        private IEnumerator LoadImageFromLocal(string path)
         {
             byte[] imageData = File.ReadAllBytes(path);
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(imageData);
-            imageComponent.sprite =
-                Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+            ApplyTextureToImage(texture);
             yield return null;
         }
 
+        private void ApplyTextureToImage(Texture2D texture)
+        {
+            courseImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+        }
+        
         public void OnClickLoadARScene(string courseId)
         {
             if (string.IsNullOrEmpty(courseId))
@@ -247,7 +313,7 @@ namespace Code
 
         IEnumerator FetchAndDownloadModel(string courseId)
         {
-            string endpoint = courseApiEndpoint + courseId; // Fetch course details
+            string endpoint = CourseApiEndpoint  + courseId; // Fetch course details
             UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 
             yield return request.SendWebRequest();
@@ -281,42 +347,36 @@ namespace Code
         }
 
 
-       IEnumerator DownloadModelFile(string modelId)
-{
-    string endpoint = modelApiEndpoint + modelId;
-    UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-
-    yield return request.SendWebRequest();
-
-    if (request.result == UnityWebRequest.Result.Success)
-    {
-        string jsonResponse = request.downloadHandler.text;
-        Debug.Log("📡 API Response: " + jsonResponse);
-
-        ApiResponse<ModelDataResult> response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(jsonResponse);
-
-        if (response == null || response.result == null || string.IsNullOrEmpty(response.result.file))
+        private IEnumerator DownloadModelFile(string modelId)
         {
-            Debug.LogError("❌ modelData.file is null or API response is invalid!");
-            yield break; // Stop execution
+            string endpoint = ModelApiEndpoint + modelId;
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError($"❌ Failed to fetch model data: {request.error}");
+                    loadingUIPanel.SetActive(false);
+                    yield break;
+                }
+
+                var response = JsonUtility.FromJson<ApiResponse<ModelDataResult>>(request.downloadHandler.text);
+                if (response?.result == null || string.IsNullOrEmpty(response.result.file))
+                {
+                    Debug.LogError("❌ Model file is null or API response is invalid!");
+                    yield break;
+                }
+
+                string modelFilePath = Path.Combine(Application.persistentDataPath, response.result.file);
+                if (!File.Exists(modelFilePath))
+                {
+                    yield return StartCoroutine(DownloadFile(FileDownloadBaseUrl + response.result.file, response.result.file));
+                }
+
+                SceneManager.LoadScene("ARVRScanner");
+            }
         }
-
-        string modelFilePath = Path.Combine(Application.persistentDataPath, response.result.file);
-
-        if (!File.Exists(modelFilePath))
-        {
-            yield return StartCoroutine(DownloadFile(fileDownloadBaseUrl + response.result.file, response.result.file));
-        }
-
-        Debug.Log("✅ Model downloaded successfully. Loading AR Scene...");
-        SceneManager.LoadScene("ARVRScanner");
-    }
-    else
-    {
-        Debug.LogError("❌ Failed to fetch model data: " + request.error);
-        loadingUIPanel.SetActive(false);
-    }
-}
 
 
 public void BackToHomePage()
@@ -341,6 +401,9 @@ public void BackToHomePage()
 
 
 
+
+
     }
+    
 
 }

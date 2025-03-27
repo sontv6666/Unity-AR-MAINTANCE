@@ -34,6 +34,12 @@ public class CourseLoader: MonoBehaviour
         {
             UserManager.UserId = PlayerPrefs.GetString("UserId", "");
         }
+        
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+        }
+
 
         if (!string.IsNullOrEmpty(UserManager.UserId))
         {
@@ -57,6 +63,7 @@ public class CourseLoader: MonoBehaviour
     
     IEnumerator WaitForCompanyIdAndFetchCourses()
     {
+        
         while (string.IsNullOrEmpty(UserManager.CompanyId))
         {
             Debug.Log("⌛ Waiting for CompanyId...");
@@ -209,66 +216,7 @@ public class CourseLoader: MonoBehaviour
             }
         }
     }
-
-//     void ProcessCourseData(string jsonData)
-// {
-//     Debug.Log("📡 CourseLoader: Processing course data.");
-//     Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON trước khi parse
-//
-//     try
-//     {
-//         // ✅ Parse JSON with correct structure
-//         var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
-//
-//         if (response == null || response.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
-//         {
-//             Debug.LogError("❌ No courses found or invalid response.");
-//             nocourseText.SetActive(true);
-//             
-//             // ✅ Clear UI if no courses exist
-//             foreach (Transform child in contentParent)
-//             {
-//                 Destroy(child.gameObject);
-//             }
-//             
-//             return;
-//         }
-//
-//         Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
-//
-//         // ✅ Clear old UI elements
-//         foreach (Transform child in contentParent)
-//         {
-//             Destroy(child.gameObject);
-//         }
-//
-//         // ✅ Iterate over course list
-//         foreach (CourseResult course in response.result.objectList)
-//         {
-//             if (string.IsNullOrEmpty(course.title) || string.IsNullOrEmpty(course.description))
-//             {
-//                 Debug.LogWarning("⚠️ Course title or description is missing!");
-//                 continue;
-//             }
-//
-//             // ✅ Truncate title and description
-//             string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
-//             string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
-//
-//             course.title = truncatedTitle;
-//             course.description = truncatedDescription;
-//
-//             nocourseText.SetActive(false);
-//
-//             // ✅ Create UI panel
-//             CreateCoursePanel(course);
-//         }
-//     }
-//     catch (Exception e)
-//     {
-//         Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
-//     }
-// }
+    
 
     void ProcessCourseData(string jsonData)
     {
