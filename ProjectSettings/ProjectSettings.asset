@@ -142,7 +142,10 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0.131
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: 11400000, guid: c199e683398494f32b4cde18e73ab731, type: 2}
+  - {fileID: -369734831818211097, guid: 7b87f403c0bb29f4994780aee884b4ec, type: 2}
+  - {fileID: 5156968084640159096, guid: 81e7021a079abab42851314d2a753051, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -866,7 +869,7 @@ PlayerSettings:
     WebGL: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
     Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2
     XboxOne: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
-    iPhone: TextMeshPro;UNITY_XR_ARKIT_LOADER_ENABLED
+    iPhone: TextMeshPro;UNITY_XR_ARKIT_LOADER_ENABLED;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3
     tvOS: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2
   additionalCompilerArguments: {}
   platformArchitecture: {}
