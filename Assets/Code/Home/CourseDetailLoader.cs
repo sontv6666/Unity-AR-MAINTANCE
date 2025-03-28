@@ -24,6 +24,10 @@ namespace Code
         public TMP_Text mandatoryText;
         public TMP_Text numberOfLessonsText;
         public TMP_Text companyIdText;
+        
+        // Thêm Circular Progress Spinner và Overlay
+        public GameObject loadingSpinner;  // Spinner Circular
+        public GameObject overlay;         // Màn hình mờ
 
         
         [Header("Machine Type UI")]
@@ -58,7 +62,8 @@ namespace Code
                 Debug.LogError("❌ No Course ID provided!");
                 return;
             }
-
+            loadingSpinner.SetActive(true);
+            overlay.SetActive(true);
             selectedCourseId = courseId;
             StartCoroutine(FetchCourseData(courseId));
         }
@@ -83,6 +88,8 @@ namespace Code
                     UpdateUI(cachedCourseData);
                 }
             }
+            loadingSpinner.SetActive(false);
+            overlay.SetActive(false);
         }
 
 

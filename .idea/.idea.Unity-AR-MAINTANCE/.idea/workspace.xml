@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Add code to work with loading slider" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,26 +41,11 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/LoginScreen/LoginManager.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/Profile/ProfileScreenLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Black SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-BlackItalic SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Examples &amp; Extras/Resources/Fonts &amp; Materials/Anton SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@e2c83221d2dc/InputSystem/Plugins/UI/InputSystemUIInputModule.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/5bf1c522cf8c4ad0ab58e344d80b927c1faa00/1e/e145bfc3/LayoutDataStore.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/aa/bc61bf7c/SetupCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/b1/2f523881/MonoBehaviour.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b4bf55bf6893420ebddeeda99394cb6d469400/f9/4b16fe7c/IEnumerator.cs" root0="SKIP_HIGHLIGHTING" />
@@ -67,25 +59,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
-    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Standalone Player.Start Unity.executor": "Run",
-    "XThreadsFramesViewSplitterKey": "0.6744548",
-    "git-widget-placeholder": "son",
-    "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.environmentSetup",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Attach to Unity Editor.Attach to Unity Editor &amp; Play.executor&quot;: &quot;Debug&quot;,
+    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Standalone Player.Start Unity.executor&quot;: &quot;Run&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.6744548&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/login-ui-enhance&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.environmentSetup&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.0.43f1/Unity.app/Contents/MacOS/Unity" />
@@ -108,16 +100,22 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="116384">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="116384" />
+      <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -137,6 +135,7 @@
       <workItem from="1742723454952" duration="1429000" />
       <workItem from="1742991049999" duration="375000" />
       <workItem from="1743003588098" duration="14428000" />
+      <workItem from="1743164359623" duration="5042000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -170,39 +169,87 @@
       <option name="project" value="LOCAL" />
       <updated>1743081660762</updated>
     </task>
-    <task id="LOCAL-00005" summary="add request list page">
+    <task id="LOCAL-00005" summary="Update">
       <option name="closed" value="true" />
-      <created>1743107126481</created>
+      <created>1743091081350</created>
       <option name="number" value="00005" />
       <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1743107126481</updated>
+      <updated>1743091081350</updated>
     </task>
-    <task id="LOCAL-00006" summary="add">
+    <task id="LOCAL-00006" summary="Update">
       <option name="closed" value="true" />
-      <created>1743107170289</created>
+      <created>1743091143560</created>
       <option name="number" value="00006" />
       <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
-      <updated>1743107170289</updated>
+      <updated>1743091143561</updated>
     </task>
-    <task id="LOCAL-00007" summary="Time and load ui for ar">
+    <task id="LOCAL-00007" summary="Update All">
       <option name="closed" value="true" />
-      <created>1743110638265</created>
+      <created>1743136885796</created>
       <option name="number" value="00007" />
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1743110638265</updated>
+      <updated>1743136885796</updated>
     </task>
-    <task id="LOCAL-00008" summary="Add code to work with loading slider">
+    <task id="LOCAL-00008" summary="Update">
       <option name="closed" value="true" />
-      <created>1743111568366</created>
+      <created>1743139640269</created>
       <option name="number" value="00008" />
       <option name="presentableId" value="LOCAL-00008" />
       <option name="project" value="LOCAL" />
-      <updated>1743111568366</updated>
+      <updated>1743139640269</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743144732044</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1743144732044</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Update UI homepage">
+      <option name="closed" value="true" />
+      <created>1743147891676</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1743147891676</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743152446635</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743152446635</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Update UI">
+      <option name="closed" value="true" />
+      <created>1743153352236</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1743153352236</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Update UI">
+      <option name="closed" value="true" />
+      <created>1743168341193</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1743168341193</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743169551745</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1743169551745</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -216,110 +263,86 @@
     <option name="unityProjectFolder" value="true" />
   </component>
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/production" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/main" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/production" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="config files" />
-    <MESSAGE value="Update" />
+    <MESSAGE value="Update All" />
+    <MESSAGE value="Update UI homepage" />
     <MESSAGE value="Update UI" />
-    <MESSAGE value="add request list page" />
-    <MESSAGE value="add" />
-    <MESSAGE value="Time and load ui for ar" />
-    <MESSAGE value="Add code to work with loading slider" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add code to work with loading slider" />
+    <MESSAGE value="Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>62</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
+          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
+          <line>164</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs" containingFunctionPresentation="Method 'OnLogout'">
             <startOffsets>
-              <option value="1850" />
+              <option value="4572" />
             </startOffsets>
             <endOffsets>
-              <option value="1940" />
+              <option value="4604" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="1" />
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>
-          <line>52</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
+          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
+          <line>161</line>
+          <properties documentPath="$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs" containingFunctionPresentation="Method 'OnLogout'">
             <startOffsets>
-              <option value="1870" />
+              <option value="4495" />
             </startOffsets>
             <endOffsets>
-              <option value="1959" />
+              <option value="4526" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>131</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SaveUserData'">
-            <startOffsets>
-              <option value="4470" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4511" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>111</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
-            <startOffsets>
-              <option value="3824" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3866" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>100</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
-            <startOffsets>
-              <option value="3322" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3368" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>32</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'Start'">
-            <startOffsets>
-              <option value="846" />
-            </startOffsets>
-            <endOffsets>
-              <option value="891" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>70</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
-            <startOffsets>
-              <option value="2158" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2211" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="11" />
+          <option name="timeStamp" value="23" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
@@ -332,20 +355,7 @@
               <option value="1155" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
-          <line>164</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs" containingFunctionPresentation="Method 'OnLogout'">
-            <startOffsets>
-              <option value="4572" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4604" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="19" />
+          <option name="timeStamp" value="24" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
