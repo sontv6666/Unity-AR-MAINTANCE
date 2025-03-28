@@ -6,6 +6,8 @@ using System.Text;
 using System;
 using Newtonsoft.Json;
 
+using UnityEngine.UI;
+
 public class RequestPointManager : MonoBehaviour
 {
     [Header("UI References")]
@@ -90,7 +92,7 @@ public class RequestPointManager : MonoBehaviour
         }
 
         // Create Request Object
-        RequestPointData requestData = new RequestPointData
+        RequestPointPostData requestData = new RequestPointPostData
         {
             reason = reason,
             amount = amount,
@@ -124,12 +126,15 @@ public class RequestPointManager : MonoBehaviour
 
                 try
                 {
-                    RequestPointResponse response = JsonConvert.DeserializeObject<RequestPointResponse>(responseText);
-                    if (response != null && response.status == "success")
+                    RequestPointPostResponse response = JsonConvert.DeserializeObject<RequestPointPostResponse>(responseText);
+                    if (response != null && response.code.Equals("1000"))
                     {
                         warningText.text = "Point request submitted successfully!";
                         reasonInput.text = "";
                         pointInput.text = "";
+
+                        // 🔥 Automatically navigate to the Request List Page
+                        FindObjectOfType<RequestPointScreenLoader>().OpenRequestPointListFromRequestPage();
                     }
                     else
                     {
@@ -144,6 +149,7 @@ public class RequestPointManager : MonoBehaviour
             }
         }
     }
+
 
     public void OpenRequestPointPage()
     {
@@ -180,7 +186,7 @@ public class RequestPointManager : MonoBehaviour
 }
 
 [Serializable]
-public class RequestPointData
+public class RequestPointPostData
 {
     public string reason;
     public int amount;
@@ -189,8 +195,8 @@ public class RequestPointData
 }
 
 [Serializable]
-public class RequestPointResponse
+public class RequestPointPostResponse
 {
-    public string status;
+    public string code;
     public string message;
 }
