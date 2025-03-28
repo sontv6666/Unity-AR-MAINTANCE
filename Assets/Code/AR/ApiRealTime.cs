@@ -53,9 +53,9 @@ public class APIRealTime : MonoBehaviour
         apiRealTimePanel.SetActive(isPanelVisible);
 
         // ✅ Ensure QRCodeScanner exists before accessing it
-        if (ARQRCodeScanner.Instance != null && isPanelVisible)
+        if (QRCodeScanner.Instance != null && isPanelVisible)
         {
-            currentMachineCode = ARQRCodeScanner.Instance.currentMachineCode; // ✅ Get latest machine code
+            currentMachineCode = QRCodeScanner.Instance.currentMachineCode; // ✅ Get latest machine code
 
             if (!string.IsNullOrEmpty(currentMachineCode))
             {
