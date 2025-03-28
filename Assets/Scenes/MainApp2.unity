@@ -51092,7 +51092,7 @@ MonoBehaviour:
   - {fileID: 2077063458}
   - {fileID: 5701549742028723858}
   - {fileID: 1766322110}
-  - {fileID: 0}
+  - {fileID: 5136726438671416080}
   - {fileID: 2139142892}
 --- !u!4 &2120011586
 Transform:
@@ -67977,7 +67977,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2120011585}
         m_TargetAssemblyTypeName: SceneNavigator, Assembly-CSharp
         m_MethodName: NavigateToProfile
         m_Mode: 1
@@ -68033,7 +68033,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2120011585}
         m_TargetAssemblyTypeName: SceneNavigator, Assembly-CSharp
         m_MethodName: NavigateToExplore
         m_Mode: 1
