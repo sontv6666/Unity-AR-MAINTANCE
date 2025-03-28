@@ -179,10 +179,10 @@ private void DisplayRequests(List<RequestPointData> requests)
                 case "PROCESSING":
                     statusImage.color = Color.yellow; // Màu vàng cho đang xử lý
                     break;
-                case "COMPLETE":
+                case "APPROVED":
                     statusImage.color = Color.green; // Màu xanh lá cho hoàn thành
                     break;
-                case "REJECTED":
+                case "REJECT":
                     statusImage.color = Color.red; // Màu đỏ cho từ chối
                     break;
                 default:
