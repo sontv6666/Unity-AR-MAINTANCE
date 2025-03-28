@@ -4,9 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update UI">
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,77 +41,10 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/Home/CourseAllLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/Home/CourseDetailLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/Home/CourseDetailLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/LoginScreen/LoginManager.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Code/Profile/ProfileScreenLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Black SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-BlackItalic SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-BoldItalic SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Examples &amp; Extras/Resources/Fonts &amp; Materials/Anton SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@e2c83221d2dc/InputSystem/Plugins/UI/InputSystemUIInputModule.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/Packages/com.unity.muse.common/Settings.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/5bf1c522cf8c4ad0ab58e344d80b927c1faa00/1e/e145bfc3/LayoutDataStore.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/aa/bc61bf7c/SetupCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8dad3f8a6c364be5b0d7bad9241dfb431df200/b1/2f523881/MonoBehaviour.cs" root0="FORCE_HIGHLIGHTING" />
@@ -198,7 +135,7 @@
       <workItem from="1742723454952" duration="1429000" />
       <workItem from="1742991049999" duration="375000" />
       <workItem from="1743003588098" duration="14428000" />
-      <workItem from="1743164359623" duration="2718000" />
+      <workItem from="1743164359623" duration="5042000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -304,7 +241,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743168341193</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743169551745</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1743169551745</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -366,9 +311,9 @@
     <MESSAGE value="config files" />
     <MESSAGE value="Update All" />
     <MESSAGE value="Update UI homepage" />
-    <MESSAGE value="Update" />
     <MESSAGE value="Update UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update UI" />
+    <MESSAGE value="Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
