@@ -1446,11 +1446,12 @@ public class QRCodeScanner : MonoBehaviour
         {
             Debug.Log("⏳ Waiting for animation to finish...");
 
-            SetNavigationButtonsInteractable(false); // 🚫 Disable buttons immediately
+            SetNavigationButtonsInteractable(false); // 🚫 Disable navigation buttons
+            SetBackButtonInteractable(false); // 🚫 Disable back button while animation runs
 
             while (state.enabled && animation.IsPlaying(state.name))
             {
-                if (isAnimationPaused) // 🛑 If paused, keep waiting and keep buttons disabled
+                if (isAnimationPaused) // 🛑 If paused, keep waiting
                 {
                     Debug.Log("⏸️ Animation paused, waiting...");
                     yield return null;
@@ -1468,7 +1469,26 @@ public class QRCodeScanner : MonoBehaviour
                 isAnimationPlaying = false;
                 SetNavigationButtonsInteractable(true);
                 SetReplayButtonInteractable(true); 
+                SetBackButtonInteractable(true); // ✅ Re-enable back button after animation
             }
+        }
+
+
+        
+        void SetBackButtonInteractable(bool isInteractable)
+        {
+            if (instructionStepInstances.Count == 0) return;
+
+            // ✅ Get the active step
+            GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+            // ✅ Find the back button
+            Button backButton = currentStep.transform.Find("backInstructionPanel")?.GetComponent<Button>();
+
+            // ✅ Enable/Disable back button
+            if (backButton) backButton.interactable = isInteractable;
+
+            Debug.Log($"🔙 Back button {(isInteractable ? "enabled" : "disabled")} for step {currentStepIndex}");
         }
 
         
