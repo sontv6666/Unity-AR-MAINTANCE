@@ -1008,6 +1008,22 @@ public class QRCodeScanner : MonoBehaviour
         {
             currentInstructionDetails = instruction.instructionDetailResponse;
             currentStepIndex = 0;
+            
+            // ✅ Ensure animation is active again
+            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+            if (firstModel != null)
+            {
+                firstModel.SetActive(true);
+
+                // ✅ Reset Animation Component
+                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+                if (animation != null)
+                {
+                    animation.enabled = true; // ✅ Re-enable animation
+                    animation.Play(); // ✅ Play animation again
+                    Debug.Log("▶️ Restarted animation on return to instruction details.");
+                }
+            }
 
             // ✅ Update UI with instruction details
             UpdateInstructionStepUI(instruction);
@@ -1857,8 +1873,8 @@ public class QRCodeScanner : MonoBehaviour
                     // ✅ Stop, rewind, and apply first frame
                     animation.Stop();
                     animation.Rewind();
-                    animation.Play(); // Play to apply first frame
-                    animation.Stop();
+                 //   animation.Play(); // Play to apply first frame
+               //     animation.Stop();
                     animation.Sample(); // Force update to first frame
                     animation.enabled = false; // Ensure it's fully stopped
 
