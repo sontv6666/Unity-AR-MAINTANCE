@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="commit">
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SonMainApp.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SonMainApp.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" afterDir="false" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Handle animation stop,rest when back to course UI">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +19,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="add-login-logic" />
+        <entry key="$PROJECT_DIR$" value="production" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,9 +37,13 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Home/CourseDetailLoader.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Profile/RequestPointScreenLoader.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
@@ -61,7 +63,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "Standalone Player.Start Unity.executor": "Run",
     "XThreadsFramesViewSplitterKey": "0.6744548",
-    "git-widget-placeholder": "production",
+    "git-widget-placeholder": "fixconfliy",
     "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -204,7 +206,31 @@
       <option name="project" value="LOCAL" />
       <updated>1743174589225</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Fix see all scene and color change in request">
+      <option name="closed" value="true" />
+      <created>1743179614559</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743179614559</updated>
+    </task>
+    <task id="LOCAL-00012" summary="handle return button">
+      <option name="closed" value="true" />
+      <created>1743181549092</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1743181549092</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Handle animation stop,rest when back to course UI">
+      <option name="closed" value="true" />
+      <created>1743182110324</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1743182110324</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -241,7 +267,10 @@
     <MESSAGE value="save" />
     <MESSAGE value="merge, fix conflit" />
     <MESSAGE value="commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit" />
+    <MESSAGE value="Fix see all scene and color change in request" />
+    <MESSAGE value="handle return button" />
+    <MESSAGE value="Handle animation stop,rest when back to course UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Handle animation stop,rest when back to course UI" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
