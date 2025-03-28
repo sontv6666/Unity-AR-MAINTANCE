@@ -1026,8 +1026,8 @@ public class QRCodeScanner : MonoBehaviour
 
                     if (!latestMeshTransforms.ContainsKey(meshTransform))
                     {
-                        latestMeshTransforms[meshTransform] = (meshTransform.position, meshTransform.rotation, meshTransform.localScale);
-                        Debug.Log($"📌 Stored mesh transform: {meshTransform.name} | Position: {meshTransform.position}, Rotation: {meshTransform.rotation}");
+                        latestMeshTransforms[meshTransform] = (meshTransform.localPosition, meshTransform.localRotation, meshTransform.localScale);
+                        Debug.Log($"📌 Stored mesh transform: {meshTransform.name} | Position: {meshTransform.localPosition}, Rotation: {meshTransform.localRotation}");
                     }
                 }
             
@@ -1321,19 +1321,13 @@ public class QRCodeScanner : MonoBehaviour
                 if (latestMeshTransforms.ContainsKey(meshTransform))
                 {
                     var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
-                    meshTransform.position = savedPos;
-                    meshTransform.rotation = savedRot;
+                    meshTransform.localPosition = savedPos;
+                    meshTransform.localRotation = savedRot;
                     meshTransform.localScale = savedScale;
                     Debug.Log($"🔄 Reset mesh {meshTransform.name} to Position: {savedPos}, Rotation: {savedRot}");
                 }
             }
             
-            // ✅ Log positions after reset
-            foreach (Transform child in firstModel.transform)
-            {
-                Debug.Log($"🔹 AFTER RESET - {child.name}: Position {child.position}, Rotation {child.rotation}");
-            }
-
 
             // ✅ Get the Animation component
             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
@@ -1527,8 +1521,7 @@ public class QRCodeScanner : MonoBehaviour
                 SetReplayButtonInteractable(true); 
                 SetBackButtonInteractable(true); // ✅ Re-enable back button after animation
                 
-                // ✅ Save latest mesh positions when animation ends
-                SaveMeshTransforms(model);
+            
             
         }
 
@@ -1644,7 +1637,7 @@ public class QRCodeScanner : MonoBehaviour
             latestMeshTransforms.Clear();
             foreach (Transform child in model)
             {
-                latestMeshTransforms[child] = (child.position, child.rotation, child.localScale);
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
             }
             
 
@@ -1837,8 +1830,8 @@ public class QRCodeScanner : MonoBehaviour
                 if (latestMeshTransforms.ContainsKey(child))
                 {
                     var (savedPosition, savedRotation, savedScale) = latestMeshTransforms[child];
-                    child.position = savedPosition;
-                    child.rotation = savedRotation;
+                    child.localPosition = savedPosition;
+                    child.localRotation = savedRotation;
                     child.localScale = savedScale;
                 }
             }
@@ -1878,7 +1871,7 @@ public class QRCodeScanner : MonoBehaviour
     
         foreach (Transform child in model.transform)
         {
-            latestMeshTransforms[child] = (child.position, child.rotation, child.localScale);
+            latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
         }
     }
 
@@ -1915,189 +1908,128 @@ public class QRCodeScanner : MonoBehaviour
         }
 
 
-        void BackToCourseUI()
+    void BackToCourseUI()
+{
+    // ✅ Activate UI elements correctly
+    instructionDetailStepPrefab.SetActive(true);
+    instructionDetailPanel.SetActive(false);
+    courseUIPanel.SetActive(true);
+    backButton.gameObject.SetActive(true);
+
+    Debug.Log("🔙 Returning to Course UI");
+
+    // ✅ Hide all step UI elements
+    foreach (GameObject stepItem in instructionStepInstances)
+    {
+        stepItem.SetActive(false);
+    }
+
+    // ✅ Reset to first step
+    currentStepIndex = 0;
+    isAnimationPlaying = false; // ✅ Ensure animations are marked as done
+
+    // ✅ Find "FirstModelAfterScan"
+    GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+    if (firstModel == null)
+    {
+        Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
+        return;
+    }
+
+    firstModel.SetActive(true);
+
+    // ✅ Step 1: Disable Animations BEFORE Resetting Transforms
+    Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+    if (animation != null)
+    {
+        Debug.Log($"🎬 Found Animation Component with {animation.GetClipCount()} clips.");
+        
+        foreach (AnimationState state in animation)
         {
-            // ✅ Activate UI elements correctly
-            instructionDetailStepPrefab.SetActive(true);
-            instructionDetailPanel.SetActive(false);
-            courseUIPanel.SetActive(true);
-            backButton.gameObject.SetActive(true);
-
-            Debug.Log("🔙 Returning to Course UI");
-
-            // ✅ Hide all step UI elements
-            foreach (GameObject stepItem in instructionStepInstances)
-            {
-                stepItem.SetActive(false);
-            }
-
-            // ✅ Reset to first step
-            currentStepIndex = 0;
-            isAnimationPlaying = false; // ✅ Ensure animations are marked as done
-
-            // ✅ Find "FirstModelAfterScan"
-            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-            if (firstModel != null)
-            {
-                firstModel.SetActive(true);
-
-                
-                // 🆕 Reset model position & rotation to latest known state
-                firstModel.transform.position = latestPosition;
-                firstModel.transform.rotation = latestRotation;
-                
-                Debug.Log($"🔄 Reset model to latest position: {latestPosition}, rotation: {latestRotation}");
-
-                // ✅ Step 1: Play Every Animation to First Frame Before Resetting
-                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-                if (animation != null)
-                {
-                    Debug.Log($"🎬 Found Animation Component with {animation.GetClipCount()} clips.");
-        
-                    foreach (AnimationState state in animation)
-                    {
-                        Debug.Log($"🔄 Forcing first frame of animation: {state.name}");
-
-                        state.time = 0f; // Rewind to first frame
-                        state.enabled = true; // Ensure it's active
-                        animation.Play(state.name); // Play it to update transform
-                        animation.Sample(); // Apply first frame immediately
-                        animation.Stop(); // Stop to prevent looping
-                        state.enabled = false; // Disable after sampling
-                    }
-
-                    animation.enabled = false; // Completely stop animation
-                    Debug.Log("⏹ All animations reset to first frame.");
-                }
-                else
-                {
-                    Debug.Log("⚠ No Animation component found.");
-                }
-
-                // ✅ Step 2: Reset Animator (If Exists)
-                Animator animator = firstModel.GetComponentInChildren<Animator>(true);
-                if (animator != null)
-                {
-                    Debug.Log($"🎭 Found Animator with {animator.layerCount} layers. Resetting...");
-                    animator.enabled = false; // Disable to avoid conflicts
-                    animator.Rebind(); // Reset all states
-                    animator.Update(0); // Force update to first frame
-                    animator.enabled = true; // Re-enable
-                    Debug.Log("✅ Animator fully reset to first frame.");
-                }
-                else
-                {
-                    Debug.Log("⚠ No Animator found.");
-                }
-               
-                
-                // ✅ Reactivate all hidden meshes
-                foreach (Transform child in firstModel.transform)
-                {
-                    child.gameObject.SetActive(true);
-                    Debug.Log($"✅ Reactivating mesh: {child.name}");
-                }
-
-               //  // ✅ Reset Animation Component
-               //  Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-               //  if (animation != null)
-               //  {
-               //      // 🔴 Disable looping for all animations
-               //      foreach (AnimationState state in animation)
-               //      {
-               //          state.wrapMode = WrapMode.Once; // Prevent looping
-               //      }
-               //
-               //      // ✅ Stop, rewind, and apply first frame
-               //      animation.Stop();
-               //      animation.Rewind();
-               //   //   animation.Play(); // Play to apply first frame
-               // //     animation.Stop();
-               //      animation.Sample(); // Force update to first frame
-               //      animation.enabled = false; // Ensure it's fully stopped
-               //
-               //      Debug.Log("⏹ Animation stopped and reset.");
-               //  }
-               //
-               //  // ✅ Reset Animator (if exists)
-               //  Animator animator = firstModel.GetComponentInChildren<Animator>(true);
-               //  if (animator != null)
-               //  {
-               //      animator.enabled = false; // 🔴 Temporarily disable to avoid conflicts
-               //      animator.Rebind(); // ✅ Reset all states
-               //      animator.Update(0); // Force update to first frame
-               //      animator.enabled = true; // Reactivate after reset
-               //
-               //      Debug.Log("🎭 Animator force-reset successfully.");
-               //  }
-                
-                // ✅ Restore all child mesh transforms
-                MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
-                foreach (MeshFilter meshFilter in meshFilters)
-                {
-                    Transform meshTransform = meshFilter.transform;
-                    if (latestMeshTransforms.ContainsKey(meshTransform))
-                    {
-                        var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
-                        meshTransform.position = savedPos;
-                        meshTransform.rotation = savedRot;
-                        meshTransform.localScale = savedScale;
-                        Debug.Log($"🔄 Restored mesh: {meshTransform.name}");
-                    }
-
-                    meshTransform.gameObject.SetActive(true);
-                }
-
-                
-                // ✅ Step 3: Reset Model Transform
-                firstModel.transform.position = latestPosition;
-                firstModel.transform.rotation = latestRotation;
-                Debug.Log($"🔄 Reset model to latest position: {latestPosition}, rotation: {latestRotation}");
-
-                // ✅ Step 4: Reset All Mesh Transforms (Forcing)
-                StartCoroutine(ForceMeshTransformReset(firstModel));
-                
-                
-                
-            }
-            else
-            {
-                Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
-            }
+            Debug.Log($"🔄 Resetting animation: {state.name}");
+            state.time = 0f;
+            state.enabled = true;
+            animation.Play(state.name);
+            animation.Sample();
+            animation.Stop();
+            state.enabled = false;
         }
-        
-        
-        
-        // 🚀 Force Transform Reset (Wait 1 frame to override animation)
-        IEnumerator ForceMeshTransformReset(GameObject firstModel)
+
+        animation.enabled = false; // Completely stop animation
+        Debug.Log("⏹ Animation stopped and rewound.");
+    }
+
+    Animator animator = firstModel.GetComponentInChildren<Animator>(true);
+    if (animator != null)
+    {
+        Debug.Log($"🎭 Found Animator with {animator.layerCount} layers. Resetting...");
+        animator.enabled = false; // Disable first
+        animator.Rebind(); // Reset animation states
+        animator.Update(0); // Force update
+        animator.enabled = true; // Re-enable
+        Debug.Log("✅ Animator fully reset to first frame.");
+    }
+
+    // ✅ Step 2: Restore Model Transform
+    firstModel.transform.position = latestPosition;
+    firstModel.transform.rotation = latestRotation;
+    Debug.Log($"📌 Model position reset: {latestPosition}, rotation: {latestRotation}");
+
+    // ✅ Step 3: Restore ALL Mesh Transforms
+    MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+    foreach (MeshFilter meshFilter in meshFilters)
+    {
+        Transform meshTransform = meshFilter.transform;
+        if (latestMeshTransforms.ContainsKey(meshTransform))
         {
-            yield return null; // ✅ Wait 1 frame (Important!)
+            var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
 
-            MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
-            foreach (MeshFilter meshFilter in meshFilters)
-            {
-                Transform meshTransform = meshFilter.transform;
-                if (latestMeshTransforms.ContainsKey(meshTransform))
-                {
-                    var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
-                    meshTransform.position = savedPos;
-                    meshTransform.rotation = savedRot;
-                    meshTransform.localScale = savedScale;
-                    Debug.Log(
-                        $"🔄 FORCED Reset mesh: {meshTransform.name} -> Position: {savedPos}, Rotation: {savedRot}");
-                }
-            }
+            meshTransform.localPosition  = savedPos;
+            meshTransform.localRotation = savedRot;
+            meshTransform.localScale = savedScale;
 
-            // ✅ Step 5: Reactivate Animator AFTER Reset
-            Animator animator = firstModel.GetComponentInChildren<Animator>(true);
-            if (animator != null)
-            {
-                animator.Rebind();
-                animator.Update(0);
-                animator.enabled = true;
-                Debug.Log("🎭 Animator re-enabled after reset.");
-            }
+            Debug.Log($"🛠 Restored mesh: {meshTransform.name} -> Position: {savedPos}, Rotation: {savedRot}");
         }
+
+        meshTransform.gameObject.SetActive(true); // Ensure visibility
+    }
+
+    // ✅ Step 4: Force a Final Transform Reset in the Next Frame (Important)
+    StartCoroutine(ForceMeshTransformReset(firstModel));
+
+    Debug.Log("✅ BackToCourseUI() COMPLETED.");
+}
+
+// 🚀 **Forces Mesh Transforms Reset in the Next Frame**
+IEnumerator ForceMeshTransformReset(GameObject firstModel)
+{
+    yield return null; // ✅ Wait 1 frame to allow Unity to process changes
+
+    Debug.Log("🔄 Restoring all mesh transforms (Delayed Update)...");
+
+    foreach (Transform child in firstModel.transform)
+    {
+        if (4.ContainsKey(child))
+        {
+            var (savedPos, savedRot, savedScale) = latestMeshTransforms[child];
+
+            child.localPosition = savedPos;
+            child.localRotation = savedRot;
+            child.localScale = savedScale;
+
+            Debug.Log($"🛠 Mesh Final Reset: {child.name} -> Position: {savedPos}, Rotation: {savedRot}");
+        }
+
+        child.gameObject.SetActive(true);
+    }
+
+    Debug.Log("✅ All meshes successfully restored.");
+}
+
+        
+        
+        
+    
 
         void SetupModelInteractions(GameObject model)
         {
