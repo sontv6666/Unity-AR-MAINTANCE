@@ -6,7 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Handle animation stop,rest when back to course UI">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/Models/ApiResponseModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Models/ApiResponseModels.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/XR/Settings/OpenXR Package Settings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/Settings/OpenXR Package Settings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.learn.iet-framework/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.learn.iet-framework/Settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ShaderGraphSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ShaderGraphSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,21 +35,16 @@
     &quot;assignee&quot;: &quot;huucuong-unn&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/sontv6666/Unity-AR-MAINTANCE.git&quot;,
-    &quot;accountId&quot;: &quot;02a91f5d-3178-4d31-9e0a-fd51cccb3e10&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/sontv6666/Unity-AR-MAINTANCE.git",
+    "accountId": "fc4a391a-986d-4df7-895c-8e9e3abf596c"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ApiConfig.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Home/CourseDetailLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Profile/RequestPointScreenLoader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Scenes/MainApp2.unity" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/ProjectSettings/Packages/com.unity.learn.iet-framework/Settings.json" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo">{
@@ -63,7 +63,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "Standalone Player.Start Unity.executor": "Run",
     "XThreadsFramesViewSplitterKey": "0.6744548",
-    "git-widget-placeholder": "fixconfliy",
+    "git-widget-placeholder": "production",
     "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -96,6 +96,9 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -106,6 +109,9 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -125,6 +131,7 @@
       <workItem from="1742723454952" duration="1429000" />
       <workItem from="1742991049999" duration="375000" />
       <workItem from="1743003588098" duration="14428000" />
+      <workItem from="1743235030613" duration="2005000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -293,10 +300,10 @@
           <line>52</line>
           <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
             <startOffsets>
-              <option value="1870" />
+              <option value="1749" />
             </startOffsets>
             <endOffsets>
-              <option value="1959" />
+              <option value="1828" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="3" />
@@ -306,10 +313,10 @@
           <line>131</line>
           <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SaveUserData'">
             <startOffsets>
-              <option value="4470" />
+              <option value="4459" />
             </startOffsets>
             <endOffsets>
-              <option value="4511" />
+              <option value="4501" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="4" />
