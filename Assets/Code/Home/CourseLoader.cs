@@ -225,17 +225,17 @@ public class CourseLoader: MonoBehaviour
 
         try
         {
-            // ✅ Use the generic ApiResponseList<T> to properly deserialize
-            var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
+            // ✅ Corrected to match new API structure
+            var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
-            if (response == null || response.result == null || response.result.Count == 0)
+            if (response == null || response.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
             {
                 Debug.LogError("❌ No courses found or invalid response.");
                 nocourseText.SetActive(true);
                 return;
             }
 
-            Debug.Log($"📌 Found {response.result.Count} courses.");
+            Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
 
             // ✅ Clear old UI panels before adding new ones
             foreach (Transform child in contentParent)
@@ -243,7 +243,7 @@ public class CourseLoader: MonoBehaviour
                 Destroy(child.gameObject);
             }
 
-            foreach (CourseResult course in response.result)
+            foreach (CourseResult course in response.result.objectList)
             {
                 if (string.IsNullOrEmpty(course.title) || string.IsNullOrEmpty(course.description))
                 {
@@ -269,6 +269,7 @@ public class CourseLoader: MonoBehaviour
             Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
+
 
 
     void CreateCoursePanel(CourseResult course)
