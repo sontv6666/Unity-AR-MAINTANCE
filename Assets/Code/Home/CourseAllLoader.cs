@@ -79,28 +79,38 @@ public class CourseAllLoader : MonoBehaviour
             return;
         }
 
-        var response = JsonConvert.DeserializeObject<ApiResponseList<CourseResult>>(jsonData);
-        if (response?.result == null || response.result.Count == 0)
+        try
         {
-            Debug.Log("✅ No courses found.");
-            noCourseText.SetActive(true);
-            return;
+            // ✅ Correctly parse the new API structure
+            var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
+
+            if (response?.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
+            {
+                Debug.Log("✅ No courses found.");
+                noCourseText.SetActive(true);
+                return;
+            }
+
+            Debug.Log($"📌 Loaded {response.result.objectList.Count} courses.");
+            noCourseText.SetActive(false);
+
+            // ✅ Clear existing course UI before adding new ones
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
+
+            foreach (var course in response.result.objectList)
+            {
+                CreateCoursePanel(course);
+            }
         }
-
-        Debug.Log($"📌 Loaded {response.result.Count} courses.");
-        noCourseText.SetActive(false);
-
-        // Clear existing course UI before adding new ones
-        foreach (Transform child in contentParent)
+        catch (Exception e)
         {
-            Destroy(child.gameObject);
-        }
-
-        foreach (var course in response.result)
-        {
-            CreateCoursePanel(course);
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
+
 
     void CreateCoursePanel(CourseResult course)
     {

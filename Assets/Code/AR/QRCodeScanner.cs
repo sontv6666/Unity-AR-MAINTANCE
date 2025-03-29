@@ -479,6 +479,8 @@ public class QRCodeScanner : MonoBehaviour
                 if (response.code == 1000 && response.result.courseCode == scannedQR)
                 {
                     UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
+                    StartCoroutine(SendCourseScan(response.result.id, UserManager.UserId));
+
                     StartCoroutine(FetchModelData(response.result));
                     StartCoroutine(DownloadAndLoadUI(response.result));
                     centerModelButton.gameObject.SetActive(true);
@@ -500,6 +502,29 @@ public class QRCodeScanner : MonoBehaviour
                 Invoke(nameof(ResetScanning), 2f);
             }
         }
+
+        
+        
+        IEnumerator SendCourseScan(string courseId, string userId)
+        {
+            string endpoint = $"/course/scan/{courseId}/{userId}";
+            Debug.Log($"📡 Sending course scan request: {ApiConfig.GetBaseUrl() + endpoint}");
+
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "POST", "{}")) // Sending empty JSON body
+            {
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.LogError($"❌ Course Scan API Error: {request.error}");
+                }
+                else
+                {
+                    Debug.Log($"✅ Course scan recorded successfully: {request.downloadHandler.text}");
+                }
+            }
+        }
+
 
 
 
