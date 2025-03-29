@@ -1003,16 +1003,50 @@ public class QRCodeScanner : MonoBehaviour
 
 
 
+        // 🌟 Dictionary to store the latest transform state of child meshes
+        Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
 
         void ShowInstructionDetails(Instruction instruction)
         {
             currentInstructionDetails = instruction.instructionDetailResponse;
             currentStepIndex = 0;
+            
+            // ✅ Ensure animation is active again
+            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+            if (firstModel != null)
+            {
+                firstModel.SetActive(true);
+                
+
+                // ✅ Collect all child mesh transforms
+                MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+                foreach (MeshFilter meshFilter in meshFilters)
+                {
+                    Transform meshTransform = meshFilter.transform;
+
+                    if (!latestMeshTransforms.ContainsKey(meshTransform))
+                    {
+                        latestMeshTransforms[meshTransform] = (meshTransform.localPosition, meshTransform.localRotation, meshTransform.localScale);
+                        Debug.Log($"📌 Stored mesh transform: {meshTransform.name} | Position: {meshTransform.localPosition}, Rotation: {meshTransform.localRotation}");
+                    }
+                }
+            
+
+                // ✅ Re-enable and restart animation
+                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+                if (animation != null)
+                {
+                    animation.enabled = true;
+                    animation.Play();
+                    Debug.Log("▶️ Restarted animation on return to instruction details.");
+                }
+            }
 
             // ✅ Update UI with instruction details
             UpdateInstructionStepUI(instruction);
 
 
+            
 
 
             // ✅ Show instruction detail panel
@@ -1277,6 +1311,24 @@ public class QRCodeScanner : MonoBehaviour
             isAnimationPlaying = true;
             
             SetReplayButtonInteractable(false); 
+            
+            // ✅ Reset ALL individual meshes before playing animation
+            MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+            foreach (MeshFilter meshFilter in meshFilters)
+            {
+                Transform meshTransform = meshFilter.transform;
+
+                if (latestMeshTransforms.ContainsKey(meshTransform))
+                {
+                    var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
+                    meshTransform.localPosition = savedPos;
+                    meshTransform.localRotation = savedRot;
+                    meshTransform.localScale = savedScale;
+                    Debug.Log($"🔄 Reset mesh {meshTransform.name} to Position: {savedPos}, Rotation: {savedRot}");
+                }
+            }
+            
+
             // ✅ Get the Animation component
             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
      
@@ -1346,7 +1398,7 @@ public class QRCodeScanner : MonoBehaviour
                     newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
                     animation.Play(detail.animationName);
                     Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
-                    StartCoroutine(WaitForAnimationToEnd(animation, newState));
+                    StartCoroutine(WaitForAnimationToEnd(animation, newState, firstModel));
                     StartCoroutine(UpdateAnimationProgress(animation, newState, animationProgressSlider, animationTimeText)); // ✅ Pass UI
                 }
                 else
@@ -1442,15 +1494,16 @@ public class QRCodeScanner : MonoBehaviour
         // }
         
 
-        IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
+        IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state, GameObject model)
         {
             Debug.Log("⏳ Waiting for animation to finish...");
 
-            SetNavigationButtonsInteractable(false); // 🚫 Disable buttons immediately
+            SetNavigationButtonsInteractable(false); // 🚫 Disable navigation buttons
+            SetBackButtonInteractable(false); // 🚫 Disable back button while animation runs
 
             while (state.enabled && animation.IsPlaying(state.name))
             {
-                if (isAnimationPaused) // 🛑 If paused, keep waiting and keep buttons disabled
+                if (isAnimationPaused) // 🛑 If paused, keep waiting
                 {
                     Debug.Log("⏸️ Animation paused, waiting...");
                     yield return null;
@@ -1462,13 +1515,32 @@ public class QRCodeScanner : MonoBehaviour
             }
 
             // ✅ Only re-enable buttons if animation finished naturally
-            if (!isAnimationPaused)
-            {
                 Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
                 isAnimationPlaying = false;
                 SetNavigationButtonsInteractable(true);
                 SetReplayButtonInteractable(true); 
-            }
+                SetBackButtonInteractable(true); // ✅ Re-enable back button after animation
+                
+            
+            
+        }
+
+
+        
+        void SetBackButtonInteractable(bool isInteractable)
+        {
+            if (instructionStepInstances.Count == 0) return;
+
+            // ✅ Get the active step
+            GameObject currentStep = instructionStepInstances[currentStepIndex];
+
+            // ✅ Find the back button
+            Button backButton = currentStep.transform.Find("backInstructionPanel")?.GetComponent<Button>();
+
+            // ✅ Enable/Disable back button
+            if (backButton) backButton.interactable = isInteractable;
+
+            Debug.Log($"🔙 Back button {(isInteractable ? "enabled" : "disabled")} for step {currentStepIndex}");
         }
 
         
@@ -1492,8 +1564,9 @@ public class QRCodeScanner : MonoBehaviour
             }
         }
 
-        
-        bool isModelCentered = false; // Add this as a global variable
+        Vector3 latestPosition;
+        Quaternion latestRotation;
+        bool isModelCentered = false;
 
         void CenterModel()
         {
@@ -1554,6 +1627,19 @@ public class QRCodeScanner : MonoBehaviour
 
             model.position = finalPosition;
             model.rotation = Quaternion.LookRotation(cameraForward);
+            
+            
+            // 🆕 Store the latest position and rotation
+            latestPosition = finalPosition;
+            latestRotation = model.rotation;
+         
+            // 🆕 Store latest positions of all child meshes
+            latestMeshTransforms.Clear();
+            foreach (Transform child in model)
+            {
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+            }
+            
 
             Debug.Log($"🎯 Model placed at: {finalPosition}");
             model.gameObject.SetActive(true);
@@ -1622,7 +1708,7 @@ public class QRCodeScanner : MonoBehaviour
                 
                 if (!isAnimationPlaying) // ✅ Restart waiting coroutine
                 {
-                    StartCoroutine(WaitForAnimationToEnd(animation, lastState));
+                    StartCoroutine(WaitForAnimationToEnd(animation, lastState, firstModel));
                 }
             }
             else
@@ -1727,6 +1813,30 @@ public class QRCodeScanner : MonoBehaviour
         currentStepIndex += direction;
         currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
 
+        
+        // ✅ Reset mesh transforms BEFORE playing new animation
+        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+        if (firstModel != null)
+        {
+            // ✅ Reset the model to the latest known position & rotation
+            firstModel.transform.position = latestPosition;
+            firstModel.transform.rotation = latestRotation;
+        
+            Debug.Log($"🔄 Reset model to latest position: {latestPosition}, rotation: {latestRotation}");
+
+            // ✅ Reset each child mesh to its latest known transform
+            foreach (Transform child in firstModel.transform)
+            {
+                if (latestMeshTransforms.ContainsKey(child))
+                {
+                    var (savedPosition, savedRotation, savedScale) = latestMeshTransforms[child];
+                    child.localPosition = savedPosition;
+                    child.localRotation = savedRotation;
+                    child.localScale = savedScale;
+                }
+            }
+        }
+        
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
     
@@ -1740,8 +1850,7 @@ public class QRCodeScanner : MonoBehaviour
         Slider animationProgressSlider = instructionStepInstances[currentStepIndex].transform.Find("animationProgressSlider")?.GetComponent<Slider>();
         TMP_Text animationTimeText = instructionStepInstances[currentStepIndex].transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
 
-        // ✅ Play animation & block navigation until it’s done
-        GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+      
         if (firstModel != null)
         {
             InstructionDetail currentStepDetail = currentInstructionDetails[currentStepIndex];
@@ -1756,7 +1865,15 @@ public class QRCodeScanner : MonoBehaviour
 
 
     
-   
+    void SaveMeshTransforms(GameObject model)
+    {
+        if (model == null) return;
+    
+        foreach (Transform child in model.transform)
+        {
+            latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+        }
+    }
 
 
     // 🟢 Enable/Disable Previous & Next buttons dynamically
@@ -1791,81 +1908,130 @@ public class QRCodeScanner : MonoBehaviour
         }
 
 
-        void BackToCourseUI()
+    void BackToCourseUI()
+{
+    // ✅ Activate UI elements correctly
+    instructionDetailStepPrefab.SetActive(true);
+    instructionDetailPanel.SetActive(false);
+    courseUIPanel.SetActive(true);
+    backButton.gameObject.SetActive(true);
+
+    Debug.Log("🔙 Returning to Course UI");
+
+    // ✅ Hide all step UI elements
+    foreach (GameObject stepItem in instructionStepInstances)
+    {
+        stepItem.SetActive(false);
+    }
+
+    // ✅ Reset to first step
+    currentStepIndex = 0;
+    isAnimationPlaying = false; // ✅ Ensure animations are marked as done
+
+    // ✅ Find "FirstModelAfterScan"
+    GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+    if (firstModel == null)
+    {
+        Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
+        return;
+    }
+
+    firstModel.SetActive(true);
+
+    // ✅ Step 1: Disable Animations BEFORE Resetting Transforms
+    Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+    if (animation != null)
+    {
+        Debug.Log($"🎬 Found Animation Component with {animation.GetClipCount()} clips.");
+        
+        foreach (AnimationState state in animation)
         {
-            // ✅ Activate UI elements correctly
-            instructionDetailStepPrefab.SetActive(true);
-            instructionDetailPanel.SetActive(false);
-            courseUIPanel.SetActive(true);
-            backButton.gameObject.SetActive(true);
-
-            Debug.Log("🔙 Returning to Course UI");
-
-            // ✅ Hide all step UI elements
-            foreach (GameObject stepItem in instructionStepInstances)
-            {
-                stepItem.SetActive(false);
-            }
-
-            // ✅ Reset to first step
-            currentStepIndex = 0;
-            isAnimationPlaying = false; // ✅ Ensure animations are marked as done
-
-            // ✅ Find "FirstModelAfterScan"
-            GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-            if (firstModel != null)
-            {
-                firstModel.SetActive(true);
-
-                // ✅ Reactivate all hidden meshes
-                foreach (Transform child in firstModel.transform)
-                {
-                    child.gameObject.SetActive(true);
-                    Debug.Log($"✅ Reactivating mesh: {child.name}");
-                }
-
-                // ✅ Reset Animation Component
-                Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-                if (animation != null)
-                {
-                    // 🔴 Disable looping for all animations
-                    foreach (AnimationState state in animation)
-                    {
-                        state.wrapMode = WrapMode.Once; // Prevent looping
-                    }
-
-                    // ✅ Stop, rewind, and apply first frame
-                    animation.Stop();
-                    animation.Rewind();
-                    animation.Play(); // Play to apply first frame
-                    animation.Stop();
-                    animation.Sample(); // Force update to first frame
-                    animation.enabled = false; // Ensure it's fully stopped
-
-                    Debug.Log("⏹ Animation stopped and reset.");
-                }
-
-                // ✅ Reset Animator (if exists)
-                Animator animator = firstModel.GetComponentInChildren<Animator>(true);
-                if (animator != null)
-                {
-                    animator.enabled = false; // 🔴 Temporarily disable to avoid conflicts
-                    animator.Rebind(); // ✅ Reset all states
-                    animator.Update(0); // Force update to first frame
-                    animator.enabled = true; // Reactivate after reset
-
-                    Debug.Log("🎭 Animator force-reset successfully.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
-            }
+            Debug.Log($"🔄 Resetting animation: {state.name}");
+            state.time = 0f;
+            state.enabled = true;
+            animation.Play(state.name);
+            animation.Sample();
+            animation.Stop();
+            state.enabled = false;
         }
+
+        animation.enabled = false; // Completely stop animation
+        Debug.Log("⏹ Animation stopped and rewound.");
+    }
+
+    Animator animator = firstModel.GetComponentInChildren<Animator>(true);
+    if (animator != null)
+    {
+        Debug.Log($"🎭 Found Animator with {animator.layerCount} layers. Resetting...");
+        animator.enabled = false; // Disable first
+        animator.Rebind(); // Reset animation states
+        animator.Update(0); // Force update
+        animator.enabled = true; // Re-enable
+        Debug.Log("✅ Animator fully reset to first frame.");
+    }
+
+    // ✅ Step 2: Restore Model Transform
+    firstModel.transform.position = latestPosition;
+    firstModel.transform.rotation = latestRotation;
+    Debug.Log($"📌 Model position reset: {latestPosition}, rotation: {latestRotation}");
+
+    // ✅ Step 3: Restore ALL Mesh Transforms
+    MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+    foreach (MeshFilter meshFilter in meshFilters)
+    {
+        Transform meshTransform = meshFilter.transform;
+        if (latestMeshTransforms.ContainsKey(meshTransform))
+        {
+            var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
+
+            meshTransform.localPosition  = savedPos;
+            meshTransform.localRotation = savedRot;
+            meshTransform.localScale = savedScale;
+
+            Debug.Log($"🛠 Restored mesh: {meshTransform.name} -> Position: {savedPos}, Rotation: {savedRot}");
+        }
+
+        meshTransform.gameObject.SetActive(true); // Ensure visibility
+    }
+
+    // ✅ Step 4: Force a Final Transform Reset in the Next Frame (Important)
+    StartCoroutine(ForceMeshTransformReset(firstModel));
+
+    Debug.Log("✅ BackToCourseUI() COMPLETED.");
+}
+
+// 🚀 **Forces Mesh Transforms Reset in the Next Frame**
+IEnumerator ForceMeshTransformReset(GameObject firstModel)
+{
+    yield return null; // ✅ Wait 1 frame to allow Unity to process changes
+
+    Debug.Log("🔄 Restoring all mesh transforms (Delayed Update)...");
+
+    foreach (Transform child in firstModel.transform)
+    {
+        if (4.ContainsKey(child))
+        {
+            var (savedPos, savedRot, savedScale) = latestMeshTransforms[child];
+
+            child.localPosition = savedPos;
+            child.localRotation = savedRot;
+            child.localScale = savedScale;
+
+            Debug.Log($"🛠 Mesh Final Reset: {child.name} -> Position: {savedPos}, Rotation: {savedRot}");
+        }
+
+        child.gameObject.SetActive(true);
+    }
+
+    Debug.Log("✅ All meshes successfully restored.");
+}
+
         
         
         
-          void SetupModelInteractions(GameObject model)
+    
+
+        void SetupModelInteractions(GameObject model)
         {
             if (model == null)
             {
