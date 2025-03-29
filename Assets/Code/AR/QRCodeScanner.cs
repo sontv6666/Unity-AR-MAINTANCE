@@ -2009,7 +2009,7 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
 
     foreach (Transform child in firstModel.transform)
     {
-        if (4.ContainsKey(child))
+        if (latestMeshTransforms.ContainsKey(child))
         {
             var (savedPos, savedRot, savedScale) = latestMeshTransforms[child];
 
