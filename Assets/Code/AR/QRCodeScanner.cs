@@ -160,7 +160,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-      //     TryScanQRCode();
+          TryScanQRCode();
         }
 
 
@@ -186,13 +186,15 @@ public class QRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(false); //true
-        scanBoxUI.SetActive(false); //true
+        scanUIPanel.SetActive(true); //true
+        scanBoxUI.SetActive(true); //true
         courseUIPanel.SetActive(true); 
         centerModelButton.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
-      //  StartScanning();
+     
+        // scan
+        StartScanning();
      
      
        StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
