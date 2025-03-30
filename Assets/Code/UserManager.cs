@@ -15,4 +15,5 @@ public static class UserManager
     public static bool IsPayAdmin { get; set; }
     public static string CreatedDate { get; set; }
     public static string UpdatedDate { get; set; }
+    public static int Point { get; set; }
 }

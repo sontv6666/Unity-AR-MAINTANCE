@@ -14,6 +14,7 @@ public class CourseLoader: MonoBehaviour
     [Header("UI References")] 
     public TMP_Text greetingText;
     public TMP_Text usernameText;
+    public TMP_Text pointsText ;
     public Image profileImage;
     public GameObject coursePanelPrefab; // Prefab for each course item
     public Transform contentParent; // Parent object to hold all course panels
@@ -142,6 +143,7 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
+            pointsText.text= $"Points: {user.point}";
             Debug.Log($"👤 User: {user.username}");
 
             // ✅ Lưu company.id vào UserManager
