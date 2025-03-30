@@ -1,0 +1,151 @@
+using System.Collections;
+using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+using TMPro;
+using Newtonsoft.Json;
+using Models;
+
+public class SearchCourseLoader : MonoBehaviour
+{
+    [Header("UI References")] 
+    public TMP_InputField searchInput;
+    public Button searchButton;
+    public GameObject coursePanelPrefab;
+    public Transform contentParent;
+    public GameObject nocourseText;
+    
+    private string searchApiTemplate = "/course/title/{0}";
+
+    void Start()
+    {
+        searchButton.onClick.AddListener(() => StartCoroutine(SearchCourse(searchInput.text)));
+    }
+
+    IEnumerator SearchCourse(string title)
+    {
+        if (string.IsNullOrEmpty(title))
+        {
+            Debug.LogError("❌ Search title is empty!");
+            yield break;
+        }
+
+        string endpoint = string.Format(searchApiTemplate, title);
+        string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
+        Debug.Log($"📡 Searching course: {fullUrl}");
+
+        using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
+        {
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"❌ API Error: {request.error}");
+                nocourseText.SetActive(true);
+            }
+            else
+            {
+                string jsonData = request.downloadHandler.text;
+                Debug.Log($"✅ API Response: {jsonData}");
+
+                ProcessSearchResults(jsonData);
+            }
+        }
+    }
+
+    void ProcessSearchResults(string jsonData)
+    {
+        try
+        {
+            var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonData);
+
+            if (response == null || response.code != 1000 || response.result == null)
+            {
+                Debug.LogError("❌ Course not found!");
+                nocourseText.SetActive(true);
+                return;
+            }
+
+            nocourseText.SetActive(false);
+            CreateCoursePanel(response.result);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
+        }
+    }
+
+    void CreateCoursePanel(CourseResult course)
+    {
+        Debug.Log($"📌 Displaying course: {course.title}");
+
+        // Clear previous results
+        foreach (Transform child in contentParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        GameObject panel = Instantiate(coursePanelPrefab, contentParent);
+
+        TMP_Text titleText = panel.transform.Find("course_titleText").GetComponent<TMP_Text>();
+        TMP_Text descriptionText = panel.transform.Find("course_descriptionText").GetComponent<TMP_Text>();
+
+        if (titleText != null) titleText.text = course.title;
+        if (descriptionText != null) descriptionText.text = course.description;
+
+        if (!string.IsNullOrEmpty(course.imageUrl))
+        {
+            Image imageComponent = panel.transform.Find("courseImage_background/course_image").GetComponent<Image>();
+            if (imageComponent != null)
+            {
+                StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
+            }
+        }
+    }
+
+    IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
+    {
+        string fullUrl = ApiConfig.GetBaseUrl() + "/files/" + imageUrl;
+        string localPath = Path.Combine(Application.persistentDataPath, Path.GetFileName(imageUrl));
+
+        if (File.Exists(localPath))
+        {
+            yield return LoadImageFromLocal(localPath, imageComponent);
+            yield break;
+        }
+
+        using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"❌ Image Download Error: {request.error}");
+            }
+            else
+            {
+                File.WriteAllBytes(localPath, request.downloadHandler.data);
+                yield return LoadImageFromLocal(localPath, imageComponent);
+            }
+        }
+    }
+
+    IEnumerator LoadImageFromLocal(string path, Image imageComponent)
+    {
+        if (!File.Exists(path)) yield break;
+
+        byte[] imageData = File.ReadAllBytes(path);
+        Texture2D texture = new Texture2D(2, 2);
+        if (texture.LoadImage(imageData))
+        {
+            imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+        }
+
+        yield return null;
+    }
+}
