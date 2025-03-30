@@ -7,8 +7,8 @@ public static class ApiConfig
     
     //https://joey-lenient-ostrich.ngrok-free.app
     //https://pure-wondrous-hippo.ngrok-free.app
-    // private static readonly string baseUrl = "https://joey-lenient-ostrich.ngrok-free.app/api/v1";
-    private static readonly string baseUrl = "http://localhost:8086/api/v1";
+    private static readonly string baseUrl = "https://joey-lenient-ostrich.ngrok-free.app/api/v1";
+    // private static readonly string baseUrl = "http://localhost:8086/api/v1";
         
 
     public static string GetBaseUrl()
