@@ -214,7 +214,7 @@ namespace Code
             foreach (var attribute in machineType.machineTypeAttributeResponses)
             {
                 GameObject newAttribute = Instantiate(machineAttributePrefab, machineAttributesContainer);
-        
+
                 // 🔹 Tìm TMP_Text trong "MachineType"
                 Transform machineTypeTransform = newAttribute.transform.Find("MachineType");
                 if (machineTypeTransform != null)
@@ -222,7 +222,7 @@ namespace Code
                     TMP_Text attributeText = machineTypeTransform.GetComponent<TMP_Text>();
                     if (attributeText != null)
                     {
-                        attributeText.text = $"{attribute.attributeName}: {attribute.valueAttribute}";
+                        attributeText.text = $"<b>{attribute.attributeName}</b>: {attribute.valueAttribute}";
                     }
                 }
             }
