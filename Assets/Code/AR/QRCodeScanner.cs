@@ -32,7 +32,7 @@ public class QRCodeScanner : MonoBehaviour
     private Vector3 qrCodePosition = Vector3.zero;
     private Vector3 qrCodeRotation = Vector3.zero;
     public GameObject modelContainer;
-
+    public GameObject insufficientPointsPanel;
 
     private ARPlaneManager arPlaneManager;
     private ARSessionOrigin arSessionOrigin;
@@ -510,7 +510,7 @@ public class QRCodeScanner : MonoBehaviour
             string endpoint = $"/course/scan/{courseId}/{userId}";
             Debug.Log($"📡 Sending course scan request: {ApiConfig.GetBaseUrl() + endpoint}");
 
-            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "POST", "{}")) // Sending empty JSON body
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "PUT", "{}")) // Using PUT instead of POST
             {
                 yield return request.SendWebRequest();
 
@@ -520,7 +520,25 @@ public class QRCodeScanner : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"✅ Course scan recorded successfully: {request.downloadHandler.text}");
+                    string jsonResponse = request.downloadHandler.text;
+                    var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
+
+                    if (response != null)
+                    {
+                        Debug.Log($"✅ Course scan response: {jsonResponse}");
+
+                        if (response.code != 1000) // If the user doesn't have enough points
+                        {
+                            Debug.Log("⚠️ Not enough points to play this course.");
+                            insufficientPointsPanel.SetActive(true); // Show warning panel
+                            Invoke(nameof(GoBackToMainApp), 5f); // Wait 3s, then go back
+                            insufficientPointsPanel.SetActive(false);   
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("❌ Invalid API Response in SendCourseScan.");
+                    }
                 }
             }
         }
