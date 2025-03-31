@@ -19,7 +19,7 @@ public class SearchCourseLoader : MonoBehaviour
     public GameObject searchPage;
     public GameObject detailPage;
 
-    private string searchApiTemplate = "/course/title/{0}";
+    private string searchApiTemplate = "/course/company/{0}?title={1}";
 
     void Start()
     {
@@ -34,7 +34,13 @@ public class SearchCourseLoader : MonoBehaviour
             yield break;
         }
 
-        string endpoint = string.Format(searchApiTemplate, title);
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            Debug.LogError("❌ Company ID is missing! Cannot fetch courses.");
+            yield break;
+        }
+
+        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, title);
         string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
         Debug.Log($"📡 Searching course: {fullUrl}");
 
@@ -55,11 +61,11 @@ public class SearchCourseLoader : MonoBehaviour
             {
                 string jsonData = request.downloadHandler.text;
                 Debug.Log($"✅ API Response: {jsonData}");
-
                 ProcessSearchResults(jsonData);
             }
         }
     }
+
 
     void ProcessSearchResults(string jsonData)
     {
