@@ -139,7 +139,7 @@ public class LoginManager : MonoBehaviour
         PlayerPrefs.SetString("Phone", user.phone);
         PlayerPrefs.SetString("Status", user.status);
         PlayerPrefs.SetString("DeviceId", deviceId); 
-        PlayerPrefs.SetInt("Point", user.point); 
+        PlayerPrefs.SetInt("Point", user.points); 
         PlayerPrefs.Save();
 
         Debug.Log($"🔐 Token Saved: {token}");

@@ -143,7 +143,7 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
-            pointsText.text= $"Points: {user.point}";
+            pointsText.text= $"Points: {user.points}";
             Debug.Log($"👤 User: {user.username}");
 
             // ✅ Lưu company.id vào UserManager
