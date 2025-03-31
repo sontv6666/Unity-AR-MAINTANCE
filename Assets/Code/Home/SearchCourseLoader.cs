@@ -24,25 +24,32 @@ public class SearchCourseLoader : MonoBehaviour
     void Start()
     {
         searchButton.onClick.AddListener(() => StartCoroutine(SearchCourse(searchInput.text)));
+        
+        // 🔄 Auto-load all courses when entering the page
+        StartCoroutine(SearchCourse(""));
     }
+    
+    public void ReloadSearchResults()
+    {
+        StartCoroutine(SearchCourse("")); // Calls private method to reload all courses
+    }
+
 
     IEnumerator SearchCourse(string title)
     {
-        if (string.IsNullOrEmpty(title))
-        {
-            Debug.LogError("❌ Search title is empty!");
-            yield break;
-        }
-
         if (string.IsNullOrEmpty(UserManager.CompanyId))
         {
             Debug.LogError("❌ Company ID is missing! Cannot fetch courses.");
             yield break;
         }
 
-        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, title);
+    
+        // If title is empty, fetch ALL courses
+        string searchQuery = string.IsNullOrEmpty(title) ? "" : title;
+        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, searchQuery);
         string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
-        Debug.Log($"📡 Searching course: {fullUrl}");
+
+        Debug.Log($"📡 Fetching courses from: {fullUrl}");
 
         using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
         {
@@ -51,7 +58,6 @@ public class SearchCourseLoader : MonoBehaviour
             request.SetRequestHeader("Content-Type", "application/json");
 
             yield return request.SendWebRequest();
-
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError($"❌ API Error: {request.error}");
@@ -73,14 +79,21 @@ public class SearchCourseLoader : MonoBehaviour
         {
             var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
-            if (response == null || response.code != 1000 || response.result == null)
+            if (response == null || response.code != 1000 || response.result == null || response.result.objectList.Count == 0)
             {
-                Debug.LogError("❌ Course not found!");
+                Debug.LogError("❌ No courses found!");
                 nocourseText.SetActive(true);
                 return;
             }
 
+            // Clear previous results BEFORE adding new ones
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
+
             nocourseText.SetActive(false);
+
             foreach (var course in response.result.objectList)
             {
                 CreateCoursePanel(course);
@@ -92,15 +105,11 @@ public class SearchCourseLoader : MonoBehaviour
         }
     }
 
+
     void CreateCoursePanel(CourseResult course)
     {
         Debug.Log($"📌 Displaying course: {course.title}");
-
-        // Clear previous results
-        foreach (Transform child in contentParent)
-        {
-            Destroy(child.gameObject);
-        }
+        
 
         GameObject panel = Instantiate(coursePanelPrefab, contentParent);
 

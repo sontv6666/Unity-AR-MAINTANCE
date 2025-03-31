@@ -56,7 +56,20 @@ public class SceneNavigator : MonoBehaviour
     {
         Debug.Log("Navigating to SearchScreen...");
         ShowScreen("SearchScreen");
+
+        // 🔥 Reload search results when opening SearchScreen
+        SearchCourseLoader searchLoader = FindObjectOfType<SearchCourseLoader>();
+        if (searchLoader != null)
+        {
+            searchLoader.ReloadSearchResults();
+            Debug.Log("✅ Search data reloaded!");
+        }
+        else
+        {
+            Debug.LogError("❌ SearchCourseLoader not found!");
+        }
     }
+
 
     private void ShowScreen(string screenName)
     {
