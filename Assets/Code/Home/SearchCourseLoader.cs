@@ -79,18 +79,20 @@ public class SearchCourseLoader : MonoBehaviour
         {
             var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
+            // ✅ Clear previous results before checking for new ones
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
+            
+            
             if (response == null || response.code != 1000 || response.result == null || response.result.objectList.Count == 0)
             {
                 Debug.LogError("❌ No courses found!");
                 nocourseText.SetActive(true);
                 return;
             }
-
-            // Clear previous results BEFORE adding new ones
-            foreach (Transform child in contentParent)
-            {
-                Destroy(child.gameObject);
-            }
+            
 
             nocourseText.SetActive(false);
 
