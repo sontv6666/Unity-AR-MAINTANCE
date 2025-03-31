@@ -1,5 +1,6 @@
 using System.Collections;
 using System.IO;
+using Code;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -15,7 +16,9 @@ public class SearchCourseLoader : MonoBehaviour
     public GameObject coursePanelPrefab;
     public Transform contentParent;
     public GameObject nocourseText;
-    
+    public GameObject searchPage;
+    public GameObject detailPage;
+
     private string searchApiTemplate = "/course/title/{0}";
 
     void Start()
@@ -98,6 +101,13 @@ public class SearchCourseLoader : MonoBehaviour
         if (titleText != null) titleText.text = course.title;
         if (descriptionText != null) descriptionText.text = course.description;
 
+        // ✅ Attach click event listener
+        Button courseButton = panel.GetComponent<Button>();
+        if (courseButton != null)
+        {
+            courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
+        }
+
         if (!string.IsNullOrEmpty(course.imageUrl))
         {
             Image imageComponent = panel.transform.Find("courseImage_background/course_image").GetComponent<Image>();
@@ -107,6 +117,39 @@ public class SearchCourseLoader : MonoBehaviour
             }
         }
     }
+    
+    public void OnCourseClicked(string courseId)
+    {
+        Debug.Log($"📌 Course Clicked: {courseId}");
+        CourseManager.SelectedCourseId = courseId;
+
+        if (detailPage != null)
+        {
+            detailPage.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("❌ DetailPage is not assigned in the Inspector!");
+        }
+
+        // Hide search page if needed
+        if (searchPage != null)
+        {
+            searchPage.SetActive(false);
+        }
+
+        // Load course details
+        CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
+        if (courseDetailLoader != null)
+        {
+            courseDetailLoader.LoadCourseDetails(courseId);
+        }
+        else
+        {
+            Debug.LogError("❌ CourseDetailLoader component is missing on DetailPage!");
+        }
+    }
+
 
     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
     {

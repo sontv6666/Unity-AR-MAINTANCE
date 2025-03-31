@@ -122,7 +122,7 @@ public class ProfileScreenLoader : MonoBehaviour
         // Check each field before assigning
         nameText.text = !string.IsNullOrEmpty(user.username) ? user.username : "N/A";
         companyText.text = (user.company != null && !string.IsNullOrEmpty(user.company.companyName)) ? user.company.companyName : "N/A";
-        pointsText.text = $"Points: {user.point}";
+        pointsText.text = $"Points: {user.points}";
 
         Debug.Log($"✅ Loaded User: {user.username} | Company: {companyText.text}");
 
