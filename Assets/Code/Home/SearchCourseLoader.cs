@@ -92,7 +92,12 @@ public class SearchCourseLoader : MonoBehaviour
                 nocourseText.SetActive(true);
                 return;
             }
-            
+
+            // Clear previous results BEFORE adding new ones
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
 
             nocourseText.SetActive(false);
 
