@@ -71,7 +71,7 @@ public class SearchCourseLoader : MonoBehaviour
     {
         try
         {
-            var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonData);
+            var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
             if (response == null || response.code != 1000 || response.result == null)
             {
@@ -81,7 +81,10 @@ public class SearchCourseLoader : MonoBehaviour
             }
 
             nocourseText.SetActive(false);
-            CreateCoursePanel(response.result);
+            foreach (var course in response.result.objectList)
+            {
+                CreateCoursePanel(course);
+            }
         }
         catch (System.Exception e)
         {
