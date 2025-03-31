@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using Newtonsoft.Json;
 using Models;
-
+using System.IO;
 public class CourseAllLoader : MonoBehaviour
 {
     [Header("UI References")]
@@ -164,6 +164,111 @@ public class CourseAllLoader : MonoBehaviour
         {
             courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
         }
+        
+        if (!string.IsNullOrEmpty(course.imageUrl))
+        {
+            Image imageComponent = panel.transform.Find("courseImage_background/course_image").GetComponent<Image>();
+            if (imageComponent != null)
+            {
+                StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
+            }
+        }
+    }
+    
+    
+    
+     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
+    {
+        if (string.IsNullOrEmpty(imageUrl))
+        {
+            Debug.LogError("❌ Image URL is null or empty!");
+            yield break;
+        }
+
+        // ✅ Use ApiConfig to get base URL
+        string fullUrl = "/files/" + imageUrl;
+        Debug.Log(fullUrl);
+        string filename = Path.GetFileName(imageUrl);
+        string localPath = Path.Combine(Application.persistentDataPath, filename);
+
+        // ✅ Check if image is cached
+        if (File.Exists(localPath))
+        {
+            Debug.Log($"📂 Loading cached image: {localPath}");
+            yield return LoadImageFromLocal(localPath, imageComponent);
+            yield break;
+        }
+
+        // ✅ Download image
+        yield return StartCoroutine(DownloadFile(fullUrl, localPath));
+
+        if (File.Exists(localPath))
+        {
+            yield return LoadImageFromLocal(localPath, imageComponent);
+        }
+    }
+
+
+    
+
+    IEnumerator DownloadFile(string url, string localPath)
+    {
+        Debug.Log($"🌐 Attempting to download: {url}");
+   
+        using (UnityWebRequest request = ApiConfig.CreateRequest(url))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError($"❌ Download Error: {request.error} \nURL: {url}");
+            }
+            else
+            {
+                File.WriteAllBytes(localPath, request.downloadHandler.data);
+                Debug.Log($"✅ Downloaded and saved: {localPath}");
+            }
+        }
+    }
+
+
+
+    IEnumerator LoadImageFromLocal(string path, Image imageComponent)
+    {
+        if (!File.Exists(path))
+        {
+            Debug.LogError($"❌ Image file not found at path: {path}");
+            yield break;
+        }
+
+        Debug.Log($"📂 Loading image from: {path}");
+
+        byte[] imageData = File.ReadAllBytes(path);
+        if (imageData == null || imageData.Length == 0)
+        {
+            Debug.LogError($"❌ Failed to read image data from: {path}");
+            yield break;
+        }
+
+        Texture2D texture = new Texture2D(2, 2);
+        bool isLoaded = texture.LoadImage(imageData);
+
+        if (!isLoaded)
+        {
+            Debug.LogError("❌ Failed to load image data into Texture2D!");
+            yield break;
+        }
+
+        if (imageComponent == null)
+        {
+            Debug.LogError("❌ Image component is null! Cannot assign sprite.");
+            yield break;
+        }
+
+        imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+        Debug.Log("✅ Image successfully loaded and applied to UI.");
+    
+        yield return null;
     }
 
     public void OnCourseClicked(string courseId)
