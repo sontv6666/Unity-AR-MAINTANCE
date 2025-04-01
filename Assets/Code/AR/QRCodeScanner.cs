@@ -298,11 +298,11 @@ public class QRCodeScanner : MonoBehaviour
     
     
         //cach 2.1
-     void TryScanQRCode()
+  void TryScanQRCode()
 {
     Debug.Log($"Check Scan QR Code");
 
-    // 🛑 Ensure Course UI is hidden before scanning
+    // 🛑 Hide UI before scanning
     if (courseUIPanel != null)
     {
         courseUIPanel.SetActive(false);
@@ -312,48 +312,28 @@ public class QRCodeScanner : MonoBehaviour
 
     if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
     {
-        // 📌 Define scan area (square-shaped scan zone)
-        float scanZoneFactor = 0.8f; // 50% of the screen size
-        int minDimension = Mathf.Min(image.width, image.height);
-        int scanZoneSize = Mathf.RoundToInt(minDimension * scanZoneFactor);  // Ensure a square scan area
-        int scanZoneX = (image.width - scanZoneSize) / 2;
-        int scanZoneY = (image.height - scanZoneSize) / 2;
+        Debug.Log($"📍 Image Size: {image.width}x{image.height}");
 
-        Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, Size={scanZoneSize}");
-
-        // 🔹 Update ScanBox UI size & position
+        // 🔹 Update ScanBox UI to match the screen
         if (scanBoxUI != null)
         {
             RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-
-            float scanBoxSizeFactor = 0.6f; 
-            float scanBoxSize = Mathf.Min(Screen.width, Screen.height) * scanBoxSizeFactor;
-
-            scanBoxRect.sizeDelta = new Vector2(scanBoxSize, scanBoxSize); // Set square size
-            scanBoxRect.anchoredPosition = Vector2.zero; // Center on screen
-
+            scanBoxRect.sizeDelta = new Vector2(Screen.width, Screen.height); // Match screen size
+            scanBoxRect.anchoredPosition = Vector2.zero; // Center
             scanBoxUI.SetActive(true);
         }
-        
-        // 🛑 Ensure valid scan area
-        if (scanZoneSize <= 0)
-        {
-            Debug.LogError("⚠️ Scan Zone is too small! Adjusting...");
-            return;
-        }
-        
 
         // 🛑 Define correct conversion parameters
         var conversionParams = new XRCpuImage.ConversionParams
         {
-            inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneSize, scanZoneSize),
-            outputDimensions = new Vector2Int(scanZoneSize, scanZoneSize),
+            inputRect = new RectInt(0, 0, image.width, image.height), // Use full image
+            outputDimensions = new Vector2Int(image.width, image.height),
             outputFormat = TextureFormat.RGBA32,
             transformation = XRCpuImage.Transformation.None
         };
 
         // 🔹 Convert image to texture
-        var textureData = new Texture2D(scanZoneSize, scanZoneSize, TextureFormat.RGBA32, false);
+        var textureData = new Texture2D(image.width, image.height, TextureFormat.RGBA32, false);
         image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
         image.Dispose();
         textureData.Apply();
@@ -398,6 +378,7 @@ public class QRCodeScanner : MonoBehaviour
         }
     }
 }
+
 
     
 
