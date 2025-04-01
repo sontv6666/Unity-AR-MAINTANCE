@@ -298,7 +298,7 @@ public class QRCodeScanner : MonoBehaviour
     
     
         //cach 2.1
-  void TryScanQRCode()
+void TryScanQRCode()
 {
     Debug.Log($"Check Scan QR Code");
 
@@ -314,11 +314,11 @@ public class QRCodeScanner : MonoBehaviour
     {
         Debug.Log($"📍 Image Size: {image.width}x{image.height}");
 
-        // 🔹 Update ScanBox UI to match the screen
+        // 🔹 Update ScanBox UI to match image size
         if (scanBoxUI != null)
         {
             RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-            scanBoxRect.sizeDelta = new Vector2(Screen.width, Screen.height); // Match screen size
+            scanBoxRect.sizeDelta = new Vector2(image.width, image.height); // Match camera image size
             scanBoxRect.anchoredPosition = Vector2.zero; // Center
             scanBoxUI.SetActive(true);
         }
@@ -326,7 +326,7 @@ public class QRCodeScanner : MonoBehaviour
         // 🛑 Define correct conversion parameters
         var conversionParams = new XRCpuImage.ConversionParams
         {
-            inputRect = new RectInt(0, 0, image.width, image.height), // Use full image
+            inputRect = new RectInt(0, 0, image.width, image.height), // Full image
             outputDimensions = new Vector2Int(image.width, image.height),
             outputFormat = TextureFormat.RGBA32,
             transformation = XRCpuImage.Transformation.None
@@ -378,6 +378,7 @@ public class QRCodeScanner : MonoBehaviour
         }
     }
 }
+
 
 
     
