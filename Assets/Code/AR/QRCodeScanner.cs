@@ -160,7 +160,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-          TryScanQRCode();
+       //   TryScanQRCode();
         }
 
 
@@ -194,7 +194,7 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-        StartScanning();
+       // StartScanning();
      
      
        StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
@@ -705,13 +705,6 @@ public class QRCodeScanner : MonoBehaviour
             loadedModel.transform.SetParent(modelContainer.transform, false);
             SetupModelInteractions(loadedModel);
 
-            // ✅ Attach to QR code
-            // loadedModel.transform.position = qrCodePosition;  // Use QR Code position
-            // loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
-            // loadedModel.transform.localScale = Vector3.one * 0.1f;
-            //
-            // Debug.Log("✅ Model correctly anchored to QR Code.");
-
 
             Debug.Log(
                 $"✅ Model info {position}, Rotation: {rotation}");
@@ -1049,7 +1042,7 @@ public class QRCodeScanner : MonoBehaviour
 
 
         // 🌟 Dictionary to store the latest transform state of child meshes
-        Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
+       public  Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
 
         void ShowInstructionDetails(Instruction instruction)
         {
@@ -1520,7 +1513,7 @@ public class QRCodeScanner : MonoBehaviour
 
 
         
-        bool isAnimationPlaying = false;
+    public   bool isAnimationPlaying = false;
         private bool isAnimationPaused = false; // 🔴 Track if animation was paused manually
         // IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
         // {
@@ -1609,8 +1602,8 @@ public class QRCodeScanner : MonoBehaviour
             }
         }
 
-        Vector3 latestPosition;
-        Quaternion latestRotation;
+       public  Vector3 latestPosition;
+       public Quaternion latestRotation;
         bool isModelCentered = false;
 
         void CenterModel()
@@ -2125,6 +2118,27 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
                 model.AddComponent<PinchToScale>();
                 Debug.Log("📌 PinchToScale script added (Pinch to scale).");
             }
+            
+            // ✅ Add Joystick Movement Script
+            if (model.GetComponent<JoystickModelController>() == null)
+            {
+                JoystickModelController joystickController = model.AddComponent<JoystickModelController>();
+        
+                // Find the joystick in the scene and assign it
+                Joystick foundJoystick = FindObjectOfType<Joystick>();
+                if (foundJoystick != null)
+                {
+                    joystickController.joystick = foundJoystick;
+                    Debug.Log("📌 Joystick found and assigned!");
+                }
+                else
+                {
+                    Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
+                }
+            }
+            
+            
+            
         }
         
         // ReSharper disable Unity.PerformanceAnalysis
