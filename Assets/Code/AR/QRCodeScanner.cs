@@ -160,7 +160,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-       //   TryScanQRCode();
+         TryScanQRCode();
         }
 
 
@@ -194,10 +194,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-       // StartScanning();
+        StartScanning();
      
      
-       StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+      // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -298,100 +298,107 @@ public class QRCodeScanner : MonoBehaviour
     
     
         //cach 2.1
-        void TryScanQRCode()
+     void TryScanQRCode()
+{
+    Debug.Log($"Check Scan QR Code");
+
+    // 🛑 Ensure Course UI is hidden before scanning
+    if (courseUIPanel != null)
+    {
+        courseUIPanel.SetActive(false);
+    }
+
+    if (!isScanning) return;
+
+    if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+    {
+        // 📌 Define scan area (square-shaped scan zone)
+        float scanZoneFactor = 0.8f; // 50% of the screen size
+        int minDimension = Mathf.Min(image.width, image.height);
+        int scanZoneSize = Mathf.RoundToInt(minDimension * scanZoneFactor);  // Ensure a square scan area
+        int scanZoneX = (image.width - scanZoneSize) / 2;
+        int scanZoneY = (image.height - scanZoneSize) / 2;
+
+        Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, Size={scanZoneSize}");
+
+        // 🔹 Update ScanBox UI size & position
+        if (scanBoxUI != null)
         {
-            
-            Debug.Log($"Check Scan QR Code");
-            // 🛑 Ensure Course UI is hidden before scanning
-            if (courseUIPanel != null)
-            {
-                courseUIPanel.SetActive(false);
-            }
+            RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
 
-            if (!isScanning) return;
+            float scanBoxSizeFactor = 0.6f; 
+            float scanBoxSize = Mathf.Min(Screen.width, Screen.height) * scanBoxSizeFactor;
 
-            if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
-            {
-                // 📌 Define scan area (smaller portion of the screen)
-                float scanZoneFactor = 0.3f; // Adjust for smaller area (30% of screen width/height)
-                int scanZoneWidth = (int)(image.width * scanZoneFactor);
-                int scanZoneHeight = (int)(image.height * scanZoneFactor);
-                int scanZoneX = (image.width - scanZoneWidth) / 2;
-                int scanZoneY = (image.height - scanZoneHeight) / 2;
+            scanBoxRect.sizeDelta = new Vector2(scanBoxSize, scanBoxSize); // Set square size
+            scanBoxRect.anchoredPosition = Vector2.zero; // Center on screen
 
-                Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, W={scanZoneWidth}, H={scanZoneHeight}");
-
-                // 🔹 Update ScanBox UI size & position
-                if (scanBoxUI != null)
-                {
-                    RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-
-                    // 🛑 Set size relative to screen size
-                    float scanBoxSizeFactor = 0.2f; // 30% of screen
-                    scanBoxRect.sizeDelta =
-                        new Vector2(Screen.width * scanBoxSizeFactor, Screen.height * scanBoxSizeFactor);
-
-                    // 🛑 Center the scan box in the screen
-                    scanBoxRect.anchoredPosition = Vector2.zero;
-
-                    scanBoxUI.SetActive(true);
-                }
-
-
-                var conversionParams = new XRCpuImage.ConversionParams
-                {
-                    inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneWidth, scanZoneHeight),
-                    outputDimensions = new Vector2Int(scanZoneWidth, scanZoneHeight),
-                    outputFormat = TextureFormat.RGBA32,
-                    transformation = XRCpuImage.Transformation.None
-                };
-
-                var textureData = new Texture2D(scanZoneWidth, scanZoneHeight, TextureFormat.RGBA32, false);
-                image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
-                image.Dispose();
-                textureData.Apply();
-
-                IBarcodeReader barcodeReader = new BarcodeReader();
-                var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
-
-                Destroy(textureData); // 🛑 Prevent memory leaks
-
-                if (result != null)
-                {
-                    isScanning = false;
-
-                    // 🛑 Hide Scan Box after successful scan
-                    if (scanBoxUI != null)
-                    {
-                        scanBoxUI.SetActive(false);
-                    }
-
-                    Debug.Log($"✅ QR Code Scanned: {result.Text}");
-                   
-                    UpdateUIText("Scanning...", "QR: " + result.Text);
-                    
-                    string[] values = result.Text.Split('@');
-                    if (values.Length != 2)
-                    {
-                        Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
-                        UpdateUIText("Invalid QR Code format!", "");
-                        Invoke(nameof(ResetScanning), 2f);
-                        return;
-                    }
-                    
-                    string firstValue = values[0].Trim();  // Giá trị đầu tiên (máy)
-                    string secondValue = values[1].Trim(); // Giá trị thứ hai (khóa học)
-                    ShowLoadingUI("Processing QR Code...");
-                    qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
-                    qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
-
-                    Debug.Log($"✅ Course Id: {courseID}");
-                    StartCoroutine(FetchMachineData(firstValue, secondValue,courseID));
-
-                
-                }
-            }
+            scanBoxUI.SetActive(true);
         }
+        
+        // 🛑 Ensure valid scan area
+        if (scanZoneSize <= 0)
+        {
+            Debug.LogError("⚠️ Scan Zone is too small! Adjusting...");
+            return;
+        }
+        
+
+        // 🛑 Define correct conversion parameters
+        var conversionParams = new XRCpuImage.ConversionParams
+        {
+            inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneSize, scanZoneSize),
+            outputDimensions = new Vector2Int(scanZoneSize, scanZoneSize),
+            outputFormat = TextureFormat.RGBA32,
+            transformation = XRCpuImage.Transformation.None
+        };
+
+        // 🔹 Convert image to texture
+        var textureData = new Texture2D(scanZoneSize, scanZoneSize, TextureFormat.RGBA32, false);
+        image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
+        image.Dispose();
+        textureData.Apply();
+
+        // 🔹 Decode QR Code
+        IBarcodeReader barcodeReader = new BarcodeReader();
+        var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
+
+        Destroy(textureData); // 🛑 Prevent memory leaks
+
+        if (result != null)
+        {
+            isScanning = false;
+
+            // 🛑 Hide Scan Box after successful scan
+            if (scanBoxUI != null)
+            {
+                scanBoxUI.SetActive(false);
+            }
+
+            Debug.Log($"✅ QR Code Scanned: {result.Text}");
+
+            UpdateUIText("Scanning...", "QR: " + result.Text);
+
+            string[] values = result.Text.Split('@');
+            if (values.Length != 2)
+            {
+                Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
+                UpdateUIText("Invalid QR Code format!", "");
+                Invoke(nameof(ResetScanning), 2f);
+                return;
+            }
+
+            string firstValue = values[0].Trim();  // First value (Machine)
+            string secondValue = values[1].Trim(); // Second value (Course)
+            ShowLoadingUI("Processing QR Code...");
+            qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+            qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+
+            Debug.Log($"✅ Course Id: {courseID}");
+            StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
+        }
+    }
+}
+
     
 
 
