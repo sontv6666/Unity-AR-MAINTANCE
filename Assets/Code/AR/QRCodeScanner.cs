@@ -318,7 +318,6 @@ void TryScanQRCode()
         if (scanBoxUI != null)
         {
             RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-            scanBoxRect.sizeDelta = new Vector2(image.width, image.height); // Match camera image size
             scanBoxRect.anchoredPosition = Vector2.zero; // Center
             scanBoxUI.SetActive(true);
         }
