@@ -124,7 +124,9 @@ public class QRCodeScanner : MonoBehaviour
 
         if (centerModelButton != null)
         {
-            centerModelButton.onClick.AddListener(CenterModel);
+            //center
+           // centerModelButton.onClick.AddListener(CenterModel);
+            centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -704,6 +706,10 @@ void TryScanQRCode()
       
             // ✅ Apply correct rotation
             loadedModel.transform.rotation = Quaternion.Euler(rotation);
+            
+            // ✅ Store initial scanned position & rotation
+            qrPosition = loadedModel.transform.position;
+            qrRotation = loadedModel.transform.rotation;
 
             // ✅ Apply correct scale
             loadedModel.transform.localScale = scale;
@@ -1593,6 +1599,9 @@ void TryScanQRCode()
 
        public  Vector3 latestPosition;
        public Quaternion latestRotation;
+
+       public Vector3 qrPosition;
+       public Quaternion qrRotation;
         bool isModelCentered = false;
 
         void CenterModel()
@@ -1673,6 +1682,42 @@ void TryScanQRCode()
 
 
         }
+        
+        public void MoveModelBackToQR()
+        {
+            if (modelContainer == null)
+            {
+                Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+                return;
+            }
+
+            Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+            if (model == null)
+            {
+                Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+                return;
+            }
+
+            // ✅ Move model back to its original scanned position
+            model.position = qrPosition;
+            model.rotation = qrRotation;
+            
+            // 🆕 Store the latest position and rotation
+            latestPosition = model.position;
+            latestRotation = model.rotation;
+         
+            // 🆕 Store latest positions of all child meshes
+            latestMeshTransforms.Clear();
+            foreach (Transform child in model)
+            {
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+            }
+
+
+            Debug.Log($"🔄 Model moved back to QR position: {qrPosition}");
+            model.gameObject.SetActive(true);
+        }
+
 
 
         public void ResetModelPosition()
