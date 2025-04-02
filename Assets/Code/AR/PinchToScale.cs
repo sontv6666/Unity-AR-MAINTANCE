@@ -6,7 +6,7 @@ public class PinchToScale : MonoBehaviour
     private Vector3 initialScale;
     private bool isScaling = false;
 
-    public float minScale = 0.1f;  // 🔹 Prevent model from getting too small
+    public float minScale = 0.05f;  // 🔹 Prevent model from getting too small
     public float maxScale = 3.0f;  // 🔹 Prevent model from getting too big
 
     void Update()

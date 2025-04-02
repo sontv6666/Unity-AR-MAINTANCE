@@ -59,6 +59,7 @@ public class QRCodeScanner : MonoBehaviour
     public Button backButton;
 
     public Button centerModelButton;
+    public GameObject JoyStick;
     
     public Button realDataButton;
     public float modelDistanceFromCamera = 0.5f;
@@ -176,6 +177,7 @@ public class QRCodeScanner : MonoBehaviour
         scanUIPanel.SetActive(false);
         scanBoxUI.SetActive(false);
         centerModelButton.gameObject.SetActive(false);
+        JoyStick.gameObject.SetActive(false);
         realDataButton.gameObject.SetActive(false);
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
@@ -192,6 +194,7 @@ public class QRCodeScanner : MonoBehaviour
         scanBoxUI.SetActive(true); //true
         courseUIPanel.SetActive(true); 
         centerModelButton.gameObject.SetActive(false);
+        JoyStick.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
      
@@ -477,6 +480,7 @@ void TryScanQRCode()
                     StartCoroutine(FetchModelData(response.result));
                     StartCoroutine(DownloadAndLoadUI(response.result));
                     centerModelButton.gameObject.SetActive(true);
+                    JoyStick.gameObject.SetActive(true);
                     realDataButton.gameObject.SetActive(true);
                     // 🔹 Ensure Model Stays Upright
                     qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
