@@ -14,7 +14,7 @@ namespace Code
     {
         [Header("UI References")] 
         public TMP_Text courseTitleText;
-        public TMP_Text courseDescriptionText;
+        public TMP_InputField courseDescriptionText;
         public TMP_Text courseDurationText;
         public TMP_Text courseParticipantsText;
         public TMP_Text courseTypeText;
