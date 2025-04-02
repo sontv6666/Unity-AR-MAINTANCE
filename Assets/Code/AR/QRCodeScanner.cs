@@ -509,6 +509,8 @@ void TryScanQRCode()
 
             using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "PUT", "{}")) // Using PUT instead of POST
             {
+                request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+
                 yield return request.SendWebRequest();
 
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
