@@ -389,6 +389,7 @@ void TryScanQRCode()
             
             string endpoint = "/machine/code/" + machineCode;
             UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
 
             yield return request.SendWebRequest();
 
