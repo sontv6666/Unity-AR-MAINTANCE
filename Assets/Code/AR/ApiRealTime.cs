@@ -248,15 +248,15 @@ IEnumerator FetchRealTimeData(string url)
         TMP_Text keyText = newRow.transform.Find("KeyText").GetComponent<TMP_Text>();
         TMP_Text valueText = newRow.transform.Find("ValueText").GetComponent<TMP_Text>();
 
-        keyText.text = key + ":";
+        keyText.text = key + "";
         keyText.fontStyle = FontStyles.Bold;
         keyText.alignment = TextAlignmentOptions.Right;
-        keyText.fontSize = 28;
+        keyText.fontSize = 24;
 
         valueText.text = value;
         valueText.fontStyle = FontStyles.Normal;
         valueText.alignment = TextAlignmentOptions.Left;
-        valueText.fontSize = 28;
+        valueText.fontSize = 24;
 
         if (key.ToLower().Contains("percent") || key.ToLower().Contains("usage"))
         {
@@ -279,7 +279,7 @@ IEnumerator FetchRealTimeData(string url)
         TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
 
         headerText.text = title.ToUpper();
-        headerText.fontSize = 34;
+        headerText.fontSize = 28;
         headerText.fontStyle = FontStyles.Bold;
         headerText.alignment = TextAlignmentOptions.Center;
     }
