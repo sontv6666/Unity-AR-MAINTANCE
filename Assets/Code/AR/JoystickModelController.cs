@@ -8,19 +8,14 @@ public class JoystickModelController : MonoBehaviour
     public float rotationSpeed = 100f; // Adjust rotation speed
     public bool enableRotation = true; // Toggle rotation
 
-    private Vector3 targetPosition; // Smooth movement target
-    private Quaternion targetRotation; // Smooth rotation target
-    private bool isRotating = false; // Track if the model is being rotated
+    private bool isTouchingModel = false; // Track if the model is being touched
+    private Vector2 lastTouchPosition; // Store last touch position
 
     void Start()
     {
-        targetPosition = transform.position; // Set initial position
-        targetRotation = transform.rotation; // Set initial rotation
-
-        // Initialize latest transforms for the model's child meshes using QRCodeScanner
         if (QRCodeScanner.Instance != null)
         {
-            StoreLatestMeshTransforms(transform);
+            StoreLatestMeshTransforms(transform); // ✅ Store initial transforms
         }
     }
 
@@ -29,41 +24,58 @@ public class JoystickModelController : MonoBehaviour
         if (QRCodeScanner.Instance != null && QRCodeScanner.Instance.isAnimationPlaying) 
             return; // Stop movement during animations
 
-        // Get joystick movement
-        Vector3 moveDirection = new Vector3(joystick.Horizontal, 0, joystick.Vertical);
+        HandleMovement();  // ✅ Handle joystick movement
+        HandleTouchRotation(); // ✅ Handle touch rotation
+    }
 
-        if (moveDirection.sqrMagnitude > 0.01f) // Prevent tiny movements
+    void HandleMovement()
+    {
+        if (isTouchingModel) return; // Prevent joystick movement while touching the model
+
+        Vector3 moveDirection = new Vector3(joystick.Horizontal, 0, joystick.Vertical);
+        if (moveDirection.sqrMagnitude > 0.01f)
         {
-            // Move the model smoothly
             Vector3 movement = moveDirection.normalized * moveSpeed * Time.deltaTime;
             transform.position += movement;
-
-            // Store the latest transform when the model moves
-            StoreLatestMeshTransforms(transform);
-            Debug.Log($"Model moved to: {transform.position}");
-        }
-
-        // Enable rotation if needed
-        if (enableRotation && moveDirection != Vector3.zero)
-        {
-            isRotating = true;
-            targetRotation = Quaternion.LookRotation(moveDirection);
-        }
-        else
-        {
-            isRotating = false;
-        }
-
-        // Smooth rotation if the model is being rotated
-        if (isRotating)
-        {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            StoreLatestMeshTransforms(transform); // Store rotation updates
-            Debug.Log($"Model rotated to: {transform.rotation.eulerAngles}");
+            StoreLatestMeshTransforms(transform); // ✅ Store latest position updates
+            Debug.Log($"🚀 Model moved to: {transform.position}");
         }
     }
 
-    // Method to store the latest mesh transforms using QRCodeScanner's dictionary
+    void HandleTouchRotation()
+    {
+        if (Input.touchCount == 1)  // Detect single touch
+        {
+            Touch touch = Input.GetTouch(0);
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            RaycastHit hit;
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (Physics.Raycast(ray, out hit) && hit.transform == transform)
+                {
+                    isTouchingModel = true;
+                    lastTouchPosition = touch.position;
+                }
+            }
+            else if (touch.phase == TouchPhase.Moved && isTouchingModel)
+            {
+                Vector2 delta = touch.position - lastTouchPosition;
+                float rotationAmount = delta.x * rotationSpeed * Time.deltaTime; // Rotate based on X movement
+                transform.Rotate(Vector3.up, -rotationAmount, Space.World);
+                lastTouchPosition = touch.position; // Update last position
+
+                StoreLatestMeshTransforms(transform); // ✅ Store latest rotation updates
+                Debug.Log($"🔄 Model rotated to: {transform.rotation.eulerAngles}");
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                isTouchingModel = false;
+            }
+        }
+    }
+
+    // ✅ Store latest mesh transforms using QRCodeScanner's dictionary
     void StoreLatestMeshTransforms(Transform model)
     {
         if (QRCodeScanner.Instance == null) return;
@@ -81,26 +93,26 @@ public class JoystickModelController : MonoBehaviour
             latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
         }
 
-        Debug.Log($"✅ Updated latestPosition: {QRCodeScanner.Instance.latestPosition}, latestRotation: {QRCodeScanner.Instance.latestRotation}");
+        Debug.Log($"✅ Stored latestPosition: {QRCodeScanner.Instance.latestPosition}, latestRotation: {QRCodeScanner.Instance.latestRotation}");
     }
 
-    // Method to reset the model and its child meshes to the latest stored transforms from QRCodeScanner
-    void ResetModelToLatestTransforms(Transform model)
+    // ✅ Reset model & child meshes to the last stored transforms
+    public void ResetModelToLatestTransforms()
     {
         if (QRCodeScanner.Instance == null) return;
 
         var latestMeshTransforms = QRCodeScanner.Instance.latestMeshTransforms;
         
-        if (latestMeshTransforms.ContainsKey(model))
+        if (latestMeshTransforms.ContainsKey(transform))
         {
-            var (position, rotation, scale) = latestMeshTransforms[model];
-            model.localPosition = position;
-            model.localRotation = rotation;
-            model.localScale = scale;
+            var (position, rotation, scale) = latestMeshTransforms[transform];
+            transform.localPosition = position;
+            transform.localRotation = rotation;
+            transform.localScale = scale;
         }
 
         // Reset child meshes
-        foreach (Transform child in model)
+        foreach (Transform child in transform)
         {
             if (latestMeshTransforms.ContainsKey(child))
             {
@@ -110,5 +122,7 @@ public class JoystickModelController : MonoBehaviour
                 child.localScale = scale;
             }
         }
+
+        Debug.Log($"🔄 Model reset to latest stored position & rotation!");
     }
 }
