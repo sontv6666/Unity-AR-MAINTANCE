@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/DownloadManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DownloadManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Joystick.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Joystick.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Move.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Move.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/ScanQR.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/ScanQR.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Zoom.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/SplashScreen/Zoom.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/Build Profiles/New iOS Profile.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/Build Profiles/New iOS Profile.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
-    </list>
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,7 +16,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="cuong-03-03-2025" />
+        <entry key="$PROJECT_DIR$" value="production" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -49,6 +36,7 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Code/AR/JoystickModelController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/DownloadManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -69,7 +57,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "Standalone Player.Start Unity.executor": "Run",
     "XThreadsFramesViewSplitterKey": "0.6744548",
-    "git-widget-placeholder": "production",
+    "git-widget-placeholder": "cuong-4-4-2024",
     "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -154,7 +142,7 @@
       <workItem from="1743509332514" duration="653000" />
       <workItem from="1743522573807" duration="5497000" />
       <workItem from="1743529821483" duration="1218000" />
-      <workItem from="1743690613799" duration="2356000" />
+      <workItem from="1743690613799" duration="3001000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -388,7 +376,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743527985377</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743703666165</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1743703666165</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -415,7 +411,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="add request list page" />
     <MESSAGE value="add" />
     <MESSAGE value="Time and load ui for ar" />
     <MESSAGE value="Add code to work with loading slider" />
@@ -440,7 +435,8 @@
     <MESSAGE value="handle" />
     <MESSAGE value="get original image" />
     <MESSAGE value="fix scale" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix scale" />
+    <MESSAGE value="Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
