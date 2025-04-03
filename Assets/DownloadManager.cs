@@ -71,7 +71,7 @@ public class DownloadManager : MonoBehaviour
         }
 
         // Update total download size
-        totalSizeText.text = $"Total Size: {FormatFileSize(totalSize)}";
+        totalSizeText.text = $"Total Size {FormatFileSize(totalSize)}";
 
         // Show or hide "Delete All" button
         deleteAllButton.gameObject.SetActive(downloadedFiles.Count > 0);
@@ -111,7 +111,7 @@ public class DownloadManager : MonoBehaviour
     private void ShowDeleteConfirmation(string filePath, GameObject fileEntry)
     {
         confirmationPanel.SetActive(true);
-        confirmationMessage.text = $"Are you sure you want to delete <b>{Path.GetFileName(filePath)}</b>?";
+        confirmationMessage.text = $"Are you sure to delete this?</b>?";
 
         fileToDelete = filePath;
         deleteAll = false; // Single file delete
@@ -175,7 +175,7 @@ public class DownloadManager : MonoBehaviour
 
         downloadedFiles.Clear();
         deleteAllButton.gameObject.SetActive(false);
-        totalSizeText.text = "Total Size: 0 B"; // Reset size
+        totalSizeText.text = "Total Size 0 B"; // Reset size
         Debug.Log("🧹 All files deleted!");
 
         confirmationPanel.SetActive(false);
