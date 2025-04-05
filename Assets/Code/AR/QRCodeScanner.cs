@@ -53,7 +53,7 @@ public class QRCodeScanner : MonoBehaviour
     public GameObject instructionTemplateContent; // template for each instruction 
 
 
-
+    public GameObject controlUIPanel; //fourth panel
     public GameObject instructionDetailPanel; //four panel
 
     public Button backButton;
@@ -1154,6 +1154,15 @@ void TryScanQRCode()
                 Slider animationProgressSlider = stepItem.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
                 TMP_Text animationTimeText = stepItem.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
                 
+                // Add a button to open the control panel
+                Button controlButton = stepItem.transform.Find("openControlPanelButton")?.GetComponent<Button>();
+                if (controlButton)
+                {
+                    controlButton.onClick.RemoveAllListeners();
+                    controlButton.onClick.AddListener(() => OpenControlPanelForStep(stepItem)); // Pass stepItem
+                }
+                
+                
 
                 // ✅ Play/Stop animation button logic
                 Button replayAnimationButton = stepItem.transform.Find("replayanimationButton")?.GetComponent<Button>();
@@ -1202,6 +1211,103 @@ void TryScanQRCode()
 
             UpdateStepNavigationButtons();
         }
+
+        
+        
+        void OpenControlPanelForStep(GameObject stepItem)
+        {
+            // Find the index of stepItem in instructionStepInstances list
+            int stepIndex = instructionStepInstances.IndexOf(stepItem);
+    
+            // Ensure the stepIndex is valid
+            if (stepIndex < 0 || stepIndex >= currentInstructionDetails.Count)
+            {
+                Debug.LogError($"❌ Invalid stepIndex: {stepIndex}. It must be between 0 and {currentInstructionDetails.Count - 1}.");
+                return;
+            }
+
+            // Update the content of controlUIPanel based on the selected step
+            InstructionDetail selectedDetail = currentInstructionDetails[stepIndex];
+
+            // Show controlUIPanel by setting its scale to Vector3.one
+            controlUIPanel.transform.localScale = Vector3.one;
+    
+            // Hide the specific UI elements in instructionDetailStepPrefab by scaling them to Vector3.zero
+            HideInstructionStepUIElements(stepItem);
+
+            // Set up the close button functionality for the control panel
+            Button closeControlPanelButton = controlUIPanel.transform.Find("smallPanel/closeControlPanelButton")?.GetComponent<Button>();
+            if (closeControlPanelButton)
+            {
+                closeControlPanelButton.onClick.RemoveAllListeners();
+                closeControlPanelButton.onClick.AddListener(CloseControlPanel);
+            }
+        }   
+        void CloseControlPanel()
+        {
+            // Hide the controlUIPanel
+            controlUIPanel.transform.localScale = Vector3.zero;
+
+            // Retrieve the GameObject for the current step from the instructionStepInstances list
+            GameObject stepItem = instructionStepInstances[currentStepIndex];
+
+            // Restore visibility for instruction step UI elements of the current step
+            RestoreInstructionStepUIElements(stepItem);
+        }
+
+
+
+ 
+    void RestoreInstructionStepUIElements(GameObject stepItem)
+{
+    // Restore visibility for the specific UI elements within the current step
+    Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+    Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+    Transform replayButton = stepItem.transform.Find("replayanimationButton");
+    Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+    Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+    Transform editSpeed = stepItem.transform.Find("EditSpeed");
+    Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+    Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+    Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+    
+    // Make them visible again if they exist
+    if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(true);
+    if (playAndStopButton) playAndStopButton.gameObject.SetActive(true);
+    if (replayButton) replayButton.gameObject.SetActive(true);
+    if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(true);
+    if (instructionNameText) instructionNameText.gameObject.SetActive(true);
+    if (editSpeed) editSpeed.gameObject.SetActive(true);
+    if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(true);
+    if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(true);  // Add this line
+    if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(true);  // Add this line
+}
+
+void HideInstructionStepUIElements(GameObject stepItem)
+{
+    // Hide specific UI elements within the current step
+    Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+    Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+    Transform replayButton = stepItem.transform.Find("replayanimationButton");
+    Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+    Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+    Transform editSpeed = stepItem.transform.Find("EditSpeed");
+    Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+    Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+    Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+    // Hide them if they exist
+    if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(false);
+    if (playAndStopButton) playAndStopButton.gameObject.SetActive(false);
+    if (replayButton) replayButton.gameObject.SetActive(false);
+    if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(false);
+    if (instructionNameText) instructionNameText.gameObject.SetActive(false);
+    if (editSpeed) editSpeed.gameObject.SetActive(false);
+    if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(false);
+    if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(false);  // Add this line
+    if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(false);  // Add this line
+}
+
+
 
 
         /// ✅ Hide UI elements (except navigation & closeButtonFirst) and set image transparency to 0
@@ -2215,7 +2321,7 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
                 }
                 else
                 {
-                    Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
+                    //Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
                 }
             }
             
