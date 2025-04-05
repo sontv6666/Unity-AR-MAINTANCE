@@ -1,24 +1,23 @@
 using UnityEngine;
 
-public class SectionViewManager : MonoBehaviour
+public class TransparentOutlineToggle : MonoBehaviour
 {
     public GameObject modelContainer;
-    public Shader sectionShader;
+    public Shader outlineShader;
+
     private Material[] originalMaterials;
     private Renderer[] renderers;
-    private bool isSectionViewActive = false;
-    public Transform clipPlane; // This will be the plane that defines where to clip the model
+    private bool isOutlineActive = false;
 
     void Start()
     {
-        if (sectionShader == null)
+        if (outlineShader == null)
         {
-            Debug.LogError("❌ Section Shader is not assigned!");
-            return;
+            Debug.LogError("❌ Outline Shader is not assigned!");
         }
     }
 
-    public void ToggleSectionView()
+    public void ToggleOutline()
     {
         if (modelContainer == null)
         {
@@ -26,7 +25,6 @@ public class SectionViewManager : MonoBehaviour
             return;
         }
 
-        // Find all renderers within the model container, including its children
         renderers = modelContainer.GetComponentsInChildren<Renderer>();
 
         if (renderers.Length == 0)
@@ -35,48 +33,34 @@ public class SectionViewManager : MonoBehaviour
             return;
         }
 
-        // Store the original materials and apply the section shader
-        if (!isSectionViewActive)
+        if (!isOutlineActive)
         {
             originalMaterials = new Material[renderers.Length];
+
             for (int i = 0; i < renderers.Length; i++)
             {
-                // Store the original material for later restoration
                 originalMaterials[i] = renderers[i].material;
 
-                // Create a new material for the outline effect
-                Material outlineMaterial = new Material(sectionShader);
-                outlineMaterial.SetColor("_OutlineColor", Color.yellow); // Set your desired outline color
-                outlineMaterial.SetFloat("_OutlineWidth", 0.02f); // Set your desired outline width
-                renderers[i].material = outlineMaterial; // Apply outline material to the renderer
+                Material outlineMaterial = new Material(outlineShader);
+                outlineMaterial.SetColor("_Color", new Color(1f, 1f, 1f, 0.3f)); // transparent white
+                outlineMaterial.SetColor("_OutlineColor", Color.yellow);
+                outlineMaterial.SetFloat("_OutlineWidth", 0.02f);
+
+                renderers[i].material = outlineMaterial;
             }
-            Debug.Log("✅ Section View Enabled");
+
+            Debug.Log("✅ Transparent Outline Enabled");
         }
         else
         {
-            // Restore the original materials when toggling off
             for (int i = 0; i < renderers.Length; i++)
             {
                 renderers[i].material = originalMaterials[i];
             }
-            Debug.Log("🔄 Section View Disabled");
+
+            Debug.Log("🔄 Outline Disabled");
         }
 
-        // Update _ClipPlane value in all materials
-        Vector4 clipPlaneVector = new Vector4(
-            clipPlane.up.x,
-            clipPlane.up.y,
-            clipPlane.up.z,
-            -Vector3.Dot(clipPlane.position, clipPlane.up)
-        );
-
-        foreach (Renderer rend in renderers)
-        {
-            // Set the clip plane for all materials
-            rend.material.SetVector("_ClipPlane", clipPlaneVector);
-        }
-
-        // Toggle the section view state
-        isSectionViewActive = !isSectionViewActive;
+        isOutlineActive = !isOutlineActive;
     }
 }

@@ -1,33 +1,74 @@
-Shader "Custom/TransparentWithOutline"
+Shader "Custom/TransparentOutlined"
 {
     Properties
     {
-        _Color ("Main Color", Color) = (1, 1, 1, 1)  // Main color
-        _OutlineColor ("Outline Color", Color) = (1, 1, 0, 1) // Outline color
-        _OutlineWidth ("Outline Width", Range(0.002, 0.02)) = 0.01 // Outline width
+        _Color ("Main Color", Color) = (1,1,1,0.3)
+        _OutlineColor ("Outline Color", Color) = (1,1,0,1)
+        _OutlineWidth ("Outline Width", Float) = 0.02
     }
 
     SubShader
     {
-        Tags { "Queue"="Overlay" "RenderType"="Transparent" }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        LOD 200
 
-        // Outline Pass
+        Cull Back
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+
+        // Base transparent pass
         Pass
         {
-            Tags { "LightMode"="Always" }
-
-            // Enable alpha blending for transparency
-            Blend SrcAlpha OneMinusSrcAlpha
-            ZWrite Off // Don't write to depth buffer for transparency
-            ZTest LEqual // Use the 'Less Equal' test for transparency
-
-            // The main outline rendering
+            Name "BASE"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata_t
+            fixed4 _Color;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+            };
+
+            struct v2f
+            {
+                float4 pos : SV_POSITION;
+            };
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                return _Color;
+            }
+            ENDCG
+        }
+
+        // Outline pass
+        Pass
+        {
+            Name "OUTLINE"
+            Cull Front
+            ZWrite Off
+            ZTest Less
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            fixed4 _OutlineColor;
+            float _OutlineWidth;
+
+            struct appdata
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -36,53 +77,24 @@ Shader "Custom/TransparentWithOutline"
             struct v2f
             {
                 float4 pos : SV_POSITION;
-                float3 worldPos : TEXCOORD1;
-                float3 normal : NORMAL;
             };
 
-            float4 _Color;
-            float4 _OutlineColor;
-            float _OutlineWidth;
-            float4 _ClipPlane; // ClipPlane is a Vector4 passed from C# or through properties
-
-            // Vertex shader to scale the vertices along their normals to create the outline effect
-            v2f vert(appdata_t v)
+            v2f vert (appdata v)
             {
+                float3 norm = normalize(mul((float3x3)unity_ObjectToWorld, v.normal));
+                float3 offset = norm * _OutlineWidth;
+                float4 worldPos = mul(unity_ObjectToWorld, v.vertex + float4(offset, 0));
                 v2f o;
-
-                // Scale the vertices along their normals to create the outline effect
-                float3 outlineOffset = v.normal * _OutlineWidth;
-
-                // Adjust the position of the vertex to create the outline effect
-                o.pos = UnityObjectToClipPos(v.vertex + float4(outlineOffset, 0));
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz + outlineOffset; // Update world position
-                o.normal = mul((float3x3)unity_ObjectToWorld, v.normal); // Keep normal direction correct
-
+                o.pos = UnityObjectToClipPos(worldPos);
                 return o;
             }
 
-            fixed4 frag(v2f i) : SV_Target
+            fixed4 frag (v2f i) : SV_Target
             {
-                // Apply clipping logic based on the defined ClipPlane
-                if (dot(i.worldPos, _ClipPlane.xyz) - _ClipPlane.w < 0)
-                {
-                    discard; // Clip if the fragment is behind the plane
-                }
-
-                // Outline effect based on angle between normal and camera position
-                float edge = dot(i.normal, normalize(i.worldPos - _WorldSpaceCameraPos));
-                edge = smoothstep(0.2, 0.5, edge);
-
-                // Use the outline color with adjusted alpha
-                fixed4 color = _OutlineColor;
-                color.a *= smoothstep(0.0, 1.0, edge); // Adjust alpha based on outline edge
-
-                return color;
+                return _OutlineColor;
             }
             ENDCG
         }
     }
-
-    // Fallback if not supported
-    Fallback "Diffuse"
+    FallBack "Transparent/Diffuse"
 }
