@@ -18,9 +18,21 @@ public class JoystickModelController : MonoBehaviour
 
     void Start()
     {
-        if (QRCodeScanner.Instance != null)
+        // Ensure QRCodeScanner.Instance is properly initialized
+        if (QRCodeScanner.Instance == null)
+        {
+            Debug.LogError("QRCodeScanner instance is not available at Start!");
+            return;
+        }
+
+        // Only call StoreLatestMeshTransforms if the model is available
+        if (transform != null)
         {
             StoreLatestMeshTransforms(transform); // ✅ Store initial transforms
+        }
+        else
+        {
+            Debug.LogError("Transform is null, cannot store latest transforms.");
         }
     }
 
@@ -28,15 +40,30 @@ public class JoystickModelController : MonoBehaviour
     {
         if (QRCodeScanner.Instance != null && QRCodeScanner.Instance.isAnimationPlaying) 
             return; // Stop movement during animations
+        
 
-        HandleMovement();  // ✅ Handle joystick movement
-        HandleTouchRotation(); // ✅ Handle touch rotation
+        
+        // Ensure model is available before handling movement
+        if (transform != null)
+        {
+            HandleMovement();  // ✅ Handle joystick movement
+            HandleTouchRotation(); // ✅ Handle touch rotation
+        }
+        else
+        {
+            Debug.LogError("Model transform is null, cannot update.");
+        }
     }
 
     void HandleMovement()
     {
         if (isTouchingModel) return; // Prevent joystick movement while touching the model
-
+        // Ensure that the transform is valid before moving
+        if (transform == null)
+        {
+            Debug.LogError("Transform is null. Cannot handle movement.");
+            return; // Skip movement logic if transform is null
+        }
         Vector3 moveDirection = new Vector3(joystick.Horizontal, 0, joystick.Vertical);
         if (moveDirection.sqrMagnitude > 0.01f)
         {
@@ -83,7 +110,11 @@ public class JoystickModelController : MonoBehaviour
     // ✅ Store latest mesh transforms using QRCodeScanner's dictionary
     void StoreLatestMeshTransforms(Transform model)
     {
-        if (QRCodeScanner.Instance == null) return;
+        if (QRCodeScanner.Instance == null) 
+        {
+            Debug.LogError("QRCodeScanner instance is null!");
+            return; // Prevent further actions if QRCodeScanner is not initialized
+        }
 
         var latestMeshTransforms = QRCodeScanner.Instance.latestMeshTransforms;
 
