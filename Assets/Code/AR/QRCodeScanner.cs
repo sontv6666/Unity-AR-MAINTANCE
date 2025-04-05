@@ -1812,6 +1812,11 @@ void HideInstructionStepUIElements(GameObject stepItem)
                 Debug.LogError("❌ Model container is NULL! Cannot move the model.");
                 return;
             }
+            if (isAnimationPlaying)
+            {
+                Debug.LogWarning("⛔ Cannot move model while animation is playing!");
+                return;
+            }
 
             Transform model = modelContainer.transform.Find("FirstModelAfterScan");
             if (model == null)
@@ -1849,6 +1854,12 @@ void HideInstructionStepUIElements(GameObject stepItem)
             if (model == null)
             {
                 Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+                return;
+            }
+            
+            if (isAnimationPlaying)
+            {
+                Debug.LogWarning("⛔ Cannot move model while animation is playing!");
                 return;
             }
 
