@@ -80,7 +80,10 @@ public class QRCodeScanner : MonoBehaviour
 
     private List<GameObject> instructionStepInstances = new List<GameObject>();
     private ModelDataResult cachedModelData;
+    private bool isDataLoaded = false;
 
+    
+    
     private string courseID;
     private string testID = "70c1030a-5b92-4f47-bccf-b84665f7a1fd";
     private string testqrCode1 = "12345678";
@@ -293,6 +296,8 @@ public class QRCodeScanner : MonoBehaviour
                 progressText.text = $"Downloading... {percent}%";
             }
         }
+        
+        isDataLoaded = true; // ✅ Set flag when done
 
         // ✅ Hide Loading and Show Scan UI
         loadingUIPanel.SetActive(false);
@@ -307,6 +312,8 @@ void TryScanQRCode()
 {
     Debug.Log($"Check Scan QR Code");
 
+    if (!isDataLoaded) return;
+    
     // 🛑 Hide UI before scanning
     if (courseUIPanel != null)
     {
@@ -382,6 +389,13 @@ void TryScanQRCode()
         }
     }
 }
+
+    
+
+
+
+
+
 
 
 
