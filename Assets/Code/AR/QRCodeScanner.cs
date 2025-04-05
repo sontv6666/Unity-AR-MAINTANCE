@@ -80,7 +80,7 @@ public class QRCodeScanner : MonoBehaviour
 
     private List<GameObject> instructionStepInstances = new List<GameObject>();
     private ModelDataResult cachedModelData;
-    private bool isDataLoaded = false;
+    private bool isDataLoaded = true;
 
     
     
@@ -185,7 +185,7 @@ public class QRCodeScanner : MonoBehaviour
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
-        yield return StartCoroutine(FetchCourseData(courseId));
+       // yield return StartCoroutine(FetchCourseData(courseId));
 
         Debug.Log("✅ All downloads completed!");
 
@@ -195,7 +195,7 @@ public class QRCodeScanner : MonoBehaviour
         loadingUIPanel.SetActive(false);
         scanUIPanel.SetActive(true); //true
         scanBoxUI.SetActive(true); //true
-        courseUIPanel.SetActive(true); 
+        courseUIPanel.SetActive(false); 
         centerModelButton.gameObject.SetActive(false);
         JoyStick.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
