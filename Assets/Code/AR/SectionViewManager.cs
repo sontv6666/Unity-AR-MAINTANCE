@@ -1,24 +1,24 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SectionViewManager : MonoBehaviour
 {
-    public GameObject modelContainer;  // ✅ Assign your model container
-    public Button sectionViewButton;   // ✅ Assign your UI Button
-    public Shader sectionShader;       // ✅ Assign your section shader
-    private Material sectionMaterial;
-
+    public GameObject modelContainer;
+    public Shader sectionShader;
+    private Material[] originalMaterials;
+    private Renderer[] renderers;
     private bool isSectionViewActive = false;
+    public Transform clipPlane; // This will be the plane that defines where to clip the model
 
     void Start()
     {
-        if (sectionViewButton != null)
+        if (sectionShader == null)
         {
-            sectionViewButton.onClick.AddListener(ToggleSectionView);
+            Debug.LogError("❌ Section Shader is not assigned!");
+            return;
         }
     }
 
-    void ToggleSectionView()
+    public void ToggleSectionView()
     {
         if (modelContainer == null)
         {
@@ -26,44 +26,57 @@ public class SectionViewManager : MonoBehaviour
             return;
         }
 
-        Transform model = modelContainer.transform.Find("FirstModelAfterScan");
-        if (model == null)
+        // Find all renderers within the model container, including its children
+        renderers = modelContainer.GetComponentsInChildren<Renderer>();
+
+        if (renderers.Length == 0)
         {
-            Debug.LogError("❌ No model named 'FirstModelAfterScan' found!");
+            Debug.LogError("❌ No Renderer found on the model or its children!");
             return;
         }
 
-        Renderer modelRenderer = model.GetComponent<Renderer>();
-        if (modelRenderer == null)
+        // Store the original materials and apply the section shader
+        if (!isSectionViewActive)
         {
-            Debug.LogError("❌ No Renderer found on the model!");
-            return;
-        }
+            originalMaterials = new Material[renderers.Length];
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                // Store the original material for later restoration
+                originalMaterials[i] = renderers[i].material;
 
-        if (sectionShader == null)
-        {
-            Debug.LogError("❌ Section Shader is not assigned!");
-            return;
-        }
-
-        if (isSectionViewActive)
-        {
-            // 🔄 Revert to original material
-            modelRenderer.material = sectionMaterial;
-            Debug.Log("🔄 Section View Disabled");
+                // Create a new material for the outline effect
+                Material outlineMaterial = new Material(sectionShader);
+                outlineMaterial.SetColor("_OutlineColor", Color.yellow); // Set your desired outline color
+                outlineMaterial.SetFloat("_OutlineWidth", 0.02f); // Set your desired outline width
+                renderers[i].material = outlineMaterial; // Apply outline material to the renderer
+            }
+            Debug.Log("✅ Section View Enabled");
         }
         else
         {
-            // 🆕 Store original material before applying the shader
-            sectionMaterial = modelRenderer.material;
-
-            // 🆕 Create a new material with the section shader
-            Material newMaterial = new Material(sectionShader);
-            modelRenderer.material = newMaterial;
-
-            Debug.Log("✅ Section View Enabled");
+            // Restore the original materials when toggling off
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                renderers[i].material = originalMaterials[i];
+            }
+            Debug.Log("🔄 Section View Disabled");
         }
 
+        // Update _ClipPlane value in all materials
+        Vector4 clipPlaneVector = new Vector4(
+            clipPlane.up.x,
+            clipPlane.up.y,
+            clipPlane.up.z,
+            -Vector3.Dot(clipPlane.position, clipPlane.up)
+        );
+
+        foreach (Renderer rend in renderers)
+        {
+            // Set the clip plane for all materials
+            rend.material.SetVector("_ClipPlane", clipPlaneVector);
+        }
+
+        // Toggle the section view state
         isSectionViewActive = !isSectionViewActive;
     }
 }

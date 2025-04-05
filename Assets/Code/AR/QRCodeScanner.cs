@@ -126,8 +126,8 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-           // centerModelButton.onClick.AddListener(CenterModel);
-            centerModelButton.onClick.AddListener(MoveModelBackToQR);
+            centerModelButton.onClick.AddListener(CenterModel);
+           // centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -163,7 +163,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-         TryScanQRCode();
+    //     TryScanQRCode();
         }
 
 
@@ -174,8 +174,8 @@ public class QRCodeScanner : MonoBehaviour
     {
         courseUIPanel.SetActive(false);
         instructionDetailPanel.SetActive(false);
-        scanUIPanel.SetActive(false);
-        scanBoxUI.SetActive(false);
+        scanUIPanel.SetActive(true);
+        scanBoxUI.SetActive(true);
         centerModelButton.gameObject.SetActive(false);
         JoyStick.gameObject.SetActive(false);
         realDataButton.gameObject.SetActive(false);
@@ -199,10 +199,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-        StartScanning();
+      //  StartScanning();
      
      
-      // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+         StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -1689,6 +1689,48 @@ void TryScanQRCode()
 
         }
         
+        public void MoveModelUp(float distance = 0.1f)
+        {
+            MoveModelVertical(distance);
+        }
+
+        public void MoveModelDown(float distance = 0.1f)
+        {
+            MoveModelVertical(-distance);
+        }
+
+        private void MoveModelVertical(float yDelta)
+        {
+            if (modelContainer == null)
+            {
+                Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+                return;
+            }
+
+            Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+            if (model == null)
+            {
+                Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+                return;
+            }
+
+            Vector3 currentPosition = model.position;
+            Vector3 newPosition = currentPosition + new Vector3(0, yDelta, 0);
+            model.position = newPosition;
+
+            // Update stored transforms
+            latestPosition = model.position;
+            latestRotation = model.rotation;
+
+            latestMeshTransforms.Clear();
+            foreach (Transform child in model)
+            {
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+            }
+
+            Debug.Log($"↕️ Model moved vertically to: {model.position}");
+        }
+
         public void MoveModelBackToQR()
         {
             if (modelContainer == null)

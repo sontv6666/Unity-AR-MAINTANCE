@@ -10,6 +10,11 @@ public class JoystickModelController : MonoBehaviour
 
     private bool isTouchingModel = false; // Track if the model is being touched
     private Vector2 lastTouchPosition; // Store last touch position
+    
+    
+    public float verticalMoveSpeed = 0.1f; // Adjust as needed
+
+ 
 
     void Start()
     {
@@ -95,7 +100,9 @@ public class JoystickModelController : MonoBehaviour
 
         Debug.Log($"✅ Stored latestPosition: {QRCodeScanner.Instance.latestPosition}, latestRotation: {QRCodeScanner.Instance.latestRotation}");
     }
-
+    
+    
+   
     // ✅ Reset model & child meshes to the last stored transforms
     public void ResetModelToLatestTransforms()
     {
