@@ -19,6 +19,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.AR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Newtonsoft.Json;
+using UnityEngine.EventSystems;
 
 public class QRCodeScanner : MonoBehaviour
 {
@@ -129,8 +130,8 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-            //centerModelButton.onClick.AddListener(CenterModel); 
-            centerModelButton.onClick.AddListener(MoveModelBackToQR);
+           centerModelButton.onClick.AddListener(CenterModel); 
+           // centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -166,7 +167,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-         TryScanQRCode();
+      //   TryScanQRCode();
         }
 
 
@@ -185,7 +186,7 @@ public class QRCodeScanner : MonoBehaviour
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
-       // yield return StartCoroutine(FetchCourseData(courseId));
+       yield return StartCoroutine(FetchCourseData(courseId));
 
         Debug.Log("✅ All downloads completed!");
 
@@ -202,10 +203,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-       StartScanning();
+    //   StartScanning();
      
      
-       //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+       StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -1149,11 +1150,53 @@ void TryScanQRCode()
                 stepItem.SetActive(i == 0); // Show only the first step initially
 
                 TMP_Text nameText = stepItem.transform.Find("instructionNameText")?.GetComponent<TMP_Text>();
-                TMP_Text descriptionText = stepItem.transform.Find("instructionDetailDescriptionText")
-                    ?.GetComponent<TMP_Text>();
-                TMP_Text stepCountText =
-                    stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
+             
+                TMP_Text stepCountText = stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
+                
+              
+                Transform descriptionPanel = stepItem.transform.Find("instructionDetailDescriptionPanel");
+                Button closeDescriptionButton = descriptionPanel?.Find("closeDescriptionPanelButton")?.GetComponent<Button>();
+                TMP_InputField descriptionInput = stepItem
+                    .transform.Find("instructionDetailDescriptionPanel/InputField (TMP)")
+                    ?.GetComponent<TMP_InputField>();
+                Button openDescriptionButton = stepItem.transform.Find("instructionDetailDescriptionText")?.GetComponent<Button>();
+                TMP_Text descriptionText = openDescriptionButton?.GetComponentInChildren<TMP_Text>();
 
+                if (descriptionText)
+                {
+                    string fullDesc = detail.description;
+                    string shortDesc = fullDesc.Length > 50 ? fullDesc.Substring(0, 50) + "..." : fullDesc;
+                    descriptionText.text = shortDesc;
+                }
+                // Make sure descriptionPanel is initially inactive
+                if (descriptionPanel) descriptionPanel.gameObject.SetActive(false);
+                if (descriptionInput) descriptionInput.text = detail.description;
+                if (openDescriptionButton)
+                {
+                    openDescriptionButton.onClick.RemoveAllListeners();
+                    openDescriptionButton.onClick.AddListener(() =>
+                    {
+                        if (descriptionPanel)
+                        {
+                            bool isActive = descriptionPanel.gameObject.activeSelf;
+                            descriptionPanel.gameObject.SetActive(!isActive); // Toggle visibility
+                        }
+                    });
+                }
+                
+                // Close the description panel when close button is clicked
+                if (closeDescriptionButton && descriptionPanel)
+                {
+                    closeDescriptionButton.onClick.RemoveAllListeners();
+                    closeDescriptionButton.onClick.AddListener(() =>
+                    {
+                        if (descriptionPanel)
+                        {
+                            descriptionPanel.gameObject.SetActive(false); // Close the panel
+                        }
+                    });
+                }
+                
                 if (nameText) nameText.text = instruction.name;
                 if (descriptionText) descriptionText.text = detail.description;
                 if (stepCountText) stepCountText.text = $"{i + 1}/{currentInstructionDetails.Count}";
@@ -2094,6 +2137,18 @@ void HideInstructionStepUIElements(GameObject stepItem)
                 }
             }
         }
+        
+        // Close any open description panel
+        if (instructionStepInstances != null && currentStepIndex >= 0 && currentStepIndex < instructionStepInstances.Count)
+        {
+            Transform currentStep = instructionStepInstances[currentStepIndex].transform;
+            Transform descriptionPanel = currentStep.Find("instructionDetailDescriptionPanel");
+            if (descriptionPanel)
+            {
+                descriptionPanel.gameObject.SetActive(false);
+            }
+        }
+
         
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
