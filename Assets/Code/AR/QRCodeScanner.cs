@@ -126,8 +126,8 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-            centerModelButton.onClick.AddListener(CenterModel);
-           // centerModelButton.onClick.AddListener(MoveModelBackToQR);
+            //centerModelButton.onClick.AddListener(CenterModel); 
+            centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -163,7 +163,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-    //     TryScanQRCode();
+         TryScanQRCode();
         }
 
 
@@ -199,10 +199,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-      //  StartScanning();
+       StartScanning();
      
      
-         StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+       //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -2032,8 +2032,15 @@ void HideInstructionStepUIElements(GameObject stepItem)
     {
         if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
 
+        
+    
         // ✅ Hide current step UI
         instructionStepInstances[currentStepIndex].SetActive(false);
+        // ✅ Hide the UI elements of the current step (before switching to the next)
+        HideInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+
+
+        controlUIPanel.transform.localScale = Vector3.zero;  // Hide control panel
 
         // ✅ Move to next/previous step
         currentStepIndex += direction;
@@ -2065,6 +2072,8 @@ void HideInstructionStepUIElements(GameObject stepItem)
         
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
+        RestoreInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+
     
         // ✅ Reset speed to 1x for each step
         lastAnimationSpeed = 1f;  
@@ -2086,6 +2095,7 @@ void HideInstructionStepUIElements(GameObject stepItem)
             SetNavigationButtonsInteractable(false);
 
             PlayStepAnimation(firstModel, currentStepDetail, animationProgressSlider, animationTimeText); // ✅ Pass step-specific UI
+            
         }
     }
 
