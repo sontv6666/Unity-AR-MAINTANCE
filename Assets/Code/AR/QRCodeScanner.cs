@@ -2356,7 +2356,7 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
                 }
                 else
                 {
-                    //Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
+                    Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
                 }
             }
             
