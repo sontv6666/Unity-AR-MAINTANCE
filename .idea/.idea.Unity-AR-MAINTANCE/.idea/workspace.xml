@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -39,22 +41,6 @@
     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Profile/TransactionLoader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Scenes/ARVRScanner.unity" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -161,6 +147,7 @@
       <workItem from="1743522573807" duration="5497000" />
       <workItem from="1743529821483" duration="1218000" />
       <workItem from="1743690613799" duration="2356000" />
+      <workItem from="1743912098470" duration="2046000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -410,7 +397,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743855424070</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Update">
+      <option name="closed" value="true" />
+      <created>1743913702174</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1743913702174</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -468,19 +463,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>62</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
-            <startOffsets>
-              <option value="1850" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1940" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>
           <line>53</line>
           <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
@@ -531,32 +513,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>32</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'Start'">
-            <startOffsets>
-              <option value="846" />
-            </startOffsets>
-            <endOffsets>
-              <option value="891" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>70</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SendLoginRequest'">
-            <startOffsets>
-              <option value="2158" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2211" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
