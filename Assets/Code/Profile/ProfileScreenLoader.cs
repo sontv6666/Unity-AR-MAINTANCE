@@ -12,7 +12,7 @@ public class ProfileScreenLoader : MonoBehaviour
     public TMP_Text companyText;
     public TMP_Text emailText;
     public TMP_Text roleText;
-    public TMP_Text phoneText;
+    public TMP_Text pointsText;
     public UnityEngine.UI.Image avatarImage;
     
     public GameObject profilePage; // 🔹 Profile Page UI
@@ -122,6 +122,7 @@ public class ProfileScreenLoader : MonoBehaviour
         // Check each field before assigning
         nameText.text = !string.IsNullOrEmpty(user.username) ? user.username : "N/A";
         companyText.text = (user.company != null && !string.IsNullOrEmpty(user.company.companyName)) ? user.company.companyName : "N/A";
+        pointsText.text = $"{user.points} points";
 
         Debug.Log($"✅ Loaded User: {user.username} | Company: {companyText.text}");
 

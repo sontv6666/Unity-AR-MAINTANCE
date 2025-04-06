@@ -14,6 +14,7 @@ public class CourseLoader: MonoBehaviour
     [Header("UI References")] 
     public TMP_Text greetingText;
     public TMP_Text usernameText;
+    public TMP_Text pointsText ;
     public Image profileImage;
     public GameObject coursePanelPrefab; // Prefab for each course item
     public Transform contentParent; // Parent object to hold all course panels
@@ -142,6 +143,7 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
+            pointsText.text= $"{user.points} points";
             Debug.Log($"👤 User: {user.username}");
 
             // ✅ Lưu company.id vào UserManager
@@ -252,8 +254,8 @@ public class CourseLoader: MonoBehaviour
                 }
 
                 // ✅ Shorten title and description
-                string truncatedTitle = course.title.Length > 10 ? course.title.Substring(0, 10) + "..." : course.title;
-                string truncatedDescription = course.description.Length > 10 ? course.description.Substring(0, 10) + "..." : course.description;
+                string truncatedTitle = course.title.Length > 20 ? course.title.Substring(0, 20) + "..." : course.title;
+                string truncatedDescription = course.description.Length > 50 ? course.description.Substring(0, 50) + "..." : course.description;
 
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;

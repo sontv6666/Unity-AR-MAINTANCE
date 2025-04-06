@@ -32,7 +32,7 @@ public class QRCodeScanner : MonoBehaviour
     private Vector3 qrCodePosition = Vector3.zero;
     private Vector3 qrCodeRotation = Vector3.zero;
     public GameObject modelContainer;
-
+    public GameObject insufficientPointsPanel;
 
     private ARPlaneManager arPlaneManager;
     private ARSessionOrigin arSessionOrigin;
@@ -53,12 +53,13 @@ public class QRCodeScanner : MonoBehaviour
     public GameObject instructionTemplateContent; // template for each instruction 
 
 
-
+    public GameObject controlUIPanel; //fourth panel
     public GameObject instructionDetailPanel; //four panel
 
     public Button backButton;
 
     public Button centerModelButton;
+    public GameObject JoyStick;
     
     public Button realDataButton;
     public float modelDistanceFromCamera = 0.5f;
@@ -79,7 +80,10 @@ public class QRCodeScanner : MonoBehaviour
 
     private List<GameObject> instructionStepInstances = new List<GameObject>();
     private ModelDataResult cachedModelData;
+    private bool isDataLoaded = true;
 
+    
+    
     private string courseID;
     private string testID = "70c1030a-5b92-4f47-bccf-b84665f7a1fd";
     private string testqrCode1 = "12345678";
@@ -124,7 +128,9 @@ public class QRCodeScanner : MonoBehaviour
 
         if (centerModelButton != null)
         {
-            centerModelButton.onClick.AddListener(CenterModel);
+            //center
+            //centerModelButton.onClick.AddListener(CenterModel); 
+            centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -160,7 +166,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-      //     TryScanQRCode();
+         TryScanQRCode();
         }
 
 
@@ -171,14 +177,15 @@ public class QRCodeScanner : MonoBehaviour
     {
         courseUIPanel.SetActive(false);
         instructionDetailPanel.SetActive(false);
-        scanUIPanel.SetActive(false);
-        scanBoxUI.SetActive(false);
+        scanUIPanel.SetActive(true);
+        scanBoxUI.SetActive(true);
         centerModelButton.gameObject.SetActive(false);
+        JoyStick.gameObject.SetActive(false);
         realDataButton.gameObject.SetActive(false);
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
-        yield return StartCoroutine(FetchCourseData(courseId));
+       // yield return StartCoroutine(FetchCourseData(courseId));
 
         Debug.Log("✅ All downloads completed!");
 
@@ -186,16 +193,19 @@ public class QRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(false); //true
-        scanBoxUI.SetActive(false); //true
-        courseUIPanel.SetActive(true); 
+        scanUIPanel.SetActive(true); //true
+        scanBoxUI.SetActive(true); //true
+        courseUIPanel.SetActive(false); 
         centerModelButton.gameObject.SetActive(false);
+        JoyStick.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
-      //  StartScanning();
+     
+        // scan
+       StartScanning();
      
      
-       StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+       //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -286,6 +296,8 @@ public class QRCodeScanner : MonoBehaviour
                 progressText.text = $"Downloading... {percent}%";
             }
         }
+        
+        isDataLoaded = true; // ✅ Set flag when done
 
         // ✅ Hide Loading and Show Scan UI
         loadingUIPanel.SetActive(false);
@@ -296,100 +308,97 @@ public class QRCodeScanner : MonoBehaviour
     
     
         //cach 2.1
-        void TryScanQRCode()
+void TryScanQRCode()
+{
+    Debug.Log($"Check Scan QR Code");
+
+    if (!isDataLoaded) return;
+    
+    // 🛑 Hide UI before scanning
+    if (courseUIPanel != null)
+    {
+        courseUIPanel.SetActive(false);
+    }
+
+    if (!isScanning) return;
+
+    if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+    {
+        Debug.Log($"📍 Image Size: {image.width}x{image.height}");
+
+        // 🔹 Update ScanBox UI to match image size
+        if (scanBoxUI != null)
         {
-            
-            Debug.Log($"Check Scan QR Code");
-            // 🛑 Ensure Course UI is hidden before scanning
-            if (courseUIPanel != null)
-            {
-                courseUIPanel.SetActive(false);
-            }
-
-            if (!isScanning) return;
-
-            if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
-            {
-                // 📌 Define scan area (smaller portion of the screen)
-                float scanZoneFactor = 0.3f; // Adjust for smaller area (30% of screen width/height)
-                int scanZoneWidth = (int)(image.width * scanZoneFactor);
-                int scanZoneHeight = (int)(image.height * scanZoneFactor);
-                int scanZoneX = (image.width - scanZoneWidth) / 2;
-                int scanZoneY = (image.height - scanZoneHeight) / 2;
-
-                Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, W={scanZoneWidth}, H={scanZoneHeight}");
-
-                // 🔹 Update ScanBox UI size & position
-                if (scanBoxUI != null)
-                {
-                    RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-
-                    // 🛑 Set size relative to screen size
-                    float scanBoxSizeFactor = 0.2f; // 30% of screen
-                    scanBoxRect.sizeDelta =
-                        new Vector2(Screen.width * scanBoxSizeFactor, Screen.height * scanBoxSizeFactor);
-
-                    // 🛑 Center the scan box in the screen
-                    scanBoxRect.anchoredPosition = Vector2.zero;
-
-                    scanBoxUI.SetActive(true);
-                }
-
-
-                var conversionParams = new XRCpuImage.ConversionParams
-                {
-                    inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneWidth, scanZoneHeight),
-                    outputDimensions = new Vector2Int(scanZoneWidth, scanZoneHeight),
-                    outputFormat = TextureFormat.RGBA32,
-                    transformation = XRCpuImage.Transformation.None
-                };
-
-                var textureData = new Texture2D(scanZoneWidth, scanZoneHeight, TextureFormat.RGBA32, false);
-                image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
-                image.Dispose();
-                textureData.Apply();
-
-                IBarcodeReader barcodeReader = new BarcodeReader();
-                var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
-
-                Destroy(textureData); // 🛑 Prevent memory leaks
-
-                if (result != null)
-                {
-                    isScanning = false;
-
-                    // 🛑 Hide Scan Box after successful scan
-                    if (scanBoxUI != null)
-                    {
-                        scanBoxUI.SetActive(false);
-                    }
-
-                    Debug.Log($"✅ QR Code Scanned: {result.Text}");
-                   
-                    UpdateUIText("Scanning...", "QR: " + result.Text);
-                    
-                    string[] values = result.Text.Split('@');
-                    if (values.Length != 2)
-                    {
-                        Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
-                        UpdateUIText("Invalid QR Code format!", "");
-                        Invoke(nameof(ResetScanning), 2f);
-                        return;
-                    }
-                    
-                    string firstValue = values[0].Trim();  // Giá trị đầu tiên (máy)
-                    string secondValue = values[1].Trim(); // Giá trị thứ hai (khóa học)
-                    ShowLoadingUI("Processing QR Code...");
-                    qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
-                    qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
-
-                    Debug.Log($"✅ Course Id: {courseID}");
-                    StartCoroutine(FetchMachineData(firstValue, secondValue,courseID));
-
-                
-                }
-            }
+            RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
+            scanBoxRect.anchoredPosition = Vector2.zero; // Center
+            scanBoxUI.SetActive(true);
         }
+
+        // 🛑 Define correct conversion parameters
+        var conversionParams = new XRCpuImage.ConversionParams
+        {
+            inputRect = new RectInt(0, 0, image.width, image.height), // Full image
+            outputDimensions = new Vector2Int(image.width, image.height),
+            outputFormat = TextureFormat.RGBA32,
+            transformation = XRCpuImage.Transformation.None
+        };
+
+        // 🔹 Convert image to texture
+        var textureData = new Texture2D(image.width, image.height, TextureFormat.RGBA32, false);
+        image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
+        image.Dispose();
+        textureData.Apply();
+
+        // 🔹 Decode QR Code
+        IBarcodeReader barcodeReader = new BarcodeReader();
+        var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
+
+        Destroy(textureData); // 🛑 Prevent memory leaks
+
+        if (result != null)
+        {
+            isScanning = false;
+
+            // 🛑 Hide Scan Box after successful scan
+            if (scanBoxUI != null)
+            {
+                scanBoxUI.SetActive(false);
+            }
+
+            Debug.Log($"✅ QR Code Scanned: {result.Text}");
+
+            UpdateUIText("Scanning...", "QR: " + result.Text);
+
+            string[] values = result.Text.Split('@');
+            if (values.Length != 2)
+            {
+                Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
+                UpdateUIText("Invalid QR Code format!", "");
+                Invoke(nameof(ResetScanning), 2f);
+                return;
+            }
+
+            string firstValue = values[0].Trim();  // First value (Machine)
+            string secondValue = values[1].Trim(); // Second value (Course)
+            ShowLoadingUI("Processing QR Code...");
+            qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+            qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+
+            Debug.Log($"✅ Course Id: {courseID}");
+            StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
+        }
+    }
+}
+
+    
+
+
+
+
+
+
+
+
     
 
 
@@ -399,6 +408,7 @@ public class QRCodeScanner : MonoBehaviour
             
             string endpoint = "/machine/code/" + machineCode;
             UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
 
             yield return request.SendWebRequest();
 
@@ -484,6 +494,7 @@ public class QRCodeScanner : MonoBehaviour
                     StartCoroutine(FetchModelData(response.result));
                     StartCoroutine(DownloadAndLoadUI(response.result));
                     centerModelButton.gameObject.SetActive(true);
+                    JoyStick.gameObject.SetActive(true);
                     realDataButton.gameObject.SetActive(true);
                     // 🔹 Ensure Model Stays Upright
                     qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
@@ -510,8 +521,10 @@ public class QRCodeScanner : MonoBehaviour
             string endpoint = $"/course/scan/{courseId}/{userId}";
             Debug.Log($"📡 Sending course scan request: {ApiConfig.GetBaseUrl() + endpoint}");
 
-            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "POST", "{}")) // Sending empty JSON body
+            using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "PUT", "{}")) // Using PUT instead of POST
             {
+                request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+
                 yield return request.SendWebRequest();
 
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -520,7 +533,25 @@ public class QRCodeScanner : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"✅ Course scan recorded successfully: {request.downloadHandler.text}");
+                    string jsonResponse = request.downloadHandler.text;
+                    var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
+
+                    if (response != null)
+                    {
+                        Debug.Log($"✅ Course scan response: {jsonResponse}");
+
+                        if (response.code != 1000) // If the user doesn't have enough points
+                        {
+                            Debug.Log("⚠️ Not enough points to play this course.");
+                            insufficientPointsPanel.SetActive(true); // Show warning panel
+                            Invoke(nameof(GoBackToMainApp), 5f); // Wait 3s, then go back
+                            insufficientPointsPanel.SetActive(false);   
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("❌ Invalid API Response in SendCourseScan.");
+                    }
                 }
             }
         }
@@ -685,13 +716,6 @@ public class QRCodeScanner : MonoBehaviour
             loadedModel.transform.SetParent(modelContainer.transform, false);
             SetupModelInteractions(loadedModel);
 
-            // ✅ Attach to QR code
-            // loadedModel.transform.position = qrCodePosition;  // Use QR Code position
-            // loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
-            // loadedModel.transform.localScale = Vector3.one * 0.1f;
-            //
-            // Debug.Log("✅ Model correctly anchored to QR Code.");
-
 
             Debug.Log(
                 $"✅ Model info {position}, Rotation: {rotation}");
@@ -702,6 +726,10 @@ public class QRCodeScanner : MonoBehaviour
       
             // ✅ Apply correct rotation
             loadedModel.transform.rotation = Quaternion.Euler(rotation);
+            
+            // ✅ Store initial scanned position & rotation
+            qrPosition = loadedModel.transform.position;
+            qrRotation = loadedModel.transform.rotation;
 
             // ✅ Apply correct scale
             loadedModel.transform.localScale = scale;
@@ -1029,7 +1057,7 @@ public class QRCodeScanner : MonoBehaviour
 
 
         // 🌟 Dictionary to store the latest transform state of child meshes
-        Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
+       public  Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
 
         void ShowInstructionDetails(Instruction instruction)
         {
@@ -1140,6 +1168,15 @@ public class QRCodeScanner : MonoBehaviour
                 Slider animationProgressSlider = stepItem.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
                 TMP_Text animationTimeText = stepItem.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
                 
+                // Add a button to open the control panel
+                Button controlButton = stepItem.transform.Find("openControlPanelButton")?.GetComponent<Button>();
+                if (controlButton)
+                {
+                    controlButton.onClick.RemoveAllListeners();
+                    controlButton.onClick.AddListener(() => OpenControlPanelForStep(stepItem)); // Pass stepItem
+                }
+                
+                
 
                 // ✅ Play/Stop animation button logic
                 Button replayAnimationButton = stepItem.transform.Find("replayanimationButton")?.GetComponent<Button>();
@@ -1188,6 +1225,103 @@ public class QRCodeScanner : MonoBehaviour
 
             UpdateStepNavigationButtons();
         }
+
+        
+        
+        void OpenControlPanelForStep(GameObject stepItem)
+        {
+            // Find the index of stepItem in instructionStepInstances list
+            int stepIndex = instructionStepInstances.IndexOf(stepItem);
+    
+            // Ensure the stepIndex is valid
+            if (stepIndex < 0 || stepIndex >= currentInstructionDetails.Count)
+            {
+                Debug.LogError($"❌ Invalid stepIndex: {stepIndex}. It must be between 0 and {currentInstructionDetails.Count - 1}.");
+                return;
+            }
+
+            // Update the content of controlUIPanel based on the selected step
+            InstructionDetail selectedDetail = currentInstructionDetails[stepIndex];
+
+            // Show controlUIPanel by setting its scale to Vector3.one
+            controlUIPanel.transform.localScale = Vector3.one;
+    
+            // Hide the specific UI elements in instructionDetailStepPrefab by scaling them to Vector3.zero
+            HideInstructionStepUIElements(stepItem);
+
+            // Set up the close button functionality for the control panel
+            Button closeControlPanelButton = controlUIPanel.transform.Find("smallPanel/closeControlPanelButton")?.GetComponent<Button>();
+            if (closeControlPanelButton)
+            {
+                closeControlPanelButton.onClick.RemoveAllListeners();
+                closeControlPanelButton.onClick.AddListener(CloseControlPanel);
+            }
+        }   
+        void CloseControlPanel()
+        {
+            // Hide the controlUIPanel
+            controlUIPanel.transform.localScale = Vector3.zero;
+
+            // Retrieve the GameObject for the current step from the instructionStepInstances list
+            GameObject stepItem = instructionStepInstances[currentStepIndex];
+
+            // Restore visibility for instruction step UI elements of the current step
+            RestoreInstructionStepUIElements(stepItem);
+        }
+
+
+
+ 
+    void RestoreInstructionStepUIElements(GameObject stepItem)
+{
+    // Restore visibility for the specific UI elements within the current step
+    Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+    Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+    Transform replayButton = stepItem.transform.Find("replayanimationButton");
+    Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+    Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+    Transform editSpeed = stepItem.transform.Find("EditSpeed");
+    Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+    Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+    Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+    
+    // Make them visible again if they exist
+    if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(true);
+    if (playAndStopButton) playAndStopButton.gameObject.SetActive(true);
+    if (replayButton) replayButton.gameObject.SetActive(true);
+    if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(true);
+    if (instructionNameText) instructionNameText.gameObject.SetActive(true);
+    if (editSpeed) editSpeed.gameObject.SetActive(true);
+    if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(true);
+    if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(true);  // Add this line
+    if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(true);  // Add this line
+}
+
+void HideInstructionStepUIElements(GameObject stepItem)
+{
+    // Hide specific UI elements within the current step
+    Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+    Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+    Transform replayButton = stepItem.transform.Find("replayanimationButton");
+    Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+    Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+    Transform editSpeed = stepItem.transform.Find("EditSpeed");
+    Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+    Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+    Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+    // Hide them if they exist
+    if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(false);
+    if (playAndStopButton) playAndStopButton.gameObject.SetActive(false);
+    if (replayButton) replayButton.gameObject.SetActive(false);
+    if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(false);
+    if (instructionNameText) instructionNameText.gameObject.SetActive(false);
+    if (editSpeed) editSpeed.gameObject.SetActive(false);
+    if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(false);
+    if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(false);  // Add this line
+    if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(false);  // Add this line
+}
+
+
 
 
         /// ✅ Hide UI elements (except navigation & closeButtonFirst) and set image transparency to 0
@@ -1500,7 +1634,7 @@ public class QRCodeScanner : MonoBehaviour
 
 
         
-        bool isAnimationPlaying = false;
+    public   bool isAnimationPlaying = false;
         private bool isAnimationPaused = false; // 🔴 Track if animation was paused manually
         // IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
         // {
@@ -1589,8 +1723,11 @@ public class QRCodeScanner : MonoBehaviour
             }
         }
 
-        Vector3 latestPosition;
-        Quaternion latestRotation;
+       public  Vector3 latestPosition;
+       public Quaternion latestRotation;
+
+       public Vector3 qrPosition;
+       public Quaternion qrRotation;
         bool isModelCentered = false;
 
         void CenterModel()
@@ -1671,6 +1808,95 @@ public class QRCodeScanner : MonoBehaviour
 
 
         }
+        
+        public void MoveModelUp(float distance = 0.1f)
+        {
+            MoveModelVertical(distance);
+        }
+
+        public void MoveModelDown(float distance = 0.1f)
+        {
+            MoveModelVertical(-distance);
+        }
+
+        private void MoveModelVertical(float yDelta)
+        {
+            if (modelContainer == null)
+            {
+                Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+                return;
+            }
+            if (isAnimationPlaying)
+            {
+                Debug.LogWarning("⛔ Cannot move model while animation is playing!");
+                return;
+            }
+
+            Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+            if (model == null)
+            {
+                Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+                return;
+            }
+
+            Vector3 currentPosition = model.position;
+            Vector3 newPosition = currentPosition + new Vector3(0, yDelta, 0);
+            model.position = newPosition;
+
+            // Update stored transforms
+            latestPosition = model.position;
+            latestRotation = model.rotation;
+
+            latestMeshTransforms.Clear();
+            foreach (Transform child in model)
+            {
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+            }
+
+            Debug.Log($"↕️ Model moved vertically to: {model.position}");
+        }
+
+        public void MoveModelBackToQR()
+        {
+            if (modelContainer == null)
+            {
+                Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+                return;
+            }
+
+            Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+            if (model == null)
+            {
+                Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+                return;
+            }
+            
+            if (isAnimationPlaying)
+            {
+                Debug.LogWarning("⛔ Cannot move model while animation is playing!");
+                return;
+            }
+
+            // ✅ Move model back to its original scanned position
+            model.position = qrPosition;
+            model.rotation = qrRotation;
+            
+            // 🆕 Store the latest position and rotation
+            latestPosition = model.position;
+            latestRotation = model.rotation;
+         
+            // 🆕 Store latest positions of all child meshes
+            latestMeshTransforms.Clear();
+            foreach (Transform child in model)
+            {
+                latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+            }
+
+
+            Debug.Log($"🔄 Model moved back to QR position: {qrPosition}");
+            model.gameObject.SetActive(true);
+        }
+
 
 
         public void ResetModelPosition()
@@ -1831,8 +2057,15 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
 
+        
+    
         // ✅ Hide current step UI
         instructionStepInstances[currentStepIndex].SetActive(false);
+        // ✅ Hide the UI elements of the current step (before switching to the next)
+        HideInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+
+
+        controlUIPanel.transform.localScale = Vector3.zero;  // Hide control panel
 
         // ✅ Move to next/previous step
         currentStepIndex += direction;
@@ -1864,6 +2097,8 @@ public class QRCodeScanner : MonoBehaviour
         
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
+        RestoreInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+
     
         // ✅ Reset speed to 1x for each step
         lastAnimationSpeed = 1f;  
@@ -1885,6 +2120,7 @@ public class QRCodeScanner : MonoBehaviour
             SetNavigationButtonsInteractable(false);
 
             PlayStepAnimation(firstModel, currentStepDetail, animationProgressSlider, animationTimeText); // ✅ Pass step-specific UI
+            
         }
     }
 
@@ -2105,6 +2341,27 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
                 model.AddComponent<PinchToScale>();
                 Debug.Log("📌 PinchToScale script added (Pinch to scale).");
             }
+            
+            // ✅ Add Joystick Movement Script
+            if (model.GetComponent<JoystickModelController>() == null)
+            {
+                JoystickModelController joystickController = model.AddComponent<JoystickModelController>();
+        
+                // Find the joystick in the scene and assign it
+                Joystick foundJoystick = FindObjectOfType<Joystick>();
+                if (foundJoystick != null)
+                {
+                    joystickController.joystick = foundJoystick;
+                    Debug.Log("📌 Joystick found and assigned!");
+                }
+                else
+                {
+                    //Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
+                }
+            }
+            
+            
+            
         }
         
         // ReSharper disable Unity.PerformanceAnalysis

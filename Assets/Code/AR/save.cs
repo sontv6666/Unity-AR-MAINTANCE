@@ -11,23 +11,28 @@
 // using GLTFast.Loading;
 // using System.Threading.Tasks;
 // using System;
-//
+// using Models;
+// using Newtonsoft.Json;
 // using System.Collections;
 // using System.Collections.Generic;
 // using UnityEngine.SceneManagement;
 // using UnityEngine.XR.Interaction.Toolkit.AR;
 // using UnityEngine.XR.Interaction.Toolkit.Interactables;
+// using Newtonsoft.Json;
 //
-// public class ARQRCodeScanner : MonoBehaviour
+// public class QRCodeScanner : MonoBehaviour
 // {
 //
+//     public static QRCodeScanner Instance; 
+//     public string currentMachineCode = "";
+//     
 //     // AR Elementss
 //     public ARCameraManager arCameraManager;
 //     private bool isScanning = true;
 //     private Vector3 qrCodePosition = Vector3.zero;
 //     private Vector3 qrCodeRotation = Vector3.zero;
 //     public GameObject modelContainer;
-//
+//     public GameObject insufficientPointsPanel;
 //
 //     private ARPlaneManager arPlaneManager;
 //     private ARSessionOrigin arSessionOrigin;
@@ -48,12 +53,15 @@
 //     public GameObject instructionTemplateContent; // template for each instruction 
 //
 //
-//
+//     public GameObject controlUIPanel; //fourth panel
 //     public GameObject instructionDetailPanel; //four panel
 //
 //     public Button backButton;
 //
 //     public Button centerModelButton;
+//     public GameObject JoyStick;
+//     
+//     public Button realDataButton;
 //     public float modelDistanceFromCamera = 0.5f;
 //
 //     public GameObject instructionDetailStepPrefab; // Prefab for each step
@@ -62,7 +70,7 @@
 //     public TMP_Text courseTitleText;
 //
 //
-//
+//    
 //
 //     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
 //
@@ -71,20 +79,33 @@
 //     private GameObject currentLoadedModel = null;
 //
 //     private List<GameObject> instructionStepInstances = new List<GameObject>();
-//     private ModelResponse cachedModelData;
+//     private ModelDataResult cachedModelData;
 //
 //     private string courseID;
-//     private string testID = "c886f9f1-68f8-4596-b625-f14c5ef8addc";
-//     private string testqrCode = "42be6340-c590-4477-8508-f6250717cd7b";
-//     private string testqrCode2 = "97794f13-1146-4b1a-83c2-0c9b693a346e";
+//     private string testID = "70c1030a-5b92-4f47-bccf-b84665f7a1fd";
+//     private string testqrCode1 = "12345678";
+//     private string testqrCode2 = "7ce86d98-14b4-47b5-91f1-63341c1b8062";
 //
 //     public GameObject scanBoxUI;
 //     
 //     // Progress UI Elements
 //     public Slider progressBar;
 //     public TMP_Text progressText;
+//      private Slider animationProgressSlider;
+//      private TMP_Text animationTimeText; // Optional
+//
+//     
+//     // Speed values to cycle through
+//     float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
+//     int currentSpeedIndex = 2; // Default speed index (1x)
+//     private float lastAnimationSpeed = 1f; // Default speed is 1x
 //
 //
+//     private void Awake()
+//     {
+//         Instance = this;
+//     }
+//     
 //     void Start()
 //     {
 //         if (scanBoxUI != null)
@@ -104,7 +125,9 @@
 //
 //         if (centerModelButton != null)
 //         {
+//             //center
 //             centerModelButton.onClick.AddListener(CenterModel);
+//            // centerModelButton.onClick.AddListener(MoveModelBackToQR);
 //         }
 //
 //         if (backButton != null)
@@ -118,8 +141,10 @@
 //
 //         // Use test ID for debugging
 //         courseID = PlayerPrefs.GetString("SelectedCourseID", "");
-//         //courseID = testID;
+//            //  courseID = testID;
 //
+//       
+//        
 //         if (string.IsNullOrEmpty(courseID))
 //         {
 //             Debug.LogError("❌ No Course ID found!");
@@ -138,7 +163,7 @@
 //     {
 //         if (isScanning)
 //         {
-//             TryScanQRCode();
+//     //     TryScanQRCode();
 //         }
 //
 //
@@ -149,8 +174,11 @@
 //     {
 //         courseUIPanel.SetActive(false);
 //         instructionDetailPanel.SetActive(false);
-//         scanUIPanel.SetActive(false);
-//         scanBoxUI.SetActive(false);
+//         scanUIPanel.SetActive(true);
+//         scanBoxUI.SetActive(true);
+//         centerModelButton.gameObject.SetActive(false);
+//         JoyStick.gameObject.SetActive(false);
+//         realDataButton.gameObject.SetActive(false);
 //         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 //
 //         // Fetch course data before scanning
@@ -162,13 +190,19 @@
 //
 //         // ✅ Hide loading and show scan UI
 //         loadingUIPanel.SetActive(false);
-//         scanUIPanel.SetActive(true);
-//         scanBoxUI.SetActive(true);
-//         
-//         courseUIPanel.SetActive(false);
+//         scanUIPanel.SetActive(true); //true
+//         scanBoxUI.SetActive(true); //true
+//         courseUIPanel.SetActive(true); 
+//         centerModelButton.gameObject.SetActive(false);
+//         JoyStick.gameObject.SetActive(false);
 //         instructionDetailPanel.SetActive(false);
-//
-//         StartScanning();
+//         realDataButton.gameObject.SetActive(false);
+//      
+//         // scan
+//       //  StartScanning();
+//      
+//      
+//          StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
 //     }
 //
 //
@@ -196,21 +230,32 @@
 //         if (request.result == UnityWebRequest.Result.Success)
 //         {
 //             string jsonResponse = request.downloadHandler.text;
-//             var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
+//         
+//             // ✅ Correctly parse the API response
+//             var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
 //
-//             List<IEnumerator> downloadTasks = new List<IEnumerator>();
 //
-//             // ✅ Collect all download tasks
-//             downloadTasks.Add(FetchModelData(response.result));
-//             downloadTasks.Add(DownloadAndLoadUI(response.result));
+//             if (response != null && response.result != null)
+//             {
+//                 List<IEnumerator> downloadTasks = new List<IEnumerator>();
 //
-//             yield return StartCoroutine(DownloadAllFiles(downloadTasks));
+//                 // ✅ Collect all download tasks
+//                 downloadTasks.Add(FetchModelData(response.result));
+//                 downloadTasks.Add(DownloadAndLoadUI(response.result));
+//
+//                 yield return StartCoroutine(DownloadAllFiles(downloadTasks));
+//             }
+//             else
+//             {
+//                 Debug.LogError("❌ Invalid API response: " + jsonResponse);
+//             }
 //         }
 //         else
 //         {
 //             Debug.LogError("❌ API Request Failed: " + request.error);
 //         }
 //     }
+//
 //     void UpdateProgress(float completed, float total)
 //     {
 //         if (progressBar != null)
@@ -258,90 +303,139 @@
 //     
 //     
 //         //cach 2.1
-//         void TryScanQRCode()
+// void TryScanQRCode()
+// {
+//     Debug.Log($"Check Scan QR Code");
+//
+//     // 🛑 Hide UI before scanning
+//     if (courseUIPanel != null)
+//     {
+//         courseUIPanel.SetActive(false);
+//     }
+//
+//     if (!isScanning) return;
+//
+//     if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
+//     {
+//         Debug.Log($"📍 Image Size: {image.width}x{image.height}");
+//
+//         // 🔹 Update ScanBox UI to match image size
+//         if (scanBoxUI != null)
 //         {
-//             // 🛑 Ensure Course UI is hidden before scanning
-//             if (courseUIPanel != null)
-//             {
-//                 courseUIPanel.SetActive(false);
-//             }
-//
-//             if (!isScanning) return;
-//
-//             if (arCameraManager.TryAcquireLatestCpuImage(out XRCpuImage image))
-//             {
-//                 // 📌 Define scan area (smaller portion of the screen)
-//                 float scanZoneFactor = 0.3f; // Adjust for smaller area (30% of screen width/height)
-//                 int scanZoneWidth = (int)(image.width * scanZoneFactor);
-//                 int scanZoneHeight = (int)(image.height * scanZoneFactor);
-//                 int scanZoneX = (image.width - scanZoneWidth) / 2;
-//                 int scanZoneY = (image.height - scanZoneHeight) / 2;
-//
-//                 Debug.Log($"📍 Scan Zone: X={scanZoneX}, Y={scanZoneY}, W={scanZoneWidth}, H={scanZoneHeight}");
-//
-//                 // 🔹 Update ScanBox UI size & position
-//                 if (scanBoxUI != null)
-//                 {
-//                     RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
-//
-//                     // 🛑 Set size relative to screen size
-//                     float scanBoxSizeFactor = 0.2f; // 30% of screen
-//                     scanBoxRect.sizeDelta =
-//                         new Vector2(Screen.width * scanBoxSizeFactor, Screen.height * scanBoxSizeFactor);
-//
-//                     // 🛑 Center the scan box in the screen
-//                     scanBoxRect.anchoredPosition = Vector2.zero;
-//
-//                     scanBoxUI.SetActive(true);
-//                 }
-//
-//
-//                 var conversionParams = new XRCpuImage.ConversionParams
-//                 {
-//                     inputRect = new RectInt(scanZoneX, scanZoneY, scanZoneWidth, scanZoneHeight),
-//                     outputDimensions = new Vector2Int(scanZoneWidth, scanZoneHeight),
-//                     outputFormat = TextureFormat.RGBA32,
-//                     transformation = XRCpuImage.Transformation.None
-//                 };
-//
-//                 var textureData = new Texture2D(scanZoneWidth, scanZoneHeight, TextureFormat.RGBA32, false);
-//                 image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
-//                 image.Dispose();
-//                 textureData.Apply();
-//
-//                 IBarcodeReader barcodeReader = new BarcodeReader();
-//                 var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
-//
-//                 Destroy(textureData); // 🛑 Prevent memory leaks
-//
-//                 if (result != null)
-//                 {
-//                     isScanning = false;
-//
-//                     // 🛑 Hide Scan Box after successful scan
-//                     if (scanBoxUI != null)
-//                     {
-//                         scanBoxUI.SetActive(false);
-//                     }
-//
-//                     Debug.Log($"✅ QR Code Scanned: {result.Text}");
-//                     ShowLoadingUI("Processing QR Code...");
-//                     UpdateUIText("Scanning...", "QR: " + result.Text);
-//
-//                     qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
-//                     qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
-//
-//
-//
-//                     StartCoroutine(CheckQRCode(result.Text, courseID));
-//                 }
-//             }
+//             RectTransform scanBoxRect = scanBoxUI.GetComponent<RectTransform>();
+//             scanBoxRect.anchoredPosition = Vector2.zero; // Center
+//             scanBoxUI.SetActive(true);
 //         }
+//
+//         // 🛑 Define correct conversion parameters
+//         var conversionParams = new XRCpuImage.ConversionParams
+//         {
+//             inputRect = new RectInt(0, 0, image.width, image.height), // Full image
+//             outputDimensions = new Vector2Int(image.width, image.height),
+//             outputFormat = TextureFormat.RGBA32,
+//             transformation = XRCpuImage.Transformation.None
+//         };
+//
+//         // 🔹 Convert image to texture
+//         var textureData = new Texture2D(image.width, image.height, TextureFormat.RGBA32, false);
+//         image.Convert(conversionParams, textureData.GetRawTextureData<byte>());
+//         image.Dispose();
+//         textureData.Apply();
+//
+//         // 🔹 Decode QR Code
+//         IBarcodeReader barcodeReader = new BarcodeReader();
+//         var result = barcodeReader.Decode(textureData.GetPixels32(), textureData.width, textureData.height);
+//
+//         Destroy(textureData); // 🛑 Prevent memory leaks
+//
+//         if (result != null)
+//         {
+//             isScanning = false;
+//
+//             // 🛑 Hide Scan Box after successful scan
+//             if (scanBoxUI != null)
+//             {
+//                 scanBoxUI.SetActive(false);
+//             }
+//
+//             Debug.Log($"✅ QR Code Scanned: {result.Text}");
+//
+//             UpdateUIText("Scanning...", "QR: " + result.Text);
+//
+//             string[] values = result.Text.Split('@');
+//             if (values.Length != 2)
+//             {
+//                 Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
+//                 UpdateUIText("Invalid QR Code format!", "");
+//                 Invoke(nameof(ResetScanning), 2f);
+//                 return;
+//             }
+//
+//             string firstValue = values[0].Trim();  // First value (Machine)
+//             string secondValue = values[1].Trim(); // Second value (Course)
+//             ShowLoadingUI("Processing QR Code...");
+//             qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
+//             qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+//
+//             Debug.Log($"✅ Course Id: {courseID}");
+//             StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
+//         }
+//     }
+// }
+//
+//
+//
 //     
 //
 //
+//         IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
+//         {
+//             currentMachineCode = machineCode; 
+//             
+//             string endpoint = "/machine/code/" + machineCode;
+//             UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+//             request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+//
+//             yield return request.SendWebRequest();
+//
+//             if (request.result == UnityWebRequest.Result.Success)
+//             {
+//                 string jsonResponse = request.downloadHandler.text;
+//                 Debug.Log($"✅ Machine API Response: {jsonResponse}");
+//
+//                 // 🔹 Parse JSON response into MachineResponse model
+//                 ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+//                 
+//                 if (response != null && response.result != null)
+//                 {
+//                     MachineResponse machine = response.result;
+//                 
+//                     // 🔹 Send data to UI
+//                     APIRealTime.Instance.UpdateMachineUI(machine);
+//                     
+//
+//                     // Continue with QR logic
+//                     StartCoroutine(CheckQRCode(secondValue, courseId));
+//                 }
+//                 else
+//                 {
+//                     Debug.LogError("❌ Failed to parse machine response.");
+//                     APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
+//                     Invoke(nameof(ResetScanning), 2f);
+//                 }
+//             }
+//             else
+//             {
+//                 Debug.LogError($"❌ Machine API Request Failed: {request.error}");
+//                 UpdateUIText("Failed to get machine data!", "");
+//                 Invoke(nameof(ResetScanning), 2f);
+//             }
+//         }
 //
 //
+//
+//
+//      
 //
 //
 //     //cach 2.2
@@ -356,38 +450,98 @@
 //             {
 //                 string jsonResponse = request.downloadHandler.text;
 //                 Debug.Log("API Response: " + jsonResponse);
+//                 Debug.Log($"✅ Course ID: {courseID}");
 //                 ProcessResponse(jsonResponse, qrValue);
+//                 
+//                 
 //             }
 //             else
 //             {
 //                 Debug.LogError("API Request Failed: " + request.error);
 //                 UpdateUIText("Scan failed. Try again.", "");
-//                 Invoke(nameof(ResetScanning), 2f); // 🔥 Added to reset scanning after failure
+//                 Invoke(nameof(ResetScanning), 2f); 
 //             }
 //         }
 //
 //         //cach 2.3
 //         void ProcessResponse(string jsonResponse, string scannedQR)
 //         {
-//             var response = JsonUtility.FromJson<ApiResponse>(jsonResponse);
+//             // ✅ Corrected JSON parsing
+//             var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
 //
-//             if (response.code == 1000 && response.result.courseCode == scannedQR)
+//
+//             if (response != null && response.result != null)
 //             {
-//                 UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
-//                 StartCoroutine(FetchModelData(response.result));
+//                 if (response.code == 1000 && response.result.courseCode == scannedQR)
+//                 {
+//                     UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
+//                     StartCoroutine(SendCourseScan(response.result.id, UserManager.UserId));
 //
-//                 StartCoroutine(DownloadAndLoadUI(response.result));
-//
-//                 // 🔹 Ensure Model Stays Upright
-//                 qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
-//                 qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
+//                     StartCoroutine(FetchModelData(response.result));
+//                     StartCoroutine(DownloadAndLoadUI(response.result));
+//                     centerModelButton.gameObject.SetActive(true);
+//                     JoyStick.gameObject.SetActive(true);
+//                     realDataButton.gameObject.SetActive(true);
+//                     // 🔹 Ensure Model Stays Upright
+//                     qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
+//                     qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
+//                 }
+//                 else
+//                 {
+//                     UpdateUIText("Invalid QR Code.", "Scanned: " + scannedQR);
+//                     Invoke(nameof(ResetScanning), 2f);
+//                 }
 //             }
 //             else
 //             {
-//                 UpdateUIText("Invalid QR Code.", "Scanned: " + scannedQR);
+//                 Debug.LogError("❌ Invalid API Response. Could not parse JSON.");
+//                 UpdateUIText("Error processing QR code.", "");
 //                 Invoke(nameof(ResetScanning), 2f);
 //             }
 //         }
+//
+//         
+//         
+//         IEnumerator SendCourseScan(string courseId, string userId)
+//         {
+//             string endpoint = $"/course/scan/{courseId}/{userId}";
+//             Debug.Log($"📡 Sending course scan request: {ApiConfig.GetBaseUrl() + endpoint}");
+//
+//             using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "PUT", "{}")) // Using PUT instead of POST
+//             {
+//                 request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+//
+//                 yield return request.SendWebRequest();
+//
+//                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+//                 {
+//                     Debug.LogError($"❌ Course Scan API Error: {request.error}");
+//                 }
+//                 else
+//                 {
+//                     string jsonResponse = request.downloadHandler.text;
+//                     var response = JsonConvert.DeserializeObject<ApiResponse<CourseResult>>(jsonResponse);
+//
+//                     if (response != null)
+//                     {
+//                         Debug.Log($"✅ Course scan response: {jsonResponse}");
+//
+//                         if (response.code != 1000) // If the user doesn't have enough points
+//                         {
+//                             Debug.Log("⚠️ Not enough points to play this course.");
+//                             insufficientPointsPanel.SetActive(true); // Show warning panel
+//                             Invoke(nameof(GoBackToMainApp), 5f); // Wait 3s, then go back
+//                             insufficientPointsPanel.SetActive(false);   
+//                         }
+//                     }
+//                     else
+//                     {
+//                         Debug.LogError("❌ Invalid API Response in SendCourseScan.");
+//                     }
+//                 }
+//             }
+//         }
+//
 //
 //
 //
@@ -396,6 +550,12 @@
 //         // FETCH MODEL AND CALL DOWNLOAD MODEL
 //         IEnumerator FetchModelData(CourseResult course)
 //         {
+//             if (string.IsNullOrEmpty(course.modelId))
+//             {
+//                 Debug.LogError("❌ No Model ID found in CourseResult!");
+//                 yield break;
+//             }
+//
 //             string modelApiUrl = "/model/" + course.modelId;
 //             UnityWebRequest request = ApiConfig.CreateRequest(modelApiUrl);
 //
@@ -403,11 +563,21 @@
 //
 //             if (request.result == UnityWebRequest.Result.Success)
 //             {
-//                 ModelResponse modelData = JsonUtility.FromJson<ModelResponse>(request.downloadHandler.text);
-//                 Debug.Log("📌 Model Rotation Y: " + modelData.result.rotation[1]);
-//         
-//                 // ✅ Add to progress tracking
-//                 yield return StartCoroutine(DownloadAndLoadModel(modelData));
+//                 // ✅ Correctly parse API response
+//                 var response = JsonConvert.DeserializeObject<ApiResponse<ModelDataResult>>(request.downloadHandler.text);
+//
+//                 if (response != null && response.result != null)
+//                 {
+//                     Debug.Log("📌 Model Rotation Y: " + response.result.rotation[1]);
+//
+//                     // ✅ Add to progress tracking
+//                     yield return StartCoroutine(DownloadAndLoadModel(response.result));
+//                 }
+//                 else
+//                 {
+//                     Debug.LogError("❌ Invalid API response for model data.");
+//                     UpdateUIText("Error", "Invalid model data.");
+//                 }
 //             }
 //             else
 //             {
@@ -416,27 +586,31 @@
 //             }
 //         }
 //
+//
 //         // DOWNLOAD MODEL FROM FETCH CALL LOAD MODEL
-//         IEnumerator DownloadAndLoadModel(ModelResponse modelData)
+//         IEnumerator DownloadAndLoadModel(ModelDataResult modelData)
 //         {
 //             string fileEndpoint = "/files/";
-//             string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.result.file);
+//             string modelFilePath = Path.Combine(Application.persistentDataPath, modelData.file);
 //
 //             // ✅ Download model file
-//             yield return StartCoroutine(DownloadFile(fileEndpoint + modelData.result.file, modelData.result.file));
+//             yield return StartCoroutine(DownloadFile(fileEndpoint + modelData.file, modelData.file));
 //
 //             // ✅ Apply position & rotation
-//             Vector3 position = new Vector3(modelData.result.position[0], modelData.result.position[1], modelData.result.position[2]);
-//             Vector3 rotation = new Vector3(modelData.result.rotation[0], modelData.result.rotation[1], modelData.result.rotation[2]);
-//
+//             Vector3 position = new Vector3(modelData.position[0], modelData.position[1], modelData.position[2]);
+//             Vector3 rotation = new Vector3(modelData.rotation[0], modelData.rotation[1], modelData.rotation[2]);
+//             Vector3 scale = modelData.GetScale();  
+//            
+//                 
 //             // ✅ Load the model
-//             yield return StartCoroutine(Load3DModel(modelFilePath, modelContainer, position, rotation));
+//             yield return StartCoroutine(Load3DModel(modelFilePath, modelContainer, position, rotation, scale));
 //         }
+//         
 //
 //
 //         //LOAD MODEL FROM FETCH, DOWNLOAD MODEL
 //
-//         public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation)
+//         public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation,  Vector3 scale)
 //         {
 //             Debug.Log($"📌 Attempting to load model from: {modelPath}");
 //
@@ -528,24 +702,23 @@
 //             loadedModel.transform.SetParent(modelContainer.transform, false);
 //             SetupModelInteractions(loadedModel);
 //
-//             // ✅ Attach to QR code
-//             // loadedModel.transform.position = qrCodePosition;  // Use QR Code position
-//             // loadedModel.transform.eulerAngles = qrCodeRotation;  // Use QR Code rotation
-//             // loadedModel.transform.localScale = Vector3.one * 0.1f;
-//             //
-//             // Debug.Log("✅ Model correctly anchored to QR Code.");
 //
+//             Debug.Log(
+//                 $"✅ Model info {position}, Rotation: {rotation}");
+//           
+//             // ✅ Apply correct position
+//             loadedModel.transform.position = qrCodePosition + position;;
 //
-//
-//             // ✅ Đặt vị trí của model dựa trên vị trí QR code và thêm bù vào vị trí mới
-//             loadedModel.transform.position = qrCodePosition;
-//
-//             // ✅ Đặt góc quay mới từ tham số truyền vào
+//       
+//             // ✅ Apply correct rotation
 //             loadedModel.transform.rotation = Quaternion.Euler(rotation);
+//             
+//             // ✅ Store initial scanned position & rotation
+//             qrPosition = loadedModel.transform.position;
+//             qrRotation = loadedModel.transform.rotation;
 //
-//             // ✅ Đảm bảo mô hình có kích thước chuẩn
-//             loadedModel.transform.localScale = Vector3.one * 0.1f;
-//
+//             // ✅ Apply correct scale
+//             loadedModel.transform.localScale = scale;
 //             Debug.Log(
 //                 $"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
 //
@@ -554,62 +727,63 @@
 //
 //
 //         // AFTER LOAD FIRST 3D MODEL.IT WILL CALL THIS FOR DOWNLOAD AND LOAD UI
-//      IEnumerator DownloadAndLoadUI(CourseResult course)
-// {
-//     string fileEndpoint = "/files/";
-//
-//     List<string> modelPaths = new List<string>();
-//     Dictionary<string, string> imagePaths = new Dictionary<string, string>();
-//
-//     // ✅ Total files to download (course image + instruction assets)
-//     int totalFiles = 1 + course.instructions.Sum(i => i.instructionDetailResponse.Count * 2); 
-//     int completedFiles = 0;
-//
-//     // ✅ Download course image
-//     if (!string.IsNullOrEmpty(course.imageUrl))
-//     {
-//         string imageFilePath = Path.Combine(Application.persistentDataPath, course.imageUrl);
-//         yield return StartCoroutine(DownloadFile(fileEndpoint + course.imageUrl, course.imageUrl));
-//         imagePaths[course.imageUrl] = imageFilePath;
-//         completedFiles++;
-//         UpdateProgress(completedFiles, totalFiles);
-//     }
-//
-//     // ✅ Download instruction images & 3D models
-//     foreach (var instruction in course.instructions)
-//     {
-//         foreach (var detail in instruction.instructionDetailResponse)
+//         IEnumerator DownloadAndLoadUI(CourseResult course)
 //         {
-//             // ✅ Download images
-//             if (!string.IsNullOrEmpty(detail.imgString))
+//             string fileEndpoint = "/files/";
+//
+//             List<string> modelPaths = new List<string>();
+//             Dictionary<string, string> imagePaths = new Dictionary<string, string>();
+//
+//             // ✅ Total files to download (course image + instruction assets)
+//             int totalFiles = 1 + course.instructions.Sum(i => i.instructionDetailResponse.Count * 2);
+//             int completedFiles = 0;
+//
+//             // ✅ Download course image
+//             if (!string.IsNullOrEmpty(course.imageUrl))
 //             {
-//                 string imageFilePath = Path.Combine(Application.persistentDataPath, detail.imgString);
-//                 yield return StartCoroutine(DownloadFile(fileEndpoint + detail.imgString, detail.imgString));
-//                 imagePaths[detail.imgString] = imageFilePath;
+//                 string imageFilePath = Path.Combine(Application.persistentDataPath, course.imageUrl);
+//                 yield return StartCoroutine(DownloadFile(fileEndpoint + course.imageUrl, course.imageUrl));
+//                 imagePaths[course.imageUrl] = imageFilePath;
 //                 completedFiles++;
 //                 UpdateProgress(completedFiles, totalFiles);
 //             }
 //
-//             // ✅ Download 3D models
-//             if (!string.IsNullOrEmpty(detail.fileString))
+//             // ✅ Download instruction images & 3D models
+//             foreach (var instruction in course.instructions)
 //             {
-//                 yield return StartCoroutine(DownloadFile(fileEndpoint + detail.fileString, detail.fileString));
-//                 completedFiles++;
-//                 UpdateProgress(completedFiles, totalFiles);
-//
-//                 if (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf"))
+//                 foreach (var detail in instruction.instructionDetailResponse)
 //                 {
-//                     string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
-//                     modelPaths.Add(modelPath);
+//                     // ✅ Download images
+//                     if (!string.IsNullOrEmpty(detail.imgString))
+//                     {
+//                         string imageFilePath = Path.Combine(Application.persistentDataPath, detail.imgString);
+//                         yield return StartCoroutine(DownloadFile(fileEndpoint + detail.imgString, detail.imgString));
+//                         imagePaths[detail.imgString] = imageFilePath;
+//                         completedFiles++;
+//                         UpdateProgress(completedFiles, totalFiles);
+//                     }
+//
+//                     // ✅ Download 3D models
+//                     if (!string.IsNullOrEmpty(detail.fileString))
+//                     {
+//                         yield return StartCoroutine(DownloadFile(fileEndpoint + detail.fileString, detail.fileString));
+//                         completedFiles++;
+//                         UpdateProgress(completedFiles, totalFiles);
+//
+//                         if (detail.fileString.EndsWith(".glb") || detail.fileString.EndsWith(".gltf"))
+//                         {
+//                             string modelPath = Path.Combine(Application.persistentDataPath, detail.fileString);
+//                             modelPaths.Add(modelPath);
+//                         }
+//                     }
 //                 }
 //             }
+//
+//             // ✅ Load UI with local images
+//             Debug.Log($"Load UI: {course.title} with {imagePaths.Count} images");
+//             LoadUI(course, imagePaths);
 //         }
-//     }
-//
-//     // ✅ Load UI with local images
-//     LoadUI(course, imagePaths);
-// }
-//
+//         
 //
 //         void LoadUI(CourseResult course, Dictionary<string, string> imagePaths)
 //         {
@@ -830,6 +1004,8 @@
 //             loadingUIPanel.SetActive(false);
 //             courseUIPanel.SetActive(true);
 //             instructionDetailPanel.SetActive(false);
+//             backButton.gameObject.SetActive(true);
+//         
 //
 //             // Show title
 //             courseTitleText.text = course.title;
@@ -866,16 +1042,50 @@
 //
 //
 //
+//         // 🌟 Dictionary to store the latest transform state of child meshes
+//        public  Dictionary<Transform, (Vector3 position, Quaternion rotation, Vector3 scale)> latestMeshTransforms = new();
 //
 //         void ShowInstructionDetails(Instruction instruction)
 //         {
 //             currentInstructionDetails = instruction.instructionDetailResponse;
 //             currentStepIndex = 0;
+//             
+//             // ✅ Ensure animation is active again
+//             GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+//             if (firstModel != null)
+//             {
+//                 firstModel.SetActive(true);
+//                 
+//
+//                 // ✅ Collect all child mesh transforms
+//                 MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+//                 foreach (MeshFilter meshFilter in meshFilters)
+//                 {
+//                     Transform meshTransform = meshFilter.transform;
+//
+//                     if (!latestMeshTransforms.ContainsKey(meshTransform))
+//                     {
+//                         latestMeshTransforms[meshTransform] = (meshTransform.localPosition, meshTransform.localRotation, meshTransform.localScale);
+//                         Debug.Log($"📌 Stored mesh transform: {meshTransform.name} | Position: {meshTransform.localPosition}, Rotation: {meshTransform.localRotation}");
+//                     }
+//                 }
+//             
+//
+//                 // ✅ Re-enable and restart animation
+//                 Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//                 if (animation != null)
+//                 {
+//                     animation.enabled = true;
+//                     animation.Play();
+//                     Debug.Log("▶️ Restarted animation on return to instruction details.");
+//                 }
+//             }
 //
 //             // ✅ Update UI with instruction details
 //             UpdateInstructionStepUI(instruction);
 //
 //
+//             
 //
 //
 //             // ✅ Show instruction detail panel
@@ -883,6 +1093,8 @@
 //             loadingUIPanel.SetActive(false);
 //             courseUIPanel.SetActive(false);
 //             instructionDetailPanel.SetActive(true);
+//             backButton.gameObject.SetActive(false);
+//
 //         }
 //
 //         void UpdateInstructionStepUI(Instruction instruction)
@@ -938,6 +1150,19 @@
 //                     Image stepImage = stepItem.transform.Find("instructionDetailImageShow")?.GetComponent<Image>();
 //                     if (stepImage) StartCoroutine(LoadImageFromLocal(imagePath, stepImage));
 //                 }
+//                 
+//                 Slider animationProgressSlider = stepItem.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+//                 TMP_Text animationTimeText = stepItem.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+//                 
+//                 // Add a button to open the control panel
+//                 Button controlButton = stepItem.transform.Find("openControlPanelButton")?.GetComponent<Button>();
+//                 if (controlButton)
+//                 {
+//                     controlButton.onClick.RemoveAllListeners();
+//                     controlButton.onClick.AddListener(() => OpenControlPanelForStep(stepItem)); // Pass stepItem
+//                 }
+//                 
+//                 
 //
 //                 // ✅ Play/Stop animation button logic
 //                 Button replayAnimationButton = stepItem.transform.Find("replayanimationButton")?.GetComponent<Button>();
@@ -945,7 +1170,7 @@
 //                 if (replayAnimationButton)
 //                 {
 //                     replayAnimationButton.onClick.RemoveAllListeners();
-//                     replayAnimationButton.onClick.AddListener(() => { PlayStepAnimation(firstModel, detail); });
+//                     replayAnimationButton.onClick.AddListener(() => { PlayStepAnimation(firstModel, detail, animationProgressSlider, animationTimeText); });
 //                 }
 //
 //                 Button playAndStopAnimationButton =
@@ -982,10 +1207,107 @@
 //
 //             // ✅ Show first step model & animation
 //             firstModel.SetActive(true);
-//             PlayStepAnimation(firstModel, currentInstructionDetails[0]);
+//             PlayStepAnimation(firstModel, currentInstructionDetails[0], instructionStepInstances[0].transform.Find("animationProgressSlider")?.GetComponent<Slider>(), instructionStepInstances[0].transform.Find("animationTimeText")?.GetComponent<TMP_Text>());
 //
 //             UpdateStepNavigationButtons();
 //         }
+//
+//         
+//         
+//         void OpenControlPanelForStep(GameObject stepItem)
+//         {
+//             // Find the index of stepItem in instructionStepInstances list
+//             int stepIndex = instructionStepInstances.IndexOf(stepItem);
+//     
+//             // Ensure the stepIndex is valid
+//             if (stepIndex < 0 || stepIndex >= currentInstructionDetails.Count)
+//             {
+//                 Debug.LogError($"❌ Invalid stepIndex: {stepIndex}. It must be between 0 and {currentInstructionDetails.Count - 1}.");
+//                 return;
+//             }
+//
+//             // Update the content of controlUIPanel based on the selected step
+//             InstructionDetail selectedDetail = currentInstructionDetails[stepIndex];
+//
+//             // Show controlUIPanel by setting its scale to Vector3.one
+//             controlUIPanel.transform.localScale = Vector3.one;
+//     
+//             // Hide the specific UI elements in instructionDetailStepPrefab by scaling them to Vector3.zero
+//             HideInstructionStepUIElements(stepItem);
+//
+//             // Set up the close button functionality for the control panel
+//             Button closeControlPanelButton = controlUIPanel.transform.Find("smallPanel/closeControlPanelButton")?.GetComponent<Button>();
+//             if (closeControlPanelButton)
+//             {
+//                 closeControlPanelButton.onClick.RemoveAllListeners();
+//                 closeControlPanelButton.onClick.AddListener(CloseControlPanel);
+//             }
+//         }   
+//         void CloseControlPanel()
+//         {
+//             // Hide the controlUIPanel
+//             controlUIPanel.transform.localScale = Vector3.zero;
+//
+//             // Retrieve the GameObject for the current step from the instructionStepInstances list
+//             GameObject stepItem = instructionStepInstances[currentStepIndex];
+//
+//             // Restore visibility for instruction step UI elements of the current step
+//             RestoreInstructionStepUIElements(stepItem);
+//         }
+//
+//
+//
+//  
+//     void RestoreInstructionStepUIElements(GameObject stepItem)
+// {
+//     // Restore visibility for the specific UI elements within the current step
+//     Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+//     Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+//     Transform replayButton = stepItem.transform.Find("replayanimationButton");
+//     Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+//     Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+//     Transform editSpeed = stepItem.transform.Find("EditSpeed");
+//     Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+//     Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+//     Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+//     
+//     // Make them visible again if they exist
+//     if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(true);
+//     if (playAndStopButton) playAndStopButton.gameObject.SetActive(true);
+//     if (replayButton) replayButton.gameObject.SetActive(true);
+//     if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(true);
+//     if (instructionNameText) instructionNameText.gameObject.SetActive(true);
+//     if (editSpeed) editSpeed.gameObject.SetActive(true);
+//     if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(true);
+//     if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(true);  // Add this line
+//     if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(true);  // Add this line
+// }
+//
+// void HideInstructionStepUIElements(GameObject stepItem)
+// {
+//     // Hide specific UI elements within the current step
+//     Transform backInstructionPanel = stepItem.transform.Find("backInstructionPanel");
+//     Transform playAndStopButton = stepItem.transform.Find("playandstopanimationButton");
+//     Transform replayButton = stepItem.transform.Find("replayanimationButton");
+//     Transform instructionDetailDescription = stepItem.transform.Find("instructionDetailDescriptionText");
+//     Transform instructionNameText = stepItem.transform.Find("instructionNameText");
+//     Transform editSpeed = stepItem.transform.Find("EditSpeed");
+//     Transform openControlPanelButton = stepItem.transform.Find("openControlPanelButton");
+//     Transform closeButtonSecond = stepItem.transform.Find("closeButtonSecond");  // Add this line
+//     Transform animationSpeedSlider = stepItem.transform.Find("animationSpeedSlider");
+//     // Hide them if they exist
+//     if (backInstructionPanel) backInstructionPanel.gameObject.SetActive(false);
+//     if (playAndStopButton) playAndStopButton.gameObject.SetActive(false);
+//     if (replayButton) replayButton.gameObject.SetActive(false);
+//     if (instructionDetailDescription) instructionDetailDescription.gameObject.SetActive(false);
+//     if (instructionNameText) instructionNameText.gameObject.SetActive(false);
+//     if (editSpeed) editSpeed.gameObject.SetActive(false);
+//     if (openControlPanelButton) openControlPanelButton.gameObject.SetActive(false);
+//     if (closeButtonSecond) closeButtonSecond.gameObject.SetActive(false);  // Add this line
+//     if (animationSpeedSlider) animationSpeedSlider.gameObject.SetActive(false);  // Add this line
+// }
+//
+//
 //
 //
 //         /// ✅ Hide UI elements (except navigation & closeButtonFirst) and set image transparency to 0
@@ -1012,7 +1334,7 @@
 //             if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(true);
 //         }
 //
-// // ✅ Show all UI elements and restore image transparency to 170/255
+//         // ✅ Show all UI elements and restore image transparency to 170/255
 //         void ShowInstructionUI(GameObject stepItem)
 //         {
 //             Debug.Log("🔹 Showing all instruction UI elements...");
@@ -1030,7 +1352,7 @@
 //             if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(false);
 //         }
 //
-// // ✅ Helper function to change image transparency
+//         // ✅ Helper function to change image transparency
 //         void SetInstructionImageTransparency(GameObject stepItem, float alpha)
 //         {
 //             Image stepImage = stepItem.GetComponent<Image>(); // Get Image component of the prefab itself
@@ -1043,12 +1365,9 @@
 //         }
 //
 //
-// // Speed values to cycle through
-//         float[] speedOptions = { 0.25f, 0.5f, 1f, 2f, 3f };
-//         int currentSpeedIndex = 2; // Default speed index (1x)
-//
-// // Create buttons for each speed option
-// // ✅ Create buttons for animation speed options
+//      
+//     
+//         // ✅ Create buttons for animation speed options
 //         void SetupSpeedControls(GameObject stepItem, GameObject firstModel, InstructionDetail detail)
 //         {
 //             // Find Buttons
@@ -1081,42 +1400,100 @@
 //         }
 //
 //
-// // ✅ Function to change animation speed
-//         void ChangeAnimationSpeed(GameObject firstModel, InstructionDetail detail, float speed)
-//         {
-//             if (firstModel == null) return;
+//     // ✅ Function to change animation speed
+//     void ChangeAnimationSpeed(GameObject firstModel, InstructionDetail detail, float newSpeed)
+//     {
+//         if (firstModel == null) return;
 //
-//             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-//             if (animation != null && animation.IsPlaying(detail.animationName))
+//         Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//         if (animation != null)
+//         {
+//             if (animation.GetClip(detail.animationName) != null)
 //             {
-//                 animation[detail.animationName].speed = speed;
-//                 Debug.Log($"⏩ Animation speed set to {speed}x");
+//                 AnimationState state = animation[detail.animationName];
+//                 state.speed = newSpeed;
+//                 lastAnimationSpeed = newSpeed; // ✅ Save speed globally
+//
+//                 // ✅ Find the current step's UI elements
+//                 GameObject currentStepUI = instructionStepInstances[currentStepIndex];
+//                 Slider progressSlider = currentStepUI.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+//                 TMP_Text timeText = currentStepUI.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+//
+//                 // ✅ Restart progress update only if animation is playing
+//                 StopCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+//                 if (!isAnimationPaused) 
+//                 {
+//                     StartCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+//                 }
+//
+//                 Debug.Log($"⚡ Changed animation speed to: {newSpeed}");
 //             }
 //         }
+//     }
+//
+//     
+//     
+//     void UpdateSpeedSliderUI(GameObject stepItem)
+//     {
+//         Slider speedSlider = stepItem.transform.Find("animationSpeedSlider")?.GetComponent<Slider>();
+//
+//         if (speedSlider)
+//         {
+//             speedSlider.value = 1f; // ✅ Reset speed slider to default 1x
+//         }
+//     }
 //
 //
 //
-//         void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, float speed = 1f)
+//
+//
+//     void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, Slider animationProgressSlider, TMP_Text animationTimeText, float speed = 1f)
 //         {
 //             if (!firstModel) return;
 //
+//             // ✅ Disable buttons at the start (force this so they don’t get overridden)
+//             SetNavigationButtonsInteractable(false);
+//             isAnimationPlaying = true;
+//             
+//             SetReplayButtonInteractable(false); 
+//             
+//             // ✅ Reset ALL individual meshes before playing animation
+//             MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+//             foreach (MeshFilter meshFilter in meshFilters)
+//             {
+//                 Transform meshTransform = meshFilter.transform;
+//
+//                 if (latestMeshTransforms.ContainsKey(meshTransform))
+//                 {
+//                     var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
+//                     meshTransform.localPosition = savedPos;
+//                     meshTransform.localRotation = savedRot;
+//                     meshTransform.localScale = savedScale;
+//                     Debug.Log($"🔄 Reset mesh {meshTransform.name} to Position: {savedPos}, Rotation: {savedRot}");
+//                 }
+//             }
+//             
+//
 //             // ✅ Get the Animation component
 //             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//      
+//             
 //             if (animation != null)
 //             {
-//                 // ✅ Disable Animator (if any) to prevent conflicts
+//                 
+//                 // ✅ Disable Animator to avoid conflicts
 //                 Animator animator = firstModel.GetComponentInChildren<Animator>();
-//                 if (animator != null)
-//                 {
-//                     Debug.LogWarning("⚠️ Animator detected! Disabling it to avoid conflicts with Animation.");
-//                     animator.enabled = false;
-//                 }
+//                 if (animator) animator.enabled = false;
+//
+//                 animation.Stop();
+//                 animation.Rewind();
 //
 //
 //                 animation.Stop();
 //                 animation.Rewind(); // ✅ Force rewind to first frame
 //                 Debug.Log("🔄 Stopped and rewound all animations.");
-//                 // ✅ Reset all animations before playing a new one
+//                 
+//                 // ✅ Ensure all animations reset before playing a new on
 //                 foreach (AnimationState state in animation)
 //                 {
 //                     if (state != null)
@@ -1129,9 +1506,17 @@
 //                         state.enabled = false; // Disable after sampling
 //                     }
 //                 }
-//
-//                 // ✅ Force Reset Model Transform
-//                 ResetModelState(firstModel);
+//                 
+//                 
+//                 // ✅ Disable looping for ALL animations
+//                 foreach (AnimationState state in animation)
+//                 {
+//                     if (state != null)
+//                     {
+//                         state.wrapMode = WrapMode.Once; // 🔴 Prevent looping
+//                     }
+//                 }
+//                 
 //
 //                 Debug.Log("🔄 Reset all previous animations.");
 //
@@ -1148,36 +1533,32 @@
 //                     lastState.enabled = false;
 //                     Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
 //                 }
-//
-//                 // ✅ Reset to "Idle" if available
-//                 if (animation.GetClip("Idle") != null)
-//                 {
-//                     animation.Play("Idle");
-//                     Debug.Log("🔄 Reset model to idle animation.");
-//                 }
-//                 else
-//                 {
-//                     Debug.LogWarning("⚠️ No 'Idle' animation found! Resetting model transforms.");
-//                     ResetModelState(firstModel);
-//                 }
-//
+//                 
 //                 // ✅ Play the new animation with speed control
 //                 if (animation.GetClip(detail.animationName) != null)
 //                 {
 //                     AnimationState newState = animation[detail.animationName];
 //                     lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
-//                     newState.speed = speed;
+//                     newState.speed = lastAnimationSpeed;
+//                     newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
 //                     animation.Play(detail.animationName);
 //                     Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
+//                     StartCoroutine(WaitForAnimationToEnd(animation, newState, firstModel));
+//                     StartCoroutine(UpdateAnimationProgress(animation, newState, animationProgressSlider, animationTimeText)); // ✅ Pass UI
 //                 }
 //                 else
 //                 {
 //                     Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
+//                     isAnimationPlaying = false;
+//                     SetNavigationButtonsInteractable(true);
+//                     SetReplayButtonInteractable(true);
 //                 }
 //             }
 //             else
 //             {
 //                 Debug.LogWarning("⚠️ No Animation component found!");
+//                 isAnimationPlaying = false;
+//                 SetNavigationButtonsInteractable(true);
 //             }
 //
 //             // ✅ Reset all meshes to active before hiding specific ones
@@ -1200,20 +1581,140 @@
 //                 }
 //             }
 //         }
+//         
+//         
+//     IEnumerator UpdateAnimationProgress(Animation animation, AnimationState state, Slider animationProgressSlider, TMP_Text animationTimeText)
+//     {
+//         if (animationProgressSlider == null || state == null) yield break;
 //
+//         float duration = state.length;
+//         animationProgressSlider.gameObject.SetActive(true);
+//         animationTimeText.gameObject.SetActive(true);
+//         animationProgressSlider.value = 0;
 //
-//
-//         public void GoBackToMainApp()
+//         while (state.enabled && animation.isPlaying)
 //         {
-//             PlayerPrefs.SetString("LastPage", "DetailPage");
-//             PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
-//             PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
-//             PlayerPrefs.Save();
+//             // ✅ Use AnimationState.time instead of manually tracking elapsedTime
+//             float progress = state.time / duration;
+//             animationProgressSlider.value = progress;
 //
-//             SceneManager.LoadScene("MainApp");
+//             // ✅ Update remaining time dynamically
+//             if (animationTimeText)
+//             {
+//                 float remainingTime = duration - state.time;
+//                 animationTimeText.text = $"{remainingTime:F1}s";
+//             }
+//
+//             yield return null; // ✅ Update every frame
 //         }
 //
-//         bool isModelCentered = false; // Add this as a global variable
+//         // ✅ Ensure progress is fully completed
+//         animationProgressSlider.value = 1;
+//         if (animationTimeText) animationTimeText.text = "0.0s";
+//
+//         yield return new WaitForSeconds(0.5f);
+//         animationProgressSlider.gameObject.SetActive(false);
+//         animationTimeText.gameObject.SetActive(false);
+//     }
+//
+//
+//
+//         
+//     public   bool isAnimationPlaying = false;
+//         private bool isAnimationPaused = false; // 🔴 Track if animation was paused manually
+//         // IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state)
+//         // {
+//         //     Debug.Log("⏳ Waiting for animation to finish...");
+//         //
+//         //     while (state.enabled && animation.IsPlaying(state.name) && !isAnimationPaused)
+//         //     {
+//         //         yield return null; // Wait until animation finishes or is manually paused/stopped
+//         //     }
+//         //
+//         //
+//         //     Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+//         //
+//         //     isAnimationPlaying = false;
+//         //     SetNavigationButtonsInteractable(true);
+//         // }
+//         
+//
+//         IEnumerator WaitForAnimationToEnd(Animation animation, AnimationState state, GameObject model)
+//         {
+//             Debug.Log("⏳ Waiting for animation to finish...");
+//
+//             SetNavigationButtonsInteractable(false); // 🚫 Disable navigation buttons
+//             SetBackButtonInteractable(false); // 🚫 Disable back button while animation runs
+//
+//             while (state.enabled && animation.IsPlaying(state.name))
+//             {
+//                 if (isAnimationPaused) // 🛑 If paused, keep waiting
+//                 {
+//                     Debug.Log("⏸️ Animation paused, waiting...");
+//                     yield return null;
+//                 }
+//                 else
+//                 {
+//                     yield return null; // ✅ Continue waiting normally
+//                 }
+//             }
+//
+//             // ✅ Only re-enable buttons if animation finished naturally
+//                 Debug.Log("✅ Animation finished. Re-enabling navigation buttons.");
+//                 isAnimationPlaying = false;
+//                 SetNavigationButtonsInteractable(true);
+//                 SetReplayButtonInteractable(true); 
+//                 SetBackButtonInteractable(true); // ✅ Re-enable back button after animation
+//                 
+//             
+//             
+//         }
+//
+//
+//         
+//         void SetBackButtonInteractable(bool isInteractable)
+//         {
+//             if (instructionStepInstances.Count == 0) return;
+//
+//             // ✅ Get the active step
+//             GameObject currentStep = instructionStepInstances[currentStepIndex];
+//
+//             // ✅ Find the back button
+//             Button backButton = currentStep.transform.Find("backInstructionPanel")?.GetComponent<Button>();
+//
+//             // ✅ Enable/Disable back button
+//             if (backButton) backButton.interactable = isInteractable;
+//
+//             Debug.Log($"🔙 Back button {(isInteractable ? "enabled" : "disabled")} for step {currentStepIndex}");
+//         }
+//
+//         
+//
+//       
+//         // 🟢 Enable/Disable Previous & Next buttons dynamically
+//         void UpdateStepNavigationButtons()
+//         {
+//             if (instructionStepInstances.Count == 0) return;
+//
+//             GameObject currentStep = instructionStepInstances[currentStepIndex];
+//
+//             Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
+//             Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
+//
+//             // ✅ Only update buttons if animation is not playing
+//             if (!isAnimationPlaying)
+//             {
+//                 if (prevButton) prevButton.interactable = (currentStepIndex > 0);
+//                 if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
+//             }
+//         }
+//
+//        public  Vector3 latestPosition;
+//        public Quaternion latestRotation;
+//
+//        public Vector3 qrPosition;
+//        public Quaternion qrRotation;
+//         bool isModelCentered = false;
 //
 //         void CenterModel()
 //         {
@@ -1274,12 +1775,103 @@
 //
 //             model.position = finalPosition;
 //             model.rotation = Quaternion.LookRotation(cameraForward);
+//             
+//             
+//             // 🆕 Store the latest position and rotation
+//             latestPosition = finalPosition;
+//             latestRotation = model.rotation;
+//          
+//             // 🆕 Store latest positions of all child meshes
+//             latestMeshTransforms.Clear();
+//             foreach (Transform child in model)
+//             {
+//                 latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+//             }
+//             
 //
 //             Debug.Log($"🎯 Model placed at: {finalPosition}");
 //             model.gameObject.SetActive(true);
 //
 //
 //         }
+//         
+//         public void MoveModelUp(float distance = 0.1f)
+//         {
+//             MoveModelVertical(distance);
+//         }
+//
+//         public void MoveModelDown(float distance = 0.1f)
+//         {
+//             MoveModelVertical(-distance);
+//         }
+//
+//         private void MoveModelVertical(float yDelta)
+//         {
+//             if (modelContainer == null)
+//             {
+//                 Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+//                 return;
+//             }
+//
+//             Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+//             if (model == null)
+//             {
+//                 Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+//                 return;
+//             }
+//
+//             Vector3 currentPosition = model.position;
+//             Vector3 newPosition = currentPosition + new Vector3(0, yDelta, 0);
+//             model.position = newPosition;
+//
+//             // Update stored transforms
+//             latestPosition = model.position;
+//             latestRotation = model.rotation;
+//
+//             latestMeshTransforms.Clear();
+//             foreach (Transform child in model)
+//             {
+//                 latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+//             }
+//
+//             Debug.Log($"↕️ Model moved vertically to: {model.position}");
+//         }
+//
+//         public void MoveModelBackToQR()
+//         {
+//             if (modelContainer == null)
+//             {
+//                 Debug.LogError("❌ Model container is NULL! Cannot move the model.");
+//                 return;
+//             }
+//
+//             Transform model = modelContainer.transform.Find("FirstModelAfterScan");
+//             if (model == null)
+//             {
+//                 Debug.LogError("❌ No child model named 'FirstModelAfterScan' found inside ModelContainer!");
+//                 return;
+//             }
+//
+//             // ✅ Move model back to its original scanned position
+//             model.position = qrPosition;
+//             model.rotation = qrRotation;
+//             
+//             // 🆕 Store the latest position and rotation
+//             latestPosition = model.position;
+//             latestRotation = model.rotation;
+//          
+//             // 🆕 Store latest positions of all child meshes
+//             latestMeshTransforms.Clear();
+//             foreach (Transform child in model)
+//             {
+//                 latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+//             }
+//
+//
+//             Debug.Log($"🔄 Model moved back to QR position: {qrPosition}");
+//             model.gameObject.SetActive(true);
+//         }
+//
 //
 //
 //         public void ResetModelPosition()
@@ -1289,6 +1881,391 @@
 //
 //
 //
+//
+//       
+//
+//     private string lastPlayedAnimationName = null;
+//    
+//     private float lastAnimationTime = 0f; // Store last animation time
+//
+//     public void TogglePlayPauseAnimation(GameObject firstModel)
+//     {
+//         if (!firstModel) return;
+//
+//         Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//         if (animation != null)
+//         {
+//             // ✅ Find current step's UI elements
+//             GameObject currentStepUI = instructionStepInstances[currentStepIndex];
+//             Slider progressSlider = currentStepUI.transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+//             TMP_Text timeText = currentStepUI.transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+//             
+//             foreach (AnimationState state in animation)
+//             {
+//                 if (state.enabled) // 🔴 If animation is playing, PAUSE it
+//                 {
+//                     lastPlayedAnimationName = state.name;
+//                     lastAnimationTime = state.time; // Save current time before pausing
+//                     state.enabled = false; // Pause animation
+//                     animation.Sample(); // Keep the last frame
+//                     isAnimationPaused = true; // ✅ Mark as paused
+//                     // ✅ Stop updating the progress slider when paused
+//                     StopCoroutine(UpdateAnimationProgress(animation, state, progressSlider, timeText));
+//
+//                     Debug.Log($"⏸️ Paused animation '{state.name}' at frame: {state.time}");
+//                     return;
+//                 }
+//             }
+//
+//             // ▶️ If NO animation is playing, RESUME the last played animation
+//             if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
+//                 animation.GetClip(lastPlayedAnimationName) != null)
+//             {
+//                 AnimationState lastState = animation[lastPlayedAnimationName];
+//                 lastState.time = lastAnimationTime; // Resume from last saved time
+//                 lastState.enabled = true;
+//                 animation.Play(lastPlayedAnimationName);
+//                 isAnimationPaused = false; // ✅ Fix stuck state
+//                 Debug.Log($"▶️ Resumed animation '{lastPlayedAnimationName}' at frame: {lastAnimationTime}");
+//
+//       
+//                 // ✅ Restart progress update
+//                 StartCoroutine(UpdateAnimationProgress(animation, lastState, progressSlider, timeText));
+//                 
+//                 if (!isAnimationPlaying) // ✅ Restart waiting coroutine
+//                 {
+//                     StartCoroutine(WaitForAnimationToEnd(animation, lastState, firstModel));
+//                 }
+//             }
+//             else
+//             {
+//                 Debug.LogWarning("⚠️ No previous animation found to resume.");
+//             }
+//         }
+//         else
+//         {
+//             Debug.LogWarning("⚠️ No Animation component found.");
+//         }
+//     }
+//
+//
+//
+//
+//     public void StopCurrentAnimationAtFrame(GameObject firstModel)
+//     {
+//         if (firstModel == null) return;
+//
+//         Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//         if (animation != null)
+//         {
+//             foreach (AnimationState state in animation)
+//             {
+//                 if (state.enabled)
+//                 {
+//                     lastPlayedAnimationName = state.name;
+//                     lastAnimationTime = state.time; // Save the current frame before stopping
+//                     state.enabled = false;
+//                     animation.Sample(); // Apply the current frame
+//                     isAnimationPaused = false; // ✅ Fix stuck state
+//                     isAnimationPlaying = false; // ✅ Ensure correct state
+//                     SetNavigationButtonsInteractable(true); // ✅ Re-enable buttons
+//                     Debug.Log($"⏹ Stopped animation '{state.name}' at frame: {state.time}");
+//                     return;
+//                 }
+//             }
+//         }
+//         else
+//         {
+//             Debug.LogWarning("⚠️ No Animation component found!");
+//         }
+//     }
+//
+//
+//
+//
+//
+//
+//         void ResetModelState(GameObject model)
+//         {
+//
+//
+//             Debug.Log("🔄 Model reset to default transform state.");
+//             // ✅ Reset blend shapes (if applicable)
+//             SkinnedMeshRenderer[] skinnedMeshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+//             foreach (var skinnedMesh in skinnedMeshes)
+//             {
+//                 Mesh mesh = skinnedMesh.sharedMesh;
+//                 if (mesh != null && mesh.blendShapeCount > 0)
+//                 {
+//                     for (int i = 0; i < mesh.blendShapeCount; i++)
+//                     {
+//                         skinnedMesh.SetBlendShapeWeight(i, 0); // Reset all blend shapes
+//                     }
+//                 }
+//             }
+//
+//             Debug.Log("🔄 Model reset to default transform state.");
+//         }
+//
+//         void SetReplayButtonInteractable(bool isInteractable)
+//         {
+//             if (instructionStepInstances.Count == 0) return;
+//
+//             // ✅ Get the active step
+//             GameObject currentStep = instructionStepInstances[currentStepIndex];
+//
+//             // ✅ Find the replay button ONLY in the current step
+//             Button replayButton = currentStep.transform.Find("replayanimationButton")?.GetComponent<Button>();
+//
+//             // 🔴 Ensure the replay button stays disabled if animation is still playing
+//             bool canInteract = isInteractable && !isAnimationPlaying;
+//
+//             // ✅ Enable/Disable replay button correctly
+//             if (replayButton) replayButton.interactable = canInteract;
+//
+//             Debug.Log($"🔄 Replay button {(canInteract ? "enabled" : "disabled")} for step {currentStepIndex}");
+//         }
+//
+//         
+//     // 🔄 Change step logic
+//     void ChangeInstructionStep(int direction)
+//     {
+//         if (instructionStepInstances.Count == 0 || isAnimationPlaying) return; // 🔴 Prevent step change while animating
+//
+//         
+//     
+//         // ✅ Hide current step UI
+//         instructionStepInstances[currentStepIndex].SetActive(false);
+//         // ✅ Hide the UI elements of the current step (before switching to the next)
+//         HideInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+//
+//
+//         controlUIPanel.transform.localScale = Vector3.zero;  // Hide control panel
+//
+//         // ✅ Move to next/previous step
+//         currentStepIndex += direction;
+//         currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
+//
+//         
+//         // ✅ Reset mesh transforms BEFORE playing new animation
+//         GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+//         if (firstModel != null)
+//         {
+//             // ✅ Reset the model to the latest known position & rotation
+//             firstModel.transform.position = latestPosition;
+//             firstModel.transform.rotation = latestRotation;
+//         
+//             Debug.Log($"🔄 Reset model to latest position: {latestPosition}, rotation: {latestRotation}");
+//
+//             // ✅ Reset each child mesh to its latest known transform
+//             foreach (Transform child in firstModel.transform)
+//             {
+//                 if (latestMeshTransforms.ContainsKey(child))
+//                 {
+//                     var (savedPosition, savedRotation, savedScale) = latestMeshTransforms[child];
+//                     child.localPosition = savedPosition;
+//                     child.localRotation = savedRotation;
+//                     child.localScale = savedScale;
+//                 }
+//             }
+//         }
+//         
+//         // ✅ Show new step UI
+//         instructionStepInstances[currentStepIndex].SetActive(true);
+//         RestoreInstructionStepUIElements(instructionStepInstances[currentStepIndex]);
+//
+//     
+//         // ✅ Reset speed to 1x for each step
+//         lastAnimationSpeed = 1f;  
+//     
+//         // ✅ Update speed UI (slider)
+//         UpdateSpeedSliderUI(instructionStepInstances[currentStepIndex]);
+//
+//         // ✅ Get UI elements for animation control
+//         Slider animationProgressSlider = instructionStepInstances[currentStepIndex].transform.Find("animationProgressSlider")?.GetComponent<Slider>();
+//         TMP_Text animationTimeText = instructionStepInstances[currentStepIndex].transform.Find("animationTimeText")?.GetComponent<TMP_Text>();
+//
+//       
+//         if (firstModel != null)
+//         {
+//             InstructionDetail currentStepDetail = currentInstructionDetails[currentStepIndex];
+//
+//             // ✅ Block buttons
+//             isAnimationPlaying = true;
+//             SetNavigationButtonsInteractable(false);
+//
+//             PlayStepAnimation(firstModel, currentStepDetail, animationProgressSlider, animationTimeText); // ✅ Pass step-specific UI
+//             
+//         }
+//     }
+//
+//
+//     
+//     void SaveMeshTransforms(GameObject model)
+//     {
+//         if (model == null) return;
+//     
+//         foreach (Transform child in model.transform)
+//         {
+//             latestMeshTransforms[child] = (child.localPosition, child.localRotation, child.localScale);
+//         }
+//     }
+//
+//
+//     // 🟢 Enable/Disable Previous & Next buttons dynamically
+//     void SetNavigationButtonsInteractable(bool isInteractable)
+//     {
+//         if (instructionStepInstances.Count == 0) return;
+//
+//         // ✅ Get the active step
+//         GameObject currentStep = instructionStepInstances[currentStepIndex];
+//
+//         // ✅ Find buttons ONLY in the current step
+//         Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
+//         Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
+//
+//         // 🔴 Ensure buttons stay disabled if an animation is still playing
+//         bool canInteract = isInteractable && !isAnimationPlaying;
+//
+//         // ✅ Enable/Disable buttons correctly
+//         if (prevButton) prevButton.interactable = canInteract && (currentStepIndex > 0);
+//         if (nextButton) nextButton.interactable = canInteract && (currentStepIndex < instructionStepInstances.Count - 1);
+//
+//         Debug.Log($"🔘 Buttons updated: Prev={prevButton?.interactable}, Next={nextButton?.interactable}, AnimationPlaying={isAnimationPlaying}");
+//     }
+//     
+//         public void GoBackToMainApp()
+//         {
+//             PlayerPrefs.SetString("LastPage", "DetailPage");
+//             PlayerPrefs.SetInt("ShowHomePage", 1); // ✅ Indicate that HomePage should be shown
+//             PlayerPrefs.SetInt("ShowDetailPage", 1); // ✅ Indicate that DetailPage should be shown
+//             PlayerPrefs.Save();
+//             SceneManager.LoadScene("MainApp2");
+//         }
+//
+//
+//     void BackToCourseUI()
+// {
+//     // ✅ Activate UI elements correctly
+//     instructionDetailStepPrefab.SetActive(true);
+//     instructionDetailPanel.SetActive(false);
+//     courseUIPanel.SetActive(true);
+//     backButton.gameObject.SetActive(true);
+//
+//     Debug.Log("🔙 Returning to Course UI");
+//
+//     // ✅ Hide all step UI elements
+//     foreach (GameObject stepItem in instructionStepInstances)
+//     {
+//         stepItem.SetActive(false);
+//     }
+//
+//     // ✅ Reset to first step
+//     currentStepIndex = 0;
+//     isAnimationPlaying = false; // ✅ Ensure animations are marked as done
+//
+//     // ✅ Find "FirstModelAfterScan"
+//     GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
+//     if (firstModel == null)
+//     {
+//         Debug.LogWarning("⚠ No model found with the name 'FirstModelAfterScan'.");
+//         return;
+//     }
+//
+//     firstModel.SetActive(true);
+//
+//     // ✅ Step 1: Disable Animations BEFORE Resetting Transforms
+//     Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+//     if (animation != null)
+//     {
+//         Debug.Log($"🎬 Found Animation Component with {animation.GetClipCount()} clips.");
+//         
+//         foreach (AnimationState state in animation)
+//         {
+//             Debug.Log($"🔄 Resetting animation: {state.name}");
+//             state.time = 0f;
+//             state.enabled = true;
+//             animation.Play(state.name);
+//             animation.Sample();
+//             animation.Stop();
+//             state.enabled = false;
+//         }
+//
+//         animation.enabled = false; // Completely stop animation
+//         Debug.Log("⏹ Animation stopped and rewound.");
+//     }
+//
+//     Animator animator = firstModel.GetComponentInChildren<Animator>(true);
+//     if (animator != null)
+//     {
+//         Debug.Log($"🎭 Found Animator with {animator.layerCount} layers. Resetting...");
+//         animator.enabled = false; // Disable first
+//         animator.Rebind(); // Reset animation states
+//         animator.Update(0); // Force update
+//         animator.enabled = true; // Re-enable
+//         Debug.Log("✅ Animator fully reset to first frame.");
+//     }
+//
+//     // ✅ Step 2: Restore Model Transform
+//     firstModel.transform.position = latestPosition;
+//     firstModel.transform.rotation = latestRotation;
+//     Debug.Log($"📌 Model position reset: {latestPosition}, rotation: {latestRotation}");
+//
+//     // ✅ Step 3: Restore ALL Mesh Transforms
+//     MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+//     foreach (MeshFilter meshFilter in meshFilters)
+//     {
+//         Transform meshTransform = meshFilter.transform;
+//         if (latestMeshTransforms.ContainsKey(meshTransform))
+//         {
+//             var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
+//
+//             meshTransform.localPosition  = savedPos;
+//             meshTransform.localRotation = savedRot;
+//             meshTransform.localScale = savedScale;
+//
+//             Debug.Log($"🛠 Restored mesh: {meshTransform.name} -> Position: {savedPos}, Rotation: {savedRot}");
+//         }
+//
+//         meshTransform.gameObject.SetActive(true); // Ensure visibility
+//     }
+//
+//     // ✅ Step 4: Force a Final Transform Reset in the Next Frame (Important)
+//     StartCoroutine(ForceMeshTransformReset(firstModel));
+//
+//     Debug.Log("✅ BackToCourseUI() COMPLETED.");
+// }
+//
+// // 🚀 **Forces Mesh Transforms Reset in the Next Frame**
+// IEnumerator ForceMeshTransformReset(GameObject firstModel)
+// {
+//     yield return null; // ✅ Wait 1 frame to allow Unity to process changes
+//
+//     Debug.Log("🔄 Restoring all mesh transforms (Delayed Update)...");
+//
+//     foreach (Transform child in firstModel.transform)
+//     {
+//         if (latestMeshTransforms.ContainsKey(child))
+//         {
+//             var (savedPos, savedRot, savedScale) = latestMeshTransforms[child];
+//
+//             child.localPosition = savedPos;
+//             child.localRotation = savedRot;
+//             child.localScale = savedScale;
+//
+//             Debug.Log($"🛠 Mesh Final Reset: {child.name} -> Position: {savedPos}, Rotation: {savedRot}");
+//         }
+//
+//         child.gameObject.SetActive(true);
+//     }
+//
+//     Debug.Log("✅ All meshes successfully restored.");
+// }
+//
+//         
+//         
+//         
+//     
 //
 //         void SetupModelInteractions(GameObject model)
 //         {
@@ -1339,192 +2316,29 @@
 //                 model.AddComponent<PinchToScale>();
 //                 Debug.Log("📌 PinchToScale script added (Pinch to scale).");
 //             }
-//         }
-//
-//         void TogglePlayPauseAnimation(GameObject firstModel)
-//         {
-//             if (!firstModel) return;
-//
-//             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-//             if (animation != null)
+//             
+//             // ✅ Add Joystick Movement Script
+//             if (model.GetComponent<JoystickModelController>() == null)
 //             {
-//                 foreach (AnimationState state in animation)
+//                 JoystickModelController joystickController = model.AddComponent<JoystickModelController>();
+//         
+//                 // Find the joystick in the scene and assign it
+//                 Joystick foundJoystick = FindObjectOfType<Joystick>();
+//                 if (foundJoystick != null)
 //                 {
-//                     if (state.enabled) // 🔴 If animation is playing, PAUSE it
-//                     {
-//                         state.enabled = false; // Pause animation
-//                         animation.Sample(); // Keep the last frame
-//                         Debug.Log($"⏸️ Paused animation at frame: {state.time}");
-//                         return; // Stop execution here
-//                     }
+//                     joystickController.joystick = foundJoystick;
+//                     Debug.Log("📌 Joystick found and assigned!");
 //                 }
-//
-//                 // ▶️ If NO animation is playing, RESUME the last played animation
-//                 if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
-//                     animation.GetClip(lastPlayedAnimationName) != null)
-//                 {
-//                     AnimationState lastState = animation[lastPlayedAnimationName];
-//                     lastState.time = 0f;
-//                     lastState.enabled = true;
-//                     animation.Play(lastPlayedAnimationName);
-//                     animation.Stop();
-//                     animation.Sample();
-//                     lastState.enabled = false;
-//                 }
-//
 //                 else
 //                 {
-//                     Debug.LogWarning("⚠️ No previous animation found to resume.");
+//                     //Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
 //                 }
 //             }
-//             else
-//             {
-//                 Debug.LogWarning("⚠️ No Animation component found.");
-//             }
+//             
+//             
+//             
 //         }
-//
-//         string lastPlayedAnimationName = null;
-//
-//         void StopCurrentAnimationAtFrame(GameObject firstModel)
-//         {
-//             if (firstModel == null) return;
-//
-//             // ✅ Get the Animation component
-//             Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-//             if (animation != null)
-//             {
-//                 foreach (AnimationState state in animation)
-//                 {
-//                     if (state.enabled)
-//                     {
-//                         // ✅ Keep the animation at the current frame
-//                         state.enabled = false;
-//                         animation.Sample(); // Apply the current frame
-//                         Debug.Log($"⏸ Stopped animation at current frame: {state.name}");
-//                         return; // Stop after pausing the first active animation
-//                     }
-//                 }
-//             }
-//             else
-//             {
-//                 Debug.LogWarning("⚠️ No Animation component found!");
-//             }
-//         }
-//
-//
-//
-//         void ResetModelState(GameObject model)
-//         {
-//
-//
-//             Debug.Log("🔄 Model reset to default transform state.");
-//             // ✅ Reset blend shapes (if applicable)
-//             SkinnedMeshRenderer[] skinnedMeshes = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-//             foreach (var skinnedMesh in skinnedMeshes)
-//             {
-//                 Mesh mesh = skinnedMesh.sharedMesh;
-//                 if (mesh != null && mesh.blendShapeCount > 0)
-//                 {
-//                     for (int i = 0; i < mesh.blendShapeCount; i++)
-//                     {
-//                         skinnedMesh.SetBlendShapeWeight(i, 0); // Reset all blend shapes
-//                     }
-//                 }
-//             }
-//
-//             Debug.Log("🔄 Model reset to default transform state.");
-//         }
-//
-//
-//         void BackToCourseUI()
-//         {
-//
-//             instructionDetailStepPrefab.SetActive(true);
-//             instructionDetailPanel.SetActive(false);
-//             courseUIPanel.SetActive(true);
-//
-//             Debug.Log("🔙 Returning to Course UI");
-//
-//             // ✅ Hide all step UI elements
-//             foreach (GameObject stepItem in instructionStepInstances)
-//             {
-//                 stepItem.SetActive(false);
-//             }
-//
-//             // ✅ Reset to first step
-//             currentStepIndex = 0;
-//
-//             // ✅ Reactivate "FirstModelAfterScan" and restore meshes
-//             GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-//             if (firstModel != null)
-//             {
-//                 firstModel.SetActive(true);
-//
-//                 // ✅ Reactivate all hidden meshes
-//                 foreach (Transform child in firstModel.transform)
-//                 {
-//                     child.gameObject.SetActive(true);
-//                     Debug.Log($"✅ Reactivating mesh: {child.name}");
-//                 }
-//
-//                 // ✅ Stop animation & reset to first frame
-//                 Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-//                 if (animation != null)
-//                 {
-//                     animation.Stop(); // Stop any running animation
-//
-//                     Debug.Log("⏹ Animation stopped and model reset to first frame.");
-//                 }
-//             }
-//         }
-//
-//
-//
-// // 🔄 Change step logic
-//         void ChangeInstructionStep(int direction)
-//         {
-//             if (instructionStepInstances.Count == 0) return;
-//
-//             // ✅ Hide current step UI
-//             instructionStepInstances[currentStepIndex].SetActive(false);
-//
-//             // ✅ Move to next/previous step
-//             currentStepIndex += direction;
-//             currentStepIndex = Mathf.Clamp(currentStepIndex, 0, instructionStepInstances.Count - 1);
-//
-//             // ✅ Show new step UI
-//             instructionStepInstances[currentStepIndex].SetActive(true);
-//
-//             // ✅ Play animation & update meshes
-//             GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
-//             if (firstModel != null)
-//             {
-//                 PlayStepAnimation(firstModel, currentInstructionDetails[currentStepIndex]);
-//             }
-//
-//             UpdateStepNavigationButtons();
-//         }
-//
-// // 🟢 Enable/Disable Previous & Next buttons dynamically
-//         void UpdateStepNavigationButtons()
-//         {
-//             if (instructionStepInstances.Count == 0) return;
-//
-//             GameObject currentStep = instructionStepInstances[currentStepIndex];
-//
-//             Button prevButton = currentStep.transform.Find("instructionDetailPreviousButton")?.GetComponent<Button>();
-//             Button nextButton = currentStep.transform.Find("instructionDetailNextStepButton")?.GetComponent<Button>();
-//
-//             if (prevButton) prevButton.interactable = (currentStepIndex > 0);
-//             if (nextButton) nextButton.interactable = (currentStepIndex < instructionStepInstances.Count - 1);
-//         }
-//
-//
-//
-//
-//
-//
-//
+//         
 //         // ReSharper disable Unity.PerformanceAnalysis
 //         IEnumerator LoadImageFromLocal(string imagePath, UnityEngine.UI.Image targetImage)
 //         {
@@ -1553,7 +2367,6 @@
 //
 //
 //
-//
 //         void ResetScanning()
 //         {
 //             isScanning = true;
@@ -1569,277 +2382,11 @@
 //             if (debugLogText is not null)
 //                 debugLogText.text = debugMessage;
 //         }
-//
-//
-//
-//
-//     
-// }
-//
-// // API Response Classes
-// [System.Serializable]
-// public class ApiResponse
-// {
-//     public int code;
-//     public CourseResult result;
-// }
-//
-// [System.Serializable]
-// public class CourseResult
-// {
-//     public string id;
-//     public string courseCode;
-//     public string modelId;
-//     public string title;
-//     public string description;
-//     public string imageUrl;
-//     public Instruction[] instructions;
-// }
-//
-// // Instruction Data Model
-// [System.Serializable]
-// public class Instruction
-// {
-//     public string id;
-//     public string courseId;
-//     public int orderNumber;
-//     public string name;
-//     public string description;
-//     public string position;
-//     public string rotation;
-//     public List<InstructionDetail> instructionDetailResponse;
-// }
-//
-// [System.Serializable]
-// public class InstructionDetail
-// {
-//     public string id;
-//     public string instructionId;
-//     public string name;
-//     public List<string> meshes;
-//     public string animationName;
-//     public int orderNumber;
-//     public string description;
-//     public string fileString;
-//     public string imgString;
-// }
-// [System.Serializable]
-// public class ModelResponse
-// {
-//     public int code;
-//     public ModelData result;
-// }
-//
-// [System.Serializable]
-// public class ModelData
-// {
-//     public string id;
-//     public string modelTypeId;
-//     public string modelTypeName;
-//     public string modelCode;
-//     public string status;
-//     public string name;
-//     public string companyId;
-//     public string description;
-//     public string imageUrl;
-//     public bool isUsed;
-//     public string version;
-//     public string scale;
-//     public float[] position;  // Position as [x, y, z]
-//     public float[] rotation;  // Rotation as [x, y, z]
-//     public string file;
-//     public string courseName;
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// using UnityEngine;
-// using UnityEngine.Networking;
-// using System.Collections;
-// using System.Collections.Generic;
-// using TMPro;
-// using Newtonsoft.Json.Linq;
-// using UnityEngine.UI;
-// using Models;
-// public class APIRealTime : MonoBehaviour
-// {
-//     public Transform dataLayoutGroup;
-//     public GameObject dataRowPrefab;
-//     public GameObject categoryHeaderPrefab;
-//     
-//     private string machineCode = ""; // 🔹 Save last scanned machine code
-//     private string previousJson = "";
-//     private string currentMachineCode = "";
-//
-//     private Dictionary<string, string> apiHeaders = new Dictionary<string, string>(); 
-//
-//     void Start()
-//     {
-//         InvokeRepeating(nameof(FetchAPIData), 0f, 5f); // Lấy dữ liệu mỗi 5 giây
-//     }
-//
-//     
-//     IEnumerator FetchMachineDataRoutine(string machineCode, string secondValue, string courseId)
-//     {
-//         string endpoint = "/machine/code/" + machineCode;
-//         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-//
-//         yield return request.SendWebRequest();
 //         
-//         }
-//     }
-//     
-//     void FetchAPIData()
-//     {
-//         StartCoroutine(GetDataFromAPI());
-//     }
-//
-//     IEnumerator GetDataFromAPI()
-//     {
-//         string url = "https://demoapicallgetlaptopinfo.onrender.com/cpu";
-//         UnityWebRequest request = UnityWebRequest.Get(url);
-//         request.SetRequestHeader("API_KEY", "my_secure_token_123");
-//
-//         yield return request.SendWebRequest();
-//
-//         if (request.result == UnityWebRequest.Result.Success)
-//         {
-//             string jsonResponse = request.downloadHandler.text;
-//
-//             if (jsonResponse != previousJson) // Chỉ cập nhật nếu dữ liệu thay đổi
-//             {
-//                 JObject parsedData = JObject.Parse(jsonResponse);
-//                 DisplayData(parsedData);
-//                 previousJson = jsonResponse;
-//             }
-//         }
-//         else
-//         {
-//             Debug.LogError("API Error: " + request.error);
-//         }
-//     }
-//
-//     void DisplayData(JObject data)
-//     {
-//         // Xóa dữ liệu cũ trước khi cập nhật
-//         foreach (Transform child in dataLayoutGroup)
-//         {
-//             Destroy(child.gameObject);
-//         }
-//
-//         foreach (var category in data)
-//         {
-//             string categoryName = category.Key;
-//             JToken categoryValues = category.Value;
-//
-//             if (categoryValues.Type == JTokenType.Object) // 🔹 Nếu là nhóm dữ liệu
-//             {
-//                 AddCategoryHeader(categoryName);
-//                 foreach (var item in categoryValues.Children<JProperty>())
-//                 {
-//                     AddDataRow(item.Name, FormatValue(item.Value));
-//                 }
-//             }
-//             else
-//             {
-//                 AddDataRow(categoryName, FormatValue(categoryValues));
-//             }
-//         }
-//     }
-//
-//     // 🔹 Chuẩn hóa giá trị hiển thị
-//     string FormatValue(JToken value)
-//     {
-//         if (value.Type == JTokenType.Null || (value.Type == JTokenType.String && string.IsNullOrWhiteSpace(value.ToString())))
-//         {
-//             return "Unknown"; // Nếu rỗng, hiển thị "Unknown"
-//         }
-//
-//         if (value.Type == JTokenType.Float || value.Type == JTokenType.Integer)
-//         {
-//             return $"{value:F2}"; // Format số thực (2 chữ số thập phân)
-//         }
-//
-//         return value.ToString(); // Các kiểu khác giữ nguyên
-//     }
-//
-//     // 🔹 Thêm hàng key-value
-//     void AddDataRow(string key, string value)
-//     {
-//         GameObject newRow = Instantiate(dataRowPrefab, dataLayoutGroup);
-//         TMP_Text keyText = newRow.transform.Find("KeyText").GetComponent<TMP_Text>();
-//         TMP_Text valueText = newRow.transform.Find("ValueText").GetComponent<TMP_Text>();
-//
-//         keyText.text = key + ":";
-//         keyText.fontStyle = FontStyles.Bold;
-//         keyText.alignment = TextAlignmentOptions.Right;
-//         keyText.fontSize = 28;
-//
-//         valueText.text = value;
-//         valueText.fontStyle = FontStyles.Normal;
-//         valueText.alignment = TextAlignmentOptions.Left;
-//         valueText.fontSize = 28;
-//
-//         // 🎨 Đổi màu chữ nếu giá trị là phần trăm
-//         if (key.ToLower().Contains("percent") || key.ToLower().Contains("usage"))
-//         {
-//             if (float.TryParse(value.Replace("%", ""), out float percentage))
-//             {
-//                 valueText.color = percentage > 80 ? Color.red :
-//                                   percentage > 50 ? new Color(1f, 0.5f, 0f) :
-//                                   Color.green;
-//             }
-//         }
-//
-//         // 🎬 Hiệu ứng Fade-in
-//         CanvasGroup canvasGroup = newRow.AddComponent<CanvasGroup>();
-//         canvasGroup.alpha = 0;
-//         StartCoroutine(FadeIn(canvasGroup, 0.5f));
-//     }
-//
-//     // 🔹 Thêm tiêu đề nhóm
-//     void AddCategoryHeader(string title)
-//     {
-//         GameObject newHeader = Instantiate(categoryHeaderPrefab, dataLayoutGroup);
-//         TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
-//
-//         headerText.text = title.ToUpper(); // Viết hoa tiêu đề
-//         headerText.fontSize = 34;
-//         headerText.fontStyle = FontStyles.Bold;
-//         headerText.alignment = TextAlignmentOptions.Center;
-//     }
-//
-//     // 🎬 Hiệu ứng Fade-in
-//     IEnumerator FadeIn(CanvasGroup canvasGroup, float duration)
-//     {
-//         float time = 0;
-//         while (time < duration)
-//         {
-//             time += Time.deltaTime;
-//             canvasGroup.alpha = Mathf.Lerp(0, 1, time / duration);
-//             yield return null;
-//         }
-//         canvasGroup.alpha = 1;
-//     }
+//  
 // }
+//
+//
+//
+//
+//

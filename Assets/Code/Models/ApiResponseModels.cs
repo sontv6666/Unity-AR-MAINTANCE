@@ -236,6 +236,7 @@ namespace Models
         public bool isPayAdmin;
         public string createdDate;
         public string updatedDate;
+        public int points;
     }
 
     [Serializable]

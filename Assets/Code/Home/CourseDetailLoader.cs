@@ -14,7 +14,7 @@ namespace Code
     {
         [Header("UI References")] 
         public TMP_Text courseTitleText;
-        public TMP_Text courseDescriptionText;
+        public TMP_InputField courseDescriptionText;
         public TMP_Text courseDurationText;
         public TMP_Text courseParticipantsText;
         public TMP_Text courseTypeText;
@@ -214,7 +214,7 @@ namespace Code
             foreach (var attribute in machineType.machineTypeAttributeResponses)
             {
                 GameObject newAttribute = Instantiate(machineAttributePrefab, machineAttributesContainer);
-        
+
                 // 🔹 Tìm TMP_Text trong "MachineType"
                 Transform machineTypeTransform = newAttribute.transform.Find("MachineType");
                 if (machineTypeTransform != null)
@@ -222,7 +222,7 @@ namespace Code
                     TMP_Text attributeText = machineTypeTransform.GetComponent<TMP_Text>();
                     if (attributeText != null)
                     {
-                        attributeText.text = $"{attribute.attributeName}: {attribute.valueAttribute}";
+                        attributeText.text = $"<b>{attribute.attributeName}</b>: {attribute.valueAttribute}";
                     }
                 }
             }
