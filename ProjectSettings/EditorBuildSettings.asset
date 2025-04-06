@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ARVRScanner.unity
     guid: 7aed6024121cdee478f5521922eabbfe
+  - enabled: 1
+    path: Assets/Scenes/QRScanner1.unity
+    guid: 90016dc03743fd54cb6443e980819b04
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: f0bd4df40ef9f0544b3ec4bf698375f2,
       type: 2}
@@ -31,3 +34,4 @@ EditorBuildSettings:
       type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 81e7021a079abab42851314d2a753051,
       type: 2}
+  m_UseUCBPForAssetBundles: 0
