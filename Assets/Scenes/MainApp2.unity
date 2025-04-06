@@ -36174,9 +36174,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2139142898}
-        m_TargetAssemblyTypeName: Code.CourseDetailLoader, Assembly-CSharp
-        m_MethodName: BackToHomePage
+      - m_Target: {fileID: 1438991254}
+        m_TargetAssemblyTypeName: CourseLoader, Assembly-CSharp
+        m_MethodName: LoadVRScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

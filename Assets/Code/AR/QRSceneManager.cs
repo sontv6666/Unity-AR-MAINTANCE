@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Models;
+using UnityEngine.SceneManagement;
 
 public class QRSceneManager : MonoBehaviour
 {
@@ -20,7 +21,6 @@ public class QRSceneManager : MonoBehaviour
     public GameObject scanBoxUI;
 
     [Header("UI")]
-    public GameObject loadingPanel;
     public TMP_Text statusText;
     public Transform dataLayoutGroup;
     public GameObject dataRowPrefab;
@@ -115,7 +115,7 @@ public class QRSceneManager : MonoBehaviour
                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 
-                ShowLoadingUI("Fetching machine data...");
+              
                 StartCoroutine(FetchMachineDataRoutine(machineCode));
             }
         }
@@ -197,9 +197,7 @@ public class QRSceneManager : MonoBehaviour
             UpdateUIText("❌ Failed to fetch machine data", "");
             Invoke(nameof(ResetScanning), 2f);
         }
-
-        if (loadingPanel != null)
-            loadingPanel.SetActive(false);
+        
     }
 
     IEnumerator FetchRealTimeData(string url)
@@ -351,14 +349,7 @@ public class QRSceneManager : MonoBehaviour
         canvasGroup.alpha = 1;
     }
 
-    void ShowLoadingUI(string message)
-    {
-        if (loadingPanel != null)
-            loadingPanel.SetActive(true);
-
-        if (statusText != null)
-            statusText.text = message;
-    }
+  
 
     void UpdateUIText(string title, string message)
     {
@@ -400,5 +391,12 @@ public class QRSceneManager : MonoBehaviour
         apiRealTimePanel.SetActive(false);
         isPanelVisible = false;
         Debug.Log("❌ Panel closed.");
+    }
+    
+    
+    public void GoBackToMainApp()
+    {
+        PlayerPrefs.Save();
+        SceneManager.LoadScene("MainApp2");
     }
 }
