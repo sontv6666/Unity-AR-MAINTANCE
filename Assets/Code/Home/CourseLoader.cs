@@ -26,7 +26,7 @@ public class CourseLoader: MonoBehaviour
     public GameObject seeAllPage; 
     private string userEndpoint = "/user/{0}"; // API to fetch user details
     [Header("API Settings")] 
-    private string endpointTemplate = "/course/company/{0}?page=1&size=4";
+    private string endpointTemplate = "/course/company/{0}?page=1&size=4&status=ACTIVE";
 
     void Start()
     {
