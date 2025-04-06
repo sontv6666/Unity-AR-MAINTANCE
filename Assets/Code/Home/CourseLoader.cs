@@ -8,7 +8,9 @@ using UnityEngine.UI;
 using TMPro;
 using System.IO;
 using Models;
-using Newtonsoft.Json; 
+using Newtonsoft.Json;
+using UnityEngine.SceneManagement;
+
 public class CourseLoader: MonoBehaviour
 {
     [Header("UI References")] 
@@ -24,7 +26,7 @@ public class CourseLoader: MonoBehaviour
     public GameObject seeAllPage; 
     private string userEndpoint = "/user/{0}"; // API to fetch user details
     [Header("API Settings")] 
-    private string endpointTemplate = "/course/company/{0}?page=1&size=4";
+    private string endpointTemplate = "/course/company/{0}?page=1&size=4&status=ACTIVE";
 
     void Start()
     {
@@ -439,6 +441,11 @@ public class CourseLoader: MonoBehaviour
         {
             seeAllPage.SetActive(true); // Show See All Page
         }
+    }
+    
+    public void LoadVRScene()
+    {
+        SceneManager.LoadScene("QRScanner1"); // Load the VR scene
     }
 }
 

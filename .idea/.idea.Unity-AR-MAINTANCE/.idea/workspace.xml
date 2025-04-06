@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Update" />
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="save">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +19,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="production" />
+        <entry key="$PROJECT_DIR$" value="cuong-03-03-2025" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -34,13 +37,24 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://C:/Program Files/Unity/Hub/Editor/6000.0.43f1/Editor/Data/CGIncludes/HLSLSupport.cginc" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/AR/JoystickModelController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/AR/SwipPanelController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Code/ApiConfig.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Code/Home/CourseAllLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Code/Home/CourseLoader.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Code/Models/ApiResponseModels.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Profile/TransactionLoader.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Resources/UI/return-icon.png.meta" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/Assets/Scenes/ARVRScanner 1.unity" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/ProjectSettings/Packages/com.unity.muse.common/Settings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/Unity-AR-MAINTANCE/ProjectSettings/Packages/com.unity.muse.common/Settings.json" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo">{
@@ -51,25 +65,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Attach to Unity Editor.Attach to Unity Editor &amp; Play.executor&quot;: &quot;Debug&quot;,
-    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Standalone Player.Start Unity.executor&quot;: &quot;Run&quot;,
-    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.6744548&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;cuong-5-4-2025&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.environmentSetup&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
+    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Standalone Player.Start Unity.executor": "Run",
+    "XThreadsFramesViewSplitterKey": "0.6744548",
+    "git-widget-placeholder": "soncoffe2",
+    "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.environmentSetup",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="$PROJECT_DIR$/../../TEST-AL\ArMaintance.exe" />
@@ -80,7 +94,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.0.43f1/Unity.app/Contents/MacOS/Unity" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.43f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath $PROJECT_DIR$ -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -88,7 +102,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="/Applications/Unity/Hub/Editor/6000.0.43f1/Unity.app/Contents/MacOS/Unity" />
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.43f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath $PROJECT_DIR$ -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -145,7 +159,6 @@
       <workItem from="1743522573807" duration="5497000" />
       <workItem from="1743529821483" duration="1218000" />
       <workItem from="1743690613799" duration="2356000" />
-      <workItem from="1743912098470" duration="2450000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -387,31 +400,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743824830777</updated>
     </task>
-    <task id="LOCAL-00031" summary="Update">
+    <task id="LOCAL-00031" summary="save">
       <option name="closed" value="true" />
-      <created>1743855424070</created>
+      <created>1743918763494</created>
       <option name="number" value="00031" />
       <option name="presentableId" value="LOCAL-00031" />
       <option name="project" value="LOCAL" />
-      <updated>1743855424070</updated>
+      <updated>1743918763494</updated>
     </task>
-    <task id="LOCAL-00032" summary="Update">
-      <option name="closed" value="true" />
-      <created>1743913702174</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1743913702174</updated>
-    </task>
-    <task id="LOCAL-00033" summary="Update">
-      <option name="closed" value="true" />
-      <created>1743915150137</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1743915150137</updated>
-    </task>
-    <option name="localTasksCounter" value="34" />
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -438,6 +435,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="add request list page" />
     <MESSAGE value="add" />
     <MESSAGE value="Time and load ui for ar" />
     <MESSAGE value="Add code to work with loading slider" />
@@ -451,7 +449,6 @@
     <MESSAGE value="add search page" />
     <MESSAGE value="add paging" />
     <MESSAGE value="remove hardcode" />
-    <MESSAGE value="save" />
     <MESSAGE value="merge code, merge scene" />
     <MESSAGE value="fix course image" />
     <MESSAGE value="Handle search, search loader" />
@@ -462,92 +459,8 @@
     <MESSAGE value="get original image" />
     <MESSAGE value="fix scale" />
     <MESSAGE value="savve" />
-    <MESSAGE value="Update" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>
-          <line>53</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
-            <startOffsets>
-              <option value="1782" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1861" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>131</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SaveUserData'">
-            <startOffsets>
-              <option value="4459" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4501" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>111</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
-            <startOffsets>
-              <option value="3824" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3866" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
-          <line>100</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
-            <startOffsets>
-              <option value="3322" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3368" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
-          <line>39</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs" containingFunctionPresentation="Method 'Start'">
-            <startOffsets>
-              <option value="1113" />
-            </startOffsets>
-            <endOffsets>
-              <option value="1156" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>
-          <line>165</line>
-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs" containingFunctionPresentation="Method 'OnLogout'">
-            <startOffsets>
-              <option value="4624" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4656" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="save" />
+    <option name="LAST_COMMIT_MESSAGE" value="save" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
