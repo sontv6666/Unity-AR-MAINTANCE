@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="save">
-      <change afterPath="$PROJECT_DIR$/Assets/Code/Notification/NotificationUI.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Code/Notification/NotificationUI.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,7 +172,7 @@
       <workItem from="1744115960186" duration="3000" />
       <workItem from="1744116104864" duration="3000" />
       <workItem from="1744116122337" duration="12000" />
-      <workItem from="1744120570277" duration="10055000" />
+      <workItem from="1744120570277" duration="12240000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -547,7 +542,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744120611435</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="save">
+      <option name="closed" value="true" />
+      <created>1744134837248</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1744134837248</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
