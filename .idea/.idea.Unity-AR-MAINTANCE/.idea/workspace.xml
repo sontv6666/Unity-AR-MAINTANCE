@@ -4,18 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="Add firebase">
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/projectSettingsUpdater.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_6_4_25__13_04__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_6_4_25__13_04__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_6_4_25__13_04__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_6_4_25__13_04__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_6_4_25__14_06__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_6_4_25__14_06__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Firebase/Plugins/x86_64/FirebaseCppMessaging.bundle" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/Plugins/x86_64/FirebaseCppMessaging.bundle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Firebase/Plugins/x86_64/FirebaseCppMessaging.so" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/Plugins/x86_64/FirebaseCppMessaging.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-app-unity/12.8.0/firebase-app-unity-12.8.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-app-unity/12.8.0/firebase-app-unity-12.8.0.pom" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-messaging-unity/12.8.0/firebase-messaging-unity-12.8.0.pom" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Firebase/m2repository/com/google/firebase/firebase-messaging-unity/12.8.0/firebase-messaging-unity-12.8.0.pom" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/GvhProjectSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GvhProjectSettings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,17 +56,26 @@
     <setting file="file://C:/Program Files/Unity/Hub/Editor/6000.0.43f1/Editor/Data/CGIncludes/HLSLSupport.cginc" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/AR/JoystickModelController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/AR/SwipPanelController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ManageScence/SwitchToLoginPage.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Notification/NotificationManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Profile/TransactionLoader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/ExternalDependencyManager/Editor/1.2.185/Google.IOSResolver.dll.meta" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
   <component name="ProjectColorInfo">{
@@ -168,7 +184,11 @@
       <workItem from="1743856828797" duration="592000" />
       <workItem from="1743857459262" duration="7996000" />
       <workItem from="1743875911993" duration="30000" />
-      <workItem from="1744069020490" duration="9561000" />
+      <workItem from="1744069020490" duration="15747000" />
+      <workItem from="1744115670380" duration="260000" />
+      <workItem from="1744115960186" duration="3000" />
+      <workItem from="1744116104864" duration="3000" />
+      <workItem from="1744116122337" duration="12000" />
     </task>
     <task id="LOCAL-00001" summary="config files">
       <option name="closed" value="true" />
@@ -498,7 +518,39 @@
       <option name="project" value="LOCAL" />
       <updated>1744081266677</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="save">
+      <option name="closed" value="true" />
+      <created>1744081393527</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1744081393527</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Add firebase to start">
+      <option name="closed" value="true" />
+      <created>1744083698630</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1744083698630</updated>
+    </task>
+    <task id="LOCAL-00044" summary="ADD PERMISSONM">
+      <option name="closed" value="true" />
+      <created>1744085201974</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1744085201974</updated>
+    </task>
+    <task id="LOCAL-00045" summary="ADD GOOOGLE SERVICE4">
+      <option name="closed" value="true" />
+      <created>1744085220590</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1744085220590</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -525,9 +577,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="handle return button" />
-    <MESSAGE value="Handle animation stop,rest when back to course UI" />
-    <MESSAGE value="Add missing point in ar" />
     <MESSAGE value="fetch point s fro user" />
     <MESSAGE value="add search page" />
     <MESSAGE value="add paging" />
@@ -545,12 +594,15 @@
     <MESSAGE value="new code loader" />
     <MESSAGE value="savce" />
     <MESSAGE value="handle search" />
-    <MESSAGE value="save" />
     <MESSAGE value="Save this change for api config and taransaction" />
     <MESSAGE value="Fix error when changing step" />
     <MESSAGE value="Add notification, handle scan time" />
     <MESSAGE value="Add firebase" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add firebase" />
+    <MESSAGE value="save" />
+    <MESSAGE value="Add firebase to start" />
+    <MESSAGE value="ADD PERMISSONM" />
+    <MESSAGE value="ADD GOOOGLE SERVICE4" />
+    <option name="LAST_COMMIT_MESSAGE" value="ADD GOOOGLE SERVICE4" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
