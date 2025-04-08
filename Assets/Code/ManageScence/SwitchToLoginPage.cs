@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Code;
+#if UNITY_ANDROID && !UNITY_EDITOR
+using UnityEngine.Android;
+#endif
+
+
 
 public class ScreenManager : MonoBehaviour
 {
@@ -19,9 +24,18 @@ public class ScreenManager : MonoBehaviour
 
     private void Start()
     {
+        // 🔔 Request notification permission (Android 13+)
+#if UNITY_ANDROID && !UNITY_EDITOR
+        if (GetAndroidSDKVersion() >= 33 && !Permission.HasUserAuthorizedPermission("android.permission.POST_NOTIFICATIONS"))
+        {
+            Debug.Log("🔔 Requesting notification permission...");
+            Permission.RequestUserPermission("android.permission.POST_NOTIFICATIONS");
+        }
+#endif
         // 🔥 Initialize the notification manager (Firebase + channels)
         var _ = MaintenanceNotificationManager.Instance;
 
+        
         
         if (screens == null || screens.Count == 0)
         {
@@ -35,6 +49,17 @@ public class ScreenManager : MonoBehaviour
         // ✅ Auto Transition after Splash
         StartCoroutine(AutoTransitionFromSplash());
     }
+    
+#if UNITY_ANDROID && !UNITY_EDITOR
+    private int GetAndroidSDKVersion()
+    {
+        using (var version = new AndroidJavaClass("android.os.Build$VERSION"))
+        {
+            return version.GetStatic<int>("SDK_INT");
+        }
+    }
+#endif    
+    
 
     private IEnumerator AutoTransitionFromSplash()
     {
