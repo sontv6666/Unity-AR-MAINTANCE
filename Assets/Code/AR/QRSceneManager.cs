@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Models;
+using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
 public class QRSceneManager : MonoBehaviour
@@ -49,7 +50,7 @@ public class QRSceneManager : MonoBehaviour
     private void Start()
     {
         togglePanelButton.onClick.AddListener(TogglePanel);
-        
+        apiRealTimePanel.GameObject().SetActive(true);
         // Handle close button if it exists
         Button closeButton = apiRealTimePanel.transform.Find("CloseButton")?.GetComponent<Button>();
         if (closeButton != null)
