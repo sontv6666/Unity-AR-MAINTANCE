@@ -157,21 +157,23 @@ public class QRCodeScanner : MonoBehaviour
         else
         {
             Debug.Log($"✅ Retrieved Course ID: {courseID}");
-            StartCoroutine(DownloadCourseBeforeScanning(courseID));
+           StartCoroutine(DownloadCourseBeforeScanning(courseID));
         }
     }
 
 
 
+    private float scanInterval = 1.0f; // Scan once per second
+    private float lastScanTime = 0f;
+
     void Update()
     {
-        if (isScanning)
+        // Only scan at specified intervals when isScanning is true
+        if (isScanning && Time.time - lastScanTime > scanInterval)
         {
-      TryScanQRCode();
+            lastScanTime = Time.time;
+            TryScanQRCode();
         }
-
-
-
     }
 
     IEnumerator DownloadCourseBeforeScanning(string courseId)
@@ -186,7 +188,7 @@ public class QRCodeScanner : MonoBehaviour
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
-       yield return StartCoroutine(FetchCourseData(courseId));
+     // yield return StartCoroutine(FetchCourseData(courseId));
 
         Debug.Log("✅ All downloads completed!");
 
@@ -375,7 +377,7 @@ void TryScanQRCode()
             {
                 Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
                 UpdateUIText("Invalid QR Code format!", "");
-                Invoke(nameof(ResetScanning), 2f);
+                Invoke(nameof(ResetScanning), 3f);
                 return;
             }
 
@@ -436,7 +438,7 @@ void TryScanQRCode()
                 {
                     Debug.LogError("❌ Failed to parse machine response.");
                     APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
-                    Invoke(nameof(ResetScanning), 2f);
+                    Invoke(nameof(ResetScanning), 3f);
                 }
             }
             else
@@ -548,9 +550,16 @@ void TryScanQRCode()
                             Invoke(nameof(GoBackToMainApp), 5f); // Wait 3s, then go back
                             insufficientPointsPanel.SetActive(false);   
                         }
+                        else
+                        {
+                            Debug.Log("✅ Successfully used points for this course.");
+                            MaintenanceNotificationManager.Instance.NotifyPointUsed();
+                        }
                     }
                     else
                     {
+                        
+                        
                         Debug.LogError("❌ Invalid API Response in SendCourseScan.");
                     }
                 }
