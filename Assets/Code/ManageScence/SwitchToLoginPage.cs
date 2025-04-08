@@ -19,7 +19,9 @@ public class ScreenManager : MonoBehaviour
 
     private void Start()
     {
-      
+        // 🔥 Initialize the notification manager (Firebase + channels)
+        var _ = MaintenanceNotificationManager.Instance;
+
         
         if (screens == null || screens.Count == 0)
         {
