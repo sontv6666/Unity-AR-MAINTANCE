@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using Models;
 using Newtonsoft.Json;
 public class TransactionLoader : MonoBehaviour
 {
@@ -19,6 +20,16 @@ public class TransactionLoader : MonoBehaviour
     [Header("Empty State")]
     public GameObject emptyStatePanel; // Empty state when no transactions exist
 
+    [Header("Pagination")]
+    public Button nextPageButton;
+    public Button prevPageButton;
+    public TMP_Text pageIndicatorText;
+    public int currentPage = 1;
+    public int pageSize = 100;
+    public int totalPages = 1;
+
+    
+    
     public Button backButton;
 
     [Header("API Settings")]
@@ -27,10 +38,18 @@ public class TransactionLoader : MonoBehaviour
     {
         LoadTransactions();
         backButton.onClick.AddListener(GoBack);
+        
+        // // Set up pagination buttons if they exist
+        // if (nextPageButton != null)
+        //     nextPageButton.onClick.AddListener(NextPage);
+        //
+        // if (prevPageButton != null)
+        //     prevPageButton.onClick.AddListener(PreviousPage);
     }
 
     public void OpenTransactionListFromProfile()
     {
+        currentPage = 1; // Reset to first page when opening
         LoadTransactions();
         Debug.Log("📌 Opening Transaction List from Profile...");
         previousPage = profilePage; // Remember previous page
@@ -90,7 +109,7 @@ public class TransactionLoader : MonoBehaviour
 
     private IEnumerator FetchTransactions(string userId, string token)
     {
-        string endpoint = $"/wallets/history/user/{userId}";
+        string endpoint = $"/wallets/history/user/{userId}?page={currentPage}&size={pageSize}";
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET");
 
         yield return request.SendWebRequest();
@@ -106,20 +125,35 @@ public class TransactionLoader : MonoBehaviour
 
             try
             {
-                WalletResponse response = JsonConvert.DeserializeObject<WalletResponse>(responseText);
-                if (response != null && response.code == 1000)
+                // Use the generic ApiResponse with PaginationResult for properly parsing
+                ApiResponse<PaginationResult<WalletTransaction>> response = 
+                    JsonConvert.DeserializeObject<ApiResponse<PaginationResult<WalletTransaction>>>(responseText);
+                    
+                if (response != null && response.code == 1000 && response.result != null)
                 {
-                    DisplayTransactions(response.result);
+                    // Update pagination info
+                    totalPages = response.result.totalPages;
+                    currentPage = response.result.page;
+                    
+                    
+                    // Display transactions from objectList
+                    DisplayTransactions(response.result.objectList);
+                }
+                else
+                {
+                    Debug.LogError("❌ API Response format error or empty result");
+                    ShowEmptyState(true);
                 }
             }
             catch (System.Exception e)
             {
                 Debug.LogError($"❌ JSON Parsing Error: {e.Message}");
+                ShowEmptyState(true);
             }
         }
     }
 
-    private void DisplayTransactions(List<WalletTransaction> transactions)
+   private void DisplayTransactions(List<WalletTransaction> transactions)
     {
         // Clear old transactions before loading new ones
         foreach (Transform child in transactionLayoutGroup)
@@ -128,6 +162,15 @@ public class TransactionLoader : MonoBehaviour
         }
 
         Debug.Log($"🔄 Displaying {transactions.Count} transactions...");
+
+        // Show empty state if there are no transactions
+        if (transactions == null || transactions.Count == 0)
+        {
+            ShowEmptyState(true);
+            return;
+        }
+
+        ShowEmptyState(false);
 
         foreach (var transaction in transactions)
         {
@@ -149,11 +192,17 @@ public class TransactionLoader : MonoBehaviour
             createdDate.text = $"Date: {FormatDate(transaction.createdDate)}";
             amount.text = $"Usage Points: {transaction.amount}";
             balance.text = $"Remain Points: {transaction.balance}";
-            
-        }
 
-        // Show empty state if there are no transactions
-        ShowEmptyState(transactions.Count == 0);
+            // Determine transaction type color
+            if (transaction.type == "DEBIT")
+            {
+                amount.color = Color.red;  // Red for debit/usage
+            }
+            else if (transaction.type == "CREDIT")
+            {
+                amount.color = Color.green;  // Green for credit/income
+            }
+        }
     }
 
     private string FormatDate(string dateTime)
@@ -171,10 +220,14 @@ public class TransactionLoader : MonoBehaviour
         {
             emptyStatePanel.SetActive(show);
         }
-        transactionLayoutGroup.gameObject.SetActive(!show);
+        
+        if (transactionLayoutGroup != null && transactionLayoutGroup.gameObject != null)
+        {
+            transactionLayoutGroup.gameObject.SetActive(!show);
+        }
     }
     
-    
+ 
 }
 
 

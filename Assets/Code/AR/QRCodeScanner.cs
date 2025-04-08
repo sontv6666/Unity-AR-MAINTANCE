@@ -19,6 +19,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.AR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Newtonsoft.Json;
+using UnityEngine.EventSystems;
 
 public class QRCodeScanner : MonoBehaviour
 {
@@ -68,7 +69,7 @@ public class QRCodeScanner : MonoBehaviour
 
 
     public TMP_Text courseTitleText;
-
+    private bool[] stepUIHidden;
 
    
 
@@ -129,7 +130,7 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-            //centerModelButton.onClick.AddListener(CenterModel); 
+           //centerModelButton.onClick.AddListener(CenterModel); 
             centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
@@ -166,7 +167,7 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (isScanning)
         {
-         TryScanQRCode();
+      TryScanQRCode();
         }
 
 
@@ -185,7 +186,7 @@ public class QRCodeScanner : MonoBehaviour
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
-       // yield return StartCoroutine(FetchCourseData(courseId));
+       yield return StartCoroutine(FetchCourseData(courseId));
 
         Debug.Log("✅ All downloads completed!");
 
@@ -205,7 +206,7 @@ public class QRCodeScanner : MonoBehaviour
        StartScanning();
      
      
-       //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+     //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -1064,6 +1065,12 @@ void TryScanQRCode()
             currentInstructionDetails = instruction.instructionDetailResponse;
             currentStepIndex = 0;
             
+            if (stepUIHidden != null) {
+                for (int i = 0; i < stepUIHidden.Length; i++) {
+                    stepUIHidden[i] = false;
+                }
+            }
+            
             // ✅ Ensure animation is active again
             GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
             if (firstModel != null)
@@ -1118,6 +1125,12 @@ void TryScanQRCode()
                 Debug.LogError("No instruction details to display!");
                 return;
             }
+            
+            // Initialize UI visibility state tracking
+            stepUIHidden = new bool[currentInstructionDetails.Count];
+            for (int i = 0; i < stepUIHidden.Length; i++) {
+                stepUIHidden[i] = false;
+            }
 
             // ✅ Ensure "FirstModelAfterScan" exists
             GameObject firstModel = modelContainer.transform.Find("FirstModelAfterScan")?.gameObject;
@@ -1149,11 +1162,53 @@ void TryScanQRCode()
                 stepItem.SetActive(i == 0); // Show only the first step initially
 
                 TMP_Text nameText = stepItem.transform.Find("instructionNameText")?.GetComponent<TMP_Text>();
-                TMP_Text descriptionText = stepItem.transform.Find("instructionDetailDescriptionText")
-                    ?.GetComponent<TMP_Text>();
-                TMP_Text stepCountText =
-                    stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
+             
+                TMP_Text stepCountText = stepItem.transform.Find("instructionDetailShowStepText")?.GetComponent<TMP_Text>();
+                
+              
+                Transform descriptionPanel = stepItem.transform.Find("instructionDetailDescriptionPanel");
+                Button closeDescriptionButton = descriptionPanel?.Find("closeDescriptionPanelButton")?.GetComponent<Button>();
+                TMP_InputField descriptionInput = stepItem
+                    .transform.Find("instructionDetailDescriptionPanel/InputField (TMP)")
+                    ?.GetComponent<TMP_InputField>();
+                Button openDescriptionButton = stepItem.transform.Find("instructionDetailDescriptionText")?.GetComponent<Button>();
+                TMP_Text descriptionText = openDescriptionButton?.GetComponentInChildren<TMP_Text>();
 
+                if (descriptionText)
+                {
+                    string fullDesc = detail.description;
+                    string shortDesc = fullDesc.Length > 50 ? fullDesc.Substring(0, 50) + "..." : fullDesc;
+                    descriptionText.text = shortDesc;
+                }
+                // Make sure descriptionPanel is initially inactive
+                if (descriptionPanel) descriptionPanel.gameObject.SetActive(false);
+                if (descriptionInput) descriptionInput.text = detail.description;
+                if (openDescriptionButton)
+                {
+                    openDescriptionButton.onClick.RemoveAllListeners();
+                    openDescriptionButton.onClick.AddListener(() =>
+                    {
+                        if (descriptionPanel)
+                        {
+                            bool isActive = descriptionPanel.gameObject.activeSelf;
+                            descriptionPanel.gameObject.SetActive(!isActive); // Toggle visibility
+                        }
+                    });
+                }
+                
+                // Close the description panel when close button is clicked
+                if (closeDescriptionButton && descriptionPanel)
+                {
+                    closeDescriptionButton.onClick.RemoveAllListeners();
+                    closeDescriptionButton.onClick.AddListener(() =>
+                    {
+                        if (descriptionPanel)
+                        {
+                            descriptionPanel.gameObject.SetActive(false); // Close the panel
+                        }
+                    });
+                }
+                
                 if (nameText) nameText.text = instruction.name;
                 if (descriptionText) descriptionText.text = detail.description;
                 if (stepCountText) stepCountText.text = $"{i + 1}/{currentInstructionDetails.Count}";
@@ -1265,10 +1320,18 @@ void TryScanQRCode()
             // Retrieve the GameObject for the current step from the instructionStepInstances list
             GameObject stepItem = instructionStepInstances[currentStepIndex];
 
-            // Restore visibility for instruction step UI elements of the current step
-            RestoreInstructionStepUIElements(stepItem);
+            // Check if this step was in hidden state before
+            if (stepUIHidden[currentStepIndex]) {
+                // Only restore navigation buttons and closeButtonFirst
+                Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
+                if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(true);
+        
+                // Keep step in hidden state
+            } else {
+                // Fully restore UI elements
+                RestoreInstructionStepUIElements(stepItem);
+            }
         }
-
 
 
  
@@ -1329,6 +1392,12 @@ void HideInstructionStepUIElements(GameObject stepItem)
         {
             Debug.Log("🔻 Hiding instruction UI elements (except navigation & closeButtonFirst)...");
 
+            // Find the index of this step
+            int stepIndex = instructionStepInstances.IndexOf(stepItem);
+            if (stepIndex >= 0) {
+                stepUIHidden[stepIndex] = true;
+            }
+            
             foreach (Transform child in stepItem.transform)
             {
                 if (child.name != "closeButtonFirst" &&
@@ -1353,9 +1422,37 @@ void HideInstructionStepUIElements(GameObject stepItem)
         {
             Debug.Log("🔹 Showing all instruction UI elements...");
 
+           
+            // First, find the description panel to handle it specially
+            Transform descriptionPanel = stepItem.transform.Find("instructionDetailDescriptionPanel");
+            bool wasDescriptionPanelActive = false;
+    
+            // Save its current state
+            if (descriptionPanel != null) {
+                wasDescriptionPanelActive = descriptionPanel.gameObject.activeSelf;
+            }
+
+            // Activate all other UI elements conditionally
             foreach (Transform child in stepItem.transform)
             {
-                child.gameObject.SetActive(true);
+                // Handle special cases
+                if (child.name == "instructionDetailDescriptionPanel") {
+                    // Will handle separately - don't change yet
+                    continue;
+                }
+                else if (child.name == "animationProgressSlider" || child.name == "animationTimeText") {
+                    // Only show these if an animation is currently playing
+                    child.gameObject.SetActive(isAnimationPlaying);
+                }
+                else {
+                    // Show all other UI elements
+                    child.gameObject.SetActive(true);
+                }
+            }
+
+            // Now handle the description panel - maintain its previous state
+            if (descriptionPanel != null) {
+                descriptionPanel.gameObject.SetActive(wasDescriptionPanelActive);
             }
 
             // ✅ Restore image transparency
@@ -1364,6 +1461,7 @@ void HideInstructionStepUIElements(GameObject stepItem)
             // ✅ Ensure closeButtonFirst is HIDDEN
             Transform closeButtonFirst = stepItem.transform.Find("closeButtonFirst");
             if (closeButtonFirst != null) closeButtonFirst.gameObject.SetActive(false);
+            
         }
 
         // ✅ Helper function to change image transparency
@@ -1465,6 +1563,10 @@ void HideInstructionStepUIElements(GameObject stepItem)
         {
             if (!firstModel) return;
 
+            // Make sure animation UI elements are visible when starting an animation
+            if (animationProgressSlider) animationProgressSlider.gameObject.SetActive(true);
+            if (animationTimeText) animationTimeText.gameObject.SetActive(true);
+            
             // ✅ Disable buttons at the start (force this so they don’t get overridden)
             SetNavigationButtonsInteractable(false);
             isAnimationPlaying = true;
@@ -1605,7 +1707,6 @@ void HideInstructionStepUIElements(GameObject stepItem)
         animationProgressSlider.gameObject.SetActive(true);
         animationTimeText.gameObject.SetActive(true);
         animationProgressSlider.value = 0;
-
         while (state.enabled && animation.isPlaying)
         {
             // ✅ Use AnimationState.time instead of manually tracking elapsedTime
@@ -2094,6 +2195,28 @@ void HideInstructionStepUIElements(GameObject stepItem)
                 }
             }
         }
+        // Get the step we're about to show
+        GameObject stepToShow = instructionStepInstances[currentStepIndex];
+        // IMPORTANT: Restore UI elements if they were hidden
+        if (stepUIHidden[currentStepIndex]) {
+            ShowInstructionUI(stepToShow);
+            stepUIHidden[currentStepIndex] = false;
+        }
+
+        // Show current step
+        stepToShow.SetActive(true);
+        
+        // Close any open description panel
+        if (instructionStepInstances != null && currentStepIndex >= 0 && currentStepIndex < instructionStepInstances.Count)
+        {
+            Transform currentStep = instructionStepInstances[currentStepIndex].transform;
+            Transform descriptionPanel = currentStep.Find("instructionDetailDescriptionPanel");
+            if (descriptionPanel)
+            {
+                descriptionPanel.gameObject.SetActive(false);
+            }
+        }
+
         
         // ✅ Show new step UI
         instructionStepInstances[currentStepIndex].SetActive(true);
@@ -2356,7 +2479,7 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
                 }
                 else
                 {
-                    //Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
+                    Debug.LogError("❌ No Joystick found in the scene. Make sure you have a joystick in your UI.");
                 }
             }
             
