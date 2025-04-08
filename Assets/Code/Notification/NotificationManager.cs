@@ -351,9 +351,24 @@ public class MaintenanceNotificationManager : MonoBehaviour
         AndroidNotificationCenter.RegisterNotificationChannel(maintenanceChannel);
         AndroidNotificationCenter.RegisterNotificationChannel(progressChannel);
 #elif UNITY_IOS
-        iOSNotificationCenter.RequestAuthorization(AuthorizationOption.Alert |
-                                                 AuthorizationOption.Badge |
-                                                 AuthorizationOption.Sound);
+        var timeTrigger = new iOSNotificationTimeIntervalTrigger()
+        {
+            TimeInterval = new TimeSpan(0, 0, 5),
+            Repeats = false
+        };
+
+        var notification = new iOSNotification()
+        {
+            Identifier = "_notification_01",
+            Title = "Hello",
+            Body = "This is a test notification!",
+            Subtitle = "Subtitle here",
+            ShowInForeground = true,
+            ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
+            Trigger = timeTrigger,
+        };
+
+        iOSNotificationCenter.ScheduleNotification(notification);
 #endif
         Debug.Log("📱 Notification system initialized");
     }
