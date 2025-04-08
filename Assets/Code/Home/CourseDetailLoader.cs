@@ -301,6 +301,7 @@ namespace Code
 
             // ✅ Show loading UI
             loadingUIPanel.SetActive(true);
+            overlay.SetActive(true);
             progressBar.value = 0;
             progressText.text = "Preparing to download...";
 
