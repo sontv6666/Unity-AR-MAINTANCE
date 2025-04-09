@@ -331,6 +331,7 @@ public class QRSceneManager : MonoBehaviour
 
     void DisplayRealTimeData(JObject data)
     {
+        
         // Only clear the real-time data section
         ClearUI(dataLayoutGroup);
 
@@ -354,6 +355,9 @@ public class QRSceneManager : MonoBehaviour
                 AddDataRow(categoryName, FormatValue(categoryValues), dataLayoutGroup);
             }
         }
+        
+        // Force layout update after all UI elements are added
+        ForceCompleteLayoutUpdate();
     }
 
     string FormatValue(JToken value)
@@ -468,6 +472,110 @@ public class QRSceneManager : MonoBehaviour
     {
         isPanelVisible = true;
         apiRealTimePanel.SetActive(true);
+    
+        // Force a layout update immediately when showing the panel
+        ForceCompleteLayoutUpdate();
+    }
+    void ForceCompleteLayoutUpdate()
+    {
+        // First pass - process all layout components
+        Canvas.ForceUpdateCanvases();
+    
+        // Wait for the end of frame
+        StartCoroutine(SecondLayoutPass());
+    }
+
+    IEnumerator SecondLayoutPass()
+    {
+        yield return new WaitForEndOfFrame();
+    
+        // Second pass after frame rendering
+        Canvas.ForceUpdateCanvases();
+    
+        // Force rebuilds on all important RectTransforms
+        if (dataLayoutGroup != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+    
+        if (machineInfoLayoutGroup != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+    
+        // Walk up the hierarchy and rebuild parent layouts
+        Transform current = dataLayoutGroup;
+        while (current != null && current.GetComponent<RectTransform>() != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(current.GetComponent<RectTransform>());
+            current = current.parent;
+        }
+    }
+    IEnumerator DelayedPanelShow(CanvasGroup canvasGroup)
+    {
+        // Set panel as visible for layout calculations but not yet visible to user
+        isPanelVisible = true;
+    
+        // Wait for several frames to ensure layouts are calculated
+        for (int i = 0; i < 3; i++)
+        {
+            yield return new WaitForEndOfFrame();
+        
+            // Force layout rebuilds
+            Canvas.ForceUpdateCanvases();
+        
+            if (dataLayoutGroup != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+            }
+            if (machineInfoLayoutGroup != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
+        }
+    
+        // Fade in the panel
+        float duration = 0.3f;
+        float time = 0;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0, 1, time / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 1;
+    }
+    
+    IEnumerator RefreshLayoutDelayed()
+    {
+        // Wait for the end of the frame to ensure all UI elements are instantiated
+        yield return new WaitForEndOfFrame();
+    
+        // Force layout rebuild on both layout groups
+        if (dataLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        if (machineInfoLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        // Also rebuild the panel itself
+        LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
+    
+        // Wait another frame and do it again to ensure all nested layouts are properly updated
+        yield return new WaitForEndOfFrame();
+    
+        if (dataLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        if (machineInfoLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
     }
     
     // Keep the original toggle panel method for button functionality
