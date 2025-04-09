@@ -233,38 +233,124 @@ namespace Code
 
 
         IEnumerator DownloadFile(string fileUrl, string fileName)
+{
+    string savePath = Path.Combine(Application.persistentDataPath, fileName);
+
+    // First check the file size on the server
+    yield return StartCoroutine(CheckFileSize(fileUrl, savePath));
+
+    if (!isDownloading)
+    {
+        Debug.Log($"📌 File already exists and is up to date: {fileName}");
+        yield break;
+    }
+
+    UnityWebRequest request = ApiConfig.CreateRequest(fileUrl);
+    request.downloadHandler = new DownloadHandlerFile(savePath);
+    UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+
+    while (!operation.isDone)
+    {
+        float progress = operation.progress;
+        UpdateDownloadProgress(progress, $"Downloading: {fileName}");
+        yield return null;
+    }
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        Debug.Log($"✅ File downloaded: {savePath}");
+    }
+    else
+    {
+        Debug.LogError($"❌ Download failed: {fileUrl} Error: {request.error}");
+        UpdateUIText("Download Error", request.error);
+        isDownloading = false;
+        loadingUIPanel.SetActive(false);
+    }
+}
+
+IEnumerator CheckFileSize(string fileUrl, string localFilePath)
+{
+    // Check if file exists locally
+    if (File.Exists(localFilePath))
+    {
+        // Get the size endpoint from the URL
+        string sizeEndpoint = fileUrl + "/size";
+        using (UnityWebRequest sizeRequest = ApiConfig.CreateRequest(sizeEndpoint))
         {
-            string savePath = Path.Combine(Application.persistentDataPath, fileName);
+            yield return sizeRequest.SendWebRequest();
 
-            if (File.Exists(savePath))
+            if (sizeRequest.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log($"📌 File already exists: {fileName}");
-                yield break;
-            }
+                // Parse the size response
+                long serverFileSize;
+                if (long.TryParse(sizeRequest.downloadHandler.text, out serverFileSize))
+                {
+                    // Get local file size
+                    FileInfo fileInfo = new FileInfo(localFilePath);
+                    long localFileSize = fileInfo.Length;
 
-            UnityWebRequest request = ApiConfig.CreateRequest(fileUrl);
-            request.downloadHandler = new DownloadHandlerFile(savePath);
-            UnityWebRequestAsyncOperation operation = request.SendWebRequest();
-
-            while (!operation.isDone)
-            {
-                float progress = operation.progress;
-                UpdateDownloadProgress(progress, $"Downloading: {fileName}");
-                yield return null;
-            }
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log($"✅ File downloaded: {savePath}");
+                    // Compare sizes
+                    if (localFileSize == serverFileSize)
+                    {
+                        // File is complete and up to date
+                        isDownloading = false;
+                        UpdateDownloadProgress(1f, $"File up to date: {Path.GetFileName(localFilePath)}");
+                        yield break;
+                    }
+                    else
+                    {
+                        Debug.Log($"⚠️ File size mismatch - Local: {localFileSize}, Server: {serverFileSize}. Re-downloading...");
+                        
+                        // Delete the outdated file before re-downloading
+                        try
+                        {
+                            File.Delete(localFilePath);
+                            Debug.Log($"🗑️ Deleted outdated file: {localFilePath}");
+                        }
+                        catch (System.Exception e)
+                        {
+                            Debug.LogError($"❌ Failed to delete outdated file: {e.Message}");
+                            
+                            // If we can't delete it, try renaming it as a backup
+                            try
+                            {
+                                string backupPath = localFilePath + ".bak";
+                                if (File.Exists(backupPath))
+                                    File.Delete(backupPath);
+                                    
+                                File.Move(localFilePath, backupPath);
+                                Debug.Log($"📝 Renamed outdated file to: {backupPath}");
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Debug.LogError($"❌ Failed to backup outdated file: {ex.Message}");
+                            }
+                        }
+                        
+                        isDownloading = true;
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"❌ Failed to parse file size response: {sizeRequest.downloadHandler.text}");
+                    isDownloading = true; // Download anyway to be safe
+                }
             }
             else
             {
-                Debug.LogError($"❌ Download failed: {fileUrl} Error: {request.error}");
-                UpdateUIText("Download Error", request.error);
-                isDownloading = false;
-                loadingUIPanel.SetActive(false);
+                Debug.LogWarning($"⚠️ Couldn't check file size: {sizeRequest.error}. Will download anyway.");
+                isDownloading = true;
             }
         }
+    }
+    else
+    {
+        // File doesn't exist locally, need to download
+        isDownloading = true;
+    }
+}
+
 
         void UpdateDownloadProgress(float progress, string message)
         {
@@ -373,16 +459,19 @@ namespace Code
                 if (response?.result == null || string.IsNullOrEmpty(response.result.file))
                 {
                     Debug.LogError("❌ Model file is null or API response is invalid!");
+                    loadingUIPanel.SetActive(false);
                     yield break;
                 }
 
-                string modelFilePath = Path.Combine(Application.persistentDataPath, response.result.file);
-                if (!File.Exists(modelFilePath))
-                {
-                    yield return StartCoroutine(DownloadFile(FileDownloadBaseUrl + response.result.file, response.result.file));
-                }
+                isDownloading = false; // Reset the download flag
+                string fileUrl = FileDownloadBaseUrl + response.result.file;
+                yield return StartCoroutine(DownloadFile(fileUrl, response.result.file));
 
+               
                 SceneManager.LoadScene("ARVRScanner");
+                Debug.Log("🔄 Loading AR Scene...");
+
+
             }
         }
 

@@ -149,6 +149,18 @@ public class LoginManager : MonoBehaviour
         UserManager.UserId = user.id;
         UserManager.RoleName = user.roleName;
         UserManager.CompanyName = user.company.companyName;
+        
+        if (MaintenanceNotificationManager.Instance != null)
+        {
+            Debug.Log("🔔 Registering with notification system...");
+            MaintenanceNotificationManager.Instance.RegisterDeviceWithBackend(user.id, user.company.id);
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ MaintenanceNotificationManager instance not found!");
+        }
+        
+        
     }
 
     private void SwitchToHomePage()

@@ -23,13 +23,15 @@ public class QRSceneManager : MonoBehaviour
 
     [Header("UI")]
     public TMP_Text statusText;
-    public Transform dataLayoutGroup;
+    public Transform dataLayoutGroup;  // For real-time data only
+    public Transform machineInfoLayoutGroup;  // NEW: For static machine info
     public GameObject dataRowPrefab;
     public GameObject categoryHeaderPrefab;
     public TMP_Text machineNameText;
     public TMP_Text machineTypeText;
     public GameObject apiRealTimePanel;
     public Button togglePanelButton;
+    public Button resetScanButton;
 
     [Header("Config")]
     public bool isScanning = true;
@@ -41,15 +43,55 @@ public class QRSceneManager : MonoBehaviour
     private Dictionary<string, string> apiHeaders = new Dictionary<string, string>();
     private bool isPanelVisible = false;
     public string currentMachineCode = "";
+    private Coroutine realTimeDataCoroutine;
+    private bool hasRealTimeApi = false;
 
     private void Awake()
     {
         Instance = this;
+        
+        // Create machineInfoLayoutGroup if it doesn't exist
+        if (machineInfoLayoutGroup == null)
+        {
+            GameObject machineInfoObj = new GameObject("MachineInfoLayoutGroup");
+            machineInfoLayoutGroup = machineInfoObj.transform;
+            machineInfoLayoutGroup.SetParent(apiRealTimePanel.transform, false);
+            
+            // Position it above the dataLayoutGroup
+            RectTransform machineInfoRect = machineInfoObj.AddComponent<RectTransform>();
+            RectTransform dataRect = dataLayoutGroup.GetComponent<RectTransform>();
+            
+            // Set anchors and pivot
+            machineInfoRect.anchorMin = new Vector2(0, 1);
+            machineInfoRect.anchorMax = new Vector2(1, 1);
+            machineInfoRect.pivot = new Vector2(0.5f, 1);
+            
+            // Position it above the data layout
+            machineInfoRect.anchoredPosition = new Vector2(0, 50);
+            
+            // Add layout component
+            VerticalLayoutGroup layout = machineInfoObj.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.spacing = 5;
+            layout.padding = new RectOffset(10, 10, 10, 10);
+            
+            // Add content size fitter
+            ContentSizeFitter fitter = machineInfoObj.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        }
     }
 
     private void Start()
     {
         togglePanelButton.onClick.AddListener(TogglePanel);
+        
+        // Add reset button listener if it exists
+        if (resetScanButton != null)
+        {
+            resetScanButton.onClick.AddListener(ResetForNewScan);
+        }
+        
         apiRealTimePanel.GameObject().SetActive(true);
         // Handle close button if it exists
         Button closeButton = apiRealTimePanel.transform.Find("CloseButton")?.GetComponent<Button>();
@@ -116,7 +158,7 @@ public class QRSceneManager : MonoBehaviour
                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 
-              
+                UpdateUIText("🔍 Fetching machine data...", "");
                 StartCoroutine(FetchMachineDataRoutine(machineCode));
             }
         }
@@ -141,7 +183,10 @@ public class QRSceneManager : MonoBehaviour
             if (response != null && response.result != null)
             {
                 MachineResponse machine = response.result;
-                UpdateMachineUI(machine);
+                
+                // Update machine details UI
+                machineNameText.text = $"Machine: {machine.machineName ?? "Unknown"}";  
+                machineTypeText.text = $"Type: {machine.machineType ?? "Unknown"}";
 
                 // Handle API headers
                 apiHeaders.Clear();
@@ -172,17 +217,37 @@ public class QRSceneManager : MonoBehaviour
                     apiHeaders["API_KEY"] = "my_secure_token_123"; // Default API key
                 }
 
-                // Show real-time panel and start fetching data
-                TogglePanel();
+                // Show panel immediately
+                ShowPanel();
                 
-                if (!string.IsNullOrEmpty(machine.apiUrl))
+                // Clear both layout groups for new data
+                ClearUI(dataLayoutGroup);
+                ClearUI(machineInfoLayoutGroup);
+                
+                // Always display machine type values in machineInfoLayoutGroup
+                DisplayMachineTypeValues(machine);
+                
+                hasRealTimeApi = !string.IsNullOrEmpty(machine.apiUrl);
+                
+                if (hasRealTimeApi)
                 {
-                    StartCoroutine(FetchRealTimeData(machine.apiUrl));
+                    // Stop previous coroutine if running
+                    if (realTimeDataCoroutine != null)
+                    {
+                        StopCoroutine(realTimeDataCoroutine);
+                    }
+                    
+                    // Start fetching real-time data
+                    realTimeDataCoroutine = StartCoroutine(FetchRealTimeData(machine.apiUrl));
+                    
+                    // Show loading indicator in real-time data section
+                    AddCategoryHeader("LOADING REAL-TIME DATA...", dataLayoutGroup);
                 }
                 else
                 {
-                    Debug.LogError("❌ Failed to get real-time API URL.");
-                    UpdateUIText("❌ No real-time data available", "");
+                    // No real-time API available
+                    Debug.Log("ℹ️ No real-time API URL. Displaying static machine data only.");
+                    AddCategoryHeader("NO REAL-TIME DATA AVAILABLE", dataLayoutGroup);
                 }
             }
             else
@@ -198,7 +263,6 @@ public class QRSceneManager : MonoBehaviour
             UpdateUIText("❌ Failed to fetch machine data", "");
             Invoke(nameof(ResetScanning), 2f);
         }
-        
     }
 
     IEnumerator FetchRealTimeData(string url)
@@ -221,40 +285,58 @@ public class QRSceneManager : MonoBehaviour
 
                 if (jsonResponse != previousJson)
                 {
-                    JObject parsedData = JObject.Parse(jsonResponse);
-                    DisplayRealTimeData(parsedData);
-                    previousJson = jsonResponse;
+                    try
+                    {
+                        JObject parsedData = JObject.Parse(jsonResponse);
+                        DisplayRealTimeData(parsedData);
+                        previousJson = jsonResponse;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogError($"❌ Error parsing real-time data: {ex.Message}");
+                        ClearUI(dataLayoutGroup);
+                        AddCategoryHeader("ERROR PARSING DATA", dataLayoutGroup);
+                    }
                 }
             }
             else
             {
                 Debug.LogError($"❌ Real-time API Failed: {request.error}");
+                ClearUI(dataLayoutGroup);
+                AddCategoryHeader("CONNECTION ERROR", dataLayoutGroup);
+                AddDataRow("Error", request.error, dataLayoutGroup);
             }
 
             yield return new WaitForSeconds(5f); // Wait 5 seconds before calling API again
         }
     }
 
-    public void UpdateMachineUI(MachineResponse machine)
+    // Method to display machine type values
+    void DisplayMachineTypeValues(MachineResponse machine)
     {
-        machineNameText.text = $"Machine: {machine.machineName ?? "Unknown"}";  
-        machineTypeText.text = $"Type: {machine.machineType ?? "Unknown"}";
-
-        ClearUI();
-
-        if (machine.machineTypeValueResponses != null)
+        AddCategoryHeader("MACHINE INFORMATION", machineInfoLayoutGroup);
+        
+        if (machine.machineTypeValueResponses != null && machine.machineTypeValueResponses.Count > 0)
         {
             foreach (MachineTypeValueResponse attribute in machine.machineTypeValueResponses)
             {
-                AddDataRow(attribute.machineTypeAttributeName, attribute.valueAttribute);
+                AddDataRow(attribute.machineTypeAttributeName, attribute.valueAttribute, machineInfoLayoutGroup);
             }
+        }
+        else
+        {
+            AddDataRow("No machine type data", "No attributes available", machineInfoLayoutGroup);
         }
     }
 
     void DisplayRealTimeData(JObject data)
     {
-        ClearUI();
+        
+        // Only clear the real-time data section
+        ClearUI(dataLayoutGroup);
 
+        AddCategoryHeader("REAL-TIME DATA", dataLayoutGroup);
+        
         foreach (var category in data)
         {
             string categoryName = category.Key;
@@ -262,17 +344,20 @@ public class QRSceneManager : MonoBehaviour
 
             if (categoryValues.Type == JTokenType.Object)
             {
-                AddCategoryHeader(categoryName);
+                AddSubCategoryHeader(categoryName, dataLayoutGroup);
                 foreach (var item in categoryValues.Children<JProperty>())
                 {
-                    AddDataRow(item.Name, FormatValue(item.Value));
+                    AddDataRow(item.Name, FormatValue(item.Value), dataLayoutGroup);
                 }
             }
             else
             {
-                AddDataRow(categoryName, FormatValue(categoryValues));
+                AddDataRow(categoryName, FormatValue(categoryValues), dataLayoutGroup);
             }
         }
+        
+        // Force layout update after all UI elements are added
+        ForceCompleteLayoutUpdate();
     }
 
     string FormatValue(JToken value)
@@ -288,9 +373,9 @@ public class QRSceneManager : MonoBehaviour
         return value.ToString();
     }
 
-    void AddDataRow(string key, string value)
+    void AddDataRow(string key, string value, Transform parent)
     {
-        GameObject newRow = Instantiate(dataRowPrefab, dataLayoutGroup);
+        GameObject newRow = Instantiate(dataRowPrefab, parent);
         TMP_Text keyText = newRow.transform.Find("KeyText").GetComponent<TMP_Text>();
         TMP_Text valueText = newRow.transform.Find("ValueText").GetComponent<TMP_Text>();
 
@@ -319,9 +404,9 @@ public class QRSceneManager : MonoBehaviour
         StartCoroutine(FadeIn(canvasGroup, 0.5f));
     }
 
-    void AddCategoryHeader(string title)
+    void AddCategoryHeader(string title, Transform parent)
     {
-        GameObject newHeader = Instantiate(categoryHeaderPrefab, dataLayoutGroup);
+        GameObject newHeader = Instantiate(categoryHeaderPrefab, parent);
         TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
 
         headerText.text = title.ToUpper();
@@ -329,10 +414,22 @@ public class QRSceneManager : MonoBehaviour
         headerText.fontStyle = FontStyles.Bold;
         headerText.alignment = TextAlignmentOptions.Center;
     }
-
-    void ClearUI()
+    
+    void AddSubCategoryHeader(string title, Transform parent)
     {
-        foreach (Transform child in dataLayoutGroup)
+        GameObject newHeader = Instantiate(categoryHeaderPrefab, parent);
+        TMP_Text headerText = newHeader.GetComponentInChildren<TMP_Text>();
+
+        headerText.text = title.ToUpper();
+        headerText.fontSize = 24;
+        headerText.fontStyle = FontStyles.Bold;
+        headerText.alignment = TextAlignmentOptions.Center;
+        headerText.color = new Color(0.3f, 0.6f, 0.9f); // Different color for subcategories
+    }
+
+    void ClearUI(Transform layoutGroup)
+    {
+        foreach (Transform child in layoutGroup)
         {
             Destroy(child.gameObject);
         }
@@ -349,8 +446,6 @@ public class QRSceneManager : MonoBehaviour
         }
         canvasGroup.alpha = 1;
     }
-
-  
 
     void UpdateUIText(string title, string message)
     {
@@ -372,6 +467,118 @@ public class QRSceneManager : MonoBehaviour
         UpdateUIText("📷 Scan a QR Code", "");
     }
     
+    // Method to show panel immediately
+    void ShowPanel()
+    {
+        isPanelVisible = true;
+        apiRealTimePanel.SetActive(true);
+    
+        // Force a layout update immediately when showing the panel
+        ForceCompleteLayoutUpdate();
+    }
+    void ForceCompleteLayoutUpdate()
+    {
+        // First pass - process all layout components
+        Canvas.ForceUpdateCanvases();
+    
+        // Wait for the end of frame
+        StartCoroutine(SecondLayoutPass());
+    }
+
+    IEnumerator SecondLayoutPass()
+    {
+        yield return new WaitForEndOfFrame();
+    
+        // Second pass after frame rendering
+        Canvas.ForceUpdateCanvases();
+    
+        // Force rebuilds on all important RectTransforms
+        if (dataLayoutGroup != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+    
+        if (machineInfoLayoutGroup != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+    
+        // Walk up the hierarchy and rebuild parent layouts
+        Transform current = dataLayoutGroup;
+        while (current != null && current.GetComponent<RectTransform>() != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(current.GetComponent<RectTransform>());
+            current = current.parent;
+        }
+    }
+    IEnumerator DelayedPanelShow(CanvasGroup canvasGroup)
+    {
+        // Set panel as visible for layout calculations but not yet visible to user
+        isPanelVisible = true;
+    
+        // Wait for several frames to ensure layouts are calculated
+        for (int i = 0; i < 3; i++)
+        {
+            yield return new WaitForEndOfFrame();
+        
+            // Force layout rebuilds
+            Canvas.ForceUpdateCanvases();
+        
+            if (dataLayoutGroup != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+            }
+            if (machineInfoLayoutGroup != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
+        }
+    
+        // Fade in the panel
+        float duration = 0.3f;
+        float time = 0;
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(0, 1, time / duration);
+            yield return null;
+        }
+        canvasGroup.alpha = 1;
+    }
+    
+    IEnumerator RefreshLayoutDelayed()
+    {
+        // Wait for the end of the frame to ensure all UI elements are instantiated
+        yield return new WaitForEndOfFrame();
+    
+        // Force layout rebuild on both layout groups
+        if (dataLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        if (machineInfoLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        // Also rebuild the panel itself
+        LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
+    
+        // Wait another frame and do it again to ensure all nested layouts are properly updated
+        yield return new WaitForEndOfFrame();
+    
+        if (dataLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(dataLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        if (machineInfoLayoutGroup != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(machineInfoLayoutGroup.GetComponent<RectTransform>());
+        }
+    
+        LayoutRebuilder.ForceRebuildLayoutImmediate(apiRealTimePanel.GetComponent<RectTransform>());
+    }
+    
+    // Keep the original toggle panel method for button functionality
     void TogglePanel()
     {
         isPanelVisible = !isPanelVisible;
@@ -387,13 +594,41 @@ public class QRSceneManager : MonoBehaviour
         }
     }
     
+    // Reset button functionality
+    public void ResetForNewScan()
+    {
+        // Stop any ongoing real-time data fetch
+        if (realTimeDataCoroutine != null)
+        {
+            StopCoroutine(realTimeDataCoroutine);
+            realTimeDataCoroutine = null;
+        }
+        
+        // Hide the panel
+        isPanelVisible = false;
+        apiRealTimePanel.SetActive(false);
+        
+        // Reset variables
+        previousJson = "";
+        currentMachineCode = "";
+        hasRealTimeApi = false;
+        
+        // Clear both UI sections
+        ClearUI(dataLayoutGroup);
+        ClearUI(machineInfoLayoutGroup);
+        
+        // Allow scanning again
+        scanBoxUI?.SetActive(true);
+        isScanning = true;
+        UpdateUIText("📷 Scan a QR Code", "");
+    }
+    
     public void ClosePanel() 
     {
         apiRealTimePanel.SetActive(false);
         isPanelVisible = false;
         Debug.Log("❌ Panel closed.");
     }
-    
     
     public void GoBackToMainApp()
     {

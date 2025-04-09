@@ -554,7 +554,7 @@ void TryScanQRCode()
                         {
                             Debug.Log("✅ Successfully used points for this course.");
                            // MaintenanceNotificationManager.Instance.NotifyPointUsed();
-                            MaintenanceNotificationManager.Instance.NotifyPointUsedFirebase(userId, response.result.title);
+                           MaintenanceNotificationManager.Instance.NotifyPointUsed();
                         }
                     }
                     else
