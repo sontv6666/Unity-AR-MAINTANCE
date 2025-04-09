@@ -627,6 +627,7 @@ public class QRSceneManager : MonoBehaviour
     {
         apiRealTimePanel.SetActive(false);
         isPanelVisible = false;
+        ResetForNewScan();
         Debug.Log("❌ Panel closed.");
     }
     
