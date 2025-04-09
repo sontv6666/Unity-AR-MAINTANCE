@@ -20,7 +20,7 @@ public class CourseAllLoader : MonoBehaviour
     
     public ScrollRect scrollRect; // Scroll Rect for detecting scroll position
     [Header("API Settings")]
-    private string endpointTemplate = "/course/company/{0}?page={1}&size={2}";
+    private string endpointTemplate = "/course/company/{0}?page={1}&size={2}&status=ACTIVE";
     
     private int currentPage = 1;
     private int pageSize = 10; // Number of courses per page

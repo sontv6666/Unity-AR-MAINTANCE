@@ -469,6 +469,7 @@ IEnumerator CheckFileSize(string fileUrl, string localFilePath)
 
                
                 SceneManager.LoadScene("ARVRScanner");
+                Debug.Log("🔄 Loading AR Scene...");
 
 
             }

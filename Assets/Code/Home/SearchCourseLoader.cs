@@ -19,7 +19,7 @@ public class SearchCourseLoader : MonoBehaviour
     public GameObject searchPage;
     public GameObject detailPage;
 
-    private string searchApiTemplate = "/course/company/{0}?title={1}";
+    private string searchApiTemplate = "/course/company/{0}?title={1}&status=ACTIVE";
 
     void Start()
     {
