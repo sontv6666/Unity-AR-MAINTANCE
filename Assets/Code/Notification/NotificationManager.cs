@@ -110,75 +110,108 @@ public class MaintenanceNotificationManager : MonoBehaviour
     }
 
 
-    void OnMessageReceived(object sender, MessageReceivedEventArgs e)
+private string lastNotificationId = "";
+private float lastNotificationTime = 0f;
+private bool notificationReceived = false;
+
+void OnMessageReceived(object sender, MessageReceivedEventArgs e)
+{
+    Debug.Log("📨 Firebase message received!");
+
+    // Extract notification data
+    string title = e.Message.Notification?.Title ?? "Notification";
+    string body = e.Message.Notification?.Body ?? "You have a new notification";
+    
+    Debug.Log($"Title: {title}, Body: {body}");
+
+    // Generate a unique ID for this notification
+    string currentNotificationId = e.Message.MessageId ?? $"{title}_{body}_{Time.time}";
+    
+    // More flexible duplicate detection specific to iOS
+    #if UNITY_IOS
+    // For iOS, use a more lenient duplicate detection
+    bool isDuplicate = currentNotificationId == lastNotificationId && 
+                       Time.time - lastNotificationTime < 1.5f;
+    #else
+    // For other platforms (Android), use the original detection
+    bool isDuplicate = currentNotificationId == lastNotificationId && 
+                       Time.time - lastNotificationTime < 3f;
+    #endif
+
+    if (isDuplicate)
     {
-        Debug.Log("📨 Firebase message received!");
+        Debug.Log("🔁 Duplicate notification detected. Skipping...");
+        return;
+    }
 
-        // Extract notification data
-        string title = e.Message.Notification?.Title ?? "Notification";
-        string body = e.Message.Notification?.Body ?? "You have a new notification";
+    // Update tracking variables
+    lastNotificationId = currentNotificationId;
+    lastNotificationTime = Time.time;
 
-        Debug.Log($"Title: {title}, Body: {body}");
+    // Only skip completely empty notifications
+    if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(body) && 
+        (e.Message.Data == null || e.Message.Data.Count == 0))
+    {
+        Debug.Log("🚫 Notification has no content. Skipping...");
+        return;
+    }
 
-        // Handle data payload
-        if (e.Message.Data.Count > 0)
+    // Handle data payload
+    if (e.Message.Data != null && e.Message.Data.Count > 0)
+    {
+        Debug.Log("Data payload:");
+        foreach (var pair in e.Message.Data)
         {
-            Debug.Log("Data payload:");
-            foreach (var pair in e.Message.Data)
-            {
-                Debug.Log($"{pair.Key}: {pair.Value}");
-            }
+            Debug.Log($"{pair.Key}: {pair.Value}");
+        }
 
-            // Check for notification type
-            if (e.Message.Data.TryGetValue("type", out string notificationType))
+        // Check for notification type
+        if (e.Message.Data.TryGetValue("type", out string notificationType))
+        {
+            switch (notificationType)
             {
-                // Handle different notification types
-                switch (notificationType)
-                {
-                    case "new_course":
-                        // Show new course notification
-                        if (e.Message.Data.TryGetValue("courseId", out string courseId) &&
-                            e.Message.Data.TryGetValue("courseName", out string courseName))
-                        {
-                            HandleNewCourseNotification(courseId, courseName);
-                        }
+                case "new_course":
+                    if (e.Message.Data.TryGetValue("courseId", out string courseId) &&
+                        e.Message.Data.TryGetValue("courseName", out string courseName))
+                    {
+                        HandleNewCourseNotification(courseId, courseName);
+                    }
+                    DisplayInAppNotification(title, body);
+                    break;
 
-                        DisplayInAppNotification(title, body);
-                        break;
-                    case "point_used":
-                        // Show in-app notification for points
-                        DisplayInAppNotification(title, body);
-                        break;
-                    case "maintenance":
-                        // Show maintenance notification
-                        DisplayInAppNotification(title, body);
-                        break;
-                    case "point_request":
-                        if (e.Message.Data.TryGetValue("status", out string status) &&
-                            e.Message.Data.TryGetValue("points", out string pointsStr))
-                        {
-                            HandlePointRequestNotification(status, pointsStr);
-                        }
-                        DisplayInAppNotification(title, body);
-                        break;
-                    default:
-                        // Default case
-                        DisplayInAppNotification(title, body);
-                        break;
-                }
-            }
-            else
-            {
-                // If no type specified, display default notification
-                DisplayInAppNotification(title, body);
+                case "point_used":
+                    DisplayInAppNotification(title, body);
+                    break;
+
+                case "maintenance":
+                    DisplayInAppNotification(title, body);
+                    break;
+
+                case "point_request":
+                    if (e.Message.Data.TryGetValue("status", out string status) &&
+                        e.Message.Data.TryGetValue("points", out string pointsStr))
+                    {
+                        HandlePointRequestNotification(status, pointsStr);
+                    }
+                    DisplayInAppNotification(title, body);
+                    break;
+
+                default:
+                    DisplayInAppNotification(title, body);
+                    break;
             }
         }
         else
         {
-            // If no data payload, display default notification
             DisplayInAppNotification(title, body);
         }
     }
+    else
+    {
+        // If there's no data payload but there's still a title/body, display it
+        DisplayInAppNotification(title, body);
+    }
+}
     
     
     // Add this new method to handle point request notifications
@@ -308,6 +341,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
             Title = title,
             Body = message,
             ShowInForeground = true,
+            ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
             Trigger = new iOSNotificationTimeIntervalTrigger
             {
                 TimeInterval = new TimeSpan(0, 0, 1),
@@ -351,24 +385,29 @@ public class MaintenanceNotificationManager : MonoBehaviour
         AndroidNotificationCenter.RegisterNotificationChannel(maintenanceChannel);
         AndroidNotificationCenter.RegisterNotificationChannel(progressChannel);
 #elif UNITY_IOS
-        var timeTrigger = new iOSNotificationTimeIntervalTrigger()
+        if (!PlayerPrefs.HasKey("WelcomeNotificationSent"))
         {
-            TimeInterval = new TimeSpan(0, 0, 5),
-            Repeats = false
-        };
+            var timeTrigger = new iOSNotificationTimeIntervalTrigger()
+            {
+                TimeInterval = new TimeSpan(0, 0, 5),
+                Repeats = false
+            };
 
-        var notification = new iOSNotification()
-        {
-            Identifier = "_notification_01",
-            Title = "Hello",
-            Body = "This is a test notification!",
-            Subtitle = "Subtitle here",
-            ShowInForeground = true,
-            ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
-            Trigger = timeTrigger,
-        };
+            var notification = new iOSNotification()
+            {
+                Identifier = "_notification_01",
+                Title = "Welcome!",
+                Body = "Enjoy your AR guideline",
+                Subtitle = "Try your best and gain your skills",
+                ShowInForeground = true,
+                ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
+                Trigger = timeTrigger,
+            };
 
-        iOSNotificationCenter.ScheduleNotification(notification);
+            iOSNotificationCenter.ScheduleNotification(notification);
+            PlayerPrefs.SetInt("WelcomeNotificationSent", 1);
+            PlayerPrefs.Save();
+        }
 #endif
         Debug.Log("📱 Notification system initialized");
     }
