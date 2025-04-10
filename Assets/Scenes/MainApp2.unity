@@ -55207,6 +55207,12 @@ MonoBehaviour:
   transactionListPage: {fileID: 900341188}
   profilePage: {fileID: 5701549742028723858}
   emptyStatePanel: {fileID: 0}
+  nextPageButton: {fileID: 0}
+  prevPageButton: {fileID: 0}
+  pageIndicatorText: {fileID: 0}
+  currentPage: 1
+  pageSize: 100
+  totalPages: 1
   backButton: {fileID: 1398521364}
 --- !u!1 &1986343208
 GameObject:
