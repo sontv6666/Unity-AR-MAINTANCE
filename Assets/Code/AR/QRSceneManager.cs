@@ -166,7 +166,20 @@ public class QRSceneManager : MonoBehaviour
 
     IEnumerator FetchMachineDataRoutine(string machineCode)
     {
-        string endpoint = "/machine/code/" + machineCode;
+        
+        // Get the company ID from PlayerPrefs (saved during login)
+        string companyId = PlayerPrefs.GetString("CompanyId", "");
+    
+        if (string.IsNullOrEmpty(companyId))
+        {
+            Debug.LogError("❌ Company ID is missing! User might need to log in again.");
+            UpdateUIText("Missing company information", "Please log in again");
+            Invoke(nameof(ResetScanning), 2f);
+            yield break;
+        }
+        
+        // Updated endpoint format to include company ID
+        string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 
         Debug.Log($"📡 Sending API Request to: {endpoint}");

@@ -51729,7 +51729,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   courseTitleText: {fileID: 1649534543}
-  courseDescriptionText: {fileID: 968419740}
+  courseDescriptionText: {fileID: 0}
   courseDurationText: {fileID: 0}
   courseParticipantsText: {fileID: 0}
   courseTypeText: {fileID: 1437533584}

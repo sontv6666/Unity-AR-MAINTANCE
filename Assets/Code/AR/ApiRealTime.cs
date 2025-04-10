@@ -74,7 +74,19 @@ public class APIRealTime : MonoBehaviour
 IEnumerator FetchMachineDataRoutine(string machineCode, string secondValue, string courseId)
 {
     currentMachineCode = machineCode;
-    string endpoint = "/machine/code/" + machineCode;
+    
+    // Get company ID from PlayerPrefs
+    string companyId = PlayerPrefs.GetString("CompanyId", "");
+    
+    if (string.IsNullOrEmpty(companyId))
+    {
+        Debug.LogError("❌ Company ID is missing! User might need to log in again.");
+        UpdateUIText("Missing company information", "Please log in again");
+        yield break;
+    }
+    
+    // Updated endpoint to include company ID
+    string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
     UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
 
     Debug.Log($"📡 Sending API Request to: {endpoint}");
