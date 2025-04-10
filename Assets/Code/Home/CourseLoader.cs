@@ -16,23 +16,43 @@ public class CourseLoader: MonoBehaviour
     [Header("UI References")] 
     public TMP_Text greetingText;
     public TMP_Text usernameText;
-    public TMP_Text pointsText ;
+    public TMP_Text pointsText;
+    public TMP_Text roleText; // New: Display user role
+    public TMP_Text companyNameText; // New: Display company name
+    public TMP_Text statusText; // New: Display user status
     public Image profileImage;
     public GameObject coursePanelPrefab; // Prefab for each course item
     public Transform contentParent; // Parent object to hold all course panels
     public GameObject nocourseText;
     public GameObject detailPage;
     public GameObject homePage;
-    public GameObject seeAllPage; 
-    private string userEndpoint = "/user/{0}"; // API to fetch user details
+    public GameObject seeAllPage;
+    
+    [Header("Course Filtering")]
+    public TMP_Dropdown courseFilterDropdown; // New: Filter dropdown
+    public Toggle showMandatoryOnlyToggle; // New: Filter for mandatory courses
+    
+    [Header("Pagination Controls")]
+    public Button nextPageButton; // New: Next page button
+    public Button prevPageButton; // New: Previous page button
+    public TMP_Text pageInfoText; // New: Shows current page/total pages
+    private int currentPage = 1;
+    private int pageSize = 4;
+    
+    [Header("Dashboard Stats")]
+    public TMP_Text totalCoursesText; // New: Show total available courses
+    public TMP_Text courseTypeText; // New: Show types of courses available
+    public Image courseProgressFill; // New: Visual progress indicator
+    
     [Header("API Settings")] 
-    private string endpointTemplate = "/course/company/{0}?page=1&size=4&status=ACTIVE";
+    private string userEndpoint = "/user/{0}"; // API to fetch user details
+    private string endpointTemplate = "/course/company/{0}?page={1}&size={2}&status=ACTIVE";
 
     void Start()
     {
-        SetGreetingMessage(); // ✅ Set greeting message based on time of day
+        SetGreetingMessage();
 
-        // ✅ Ensure UserId is set from PlayerPrefs
+        // Ensure UserId is set from PlayerPrefs
         if (string.IsNullOrEmpty(UserManager.UserId))
         {
             UserManager.UserId = PlayerPrefs.GetString("UserId", "");
@@ -43,16 +63,18 @@ public class CourseLoader: MonoBehaviour
             UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
         }
 
+        // Initialize UI controls
+        SetupFilteringControls();
 
         if (!string.IsNullOrEmpty(UserManager.UserId))
         {
-            string endpoint = string.Format(endpointTemplate, UserManager.UserId);
+            string endpoint = string.Format(endpointTemplate, UserManager.UserId, currentPage, pageSize);
             Debug.Log($"CourseLoader: Fetching course data for userId: {UserManager.UserId}");
         
-            // ✅ Wait for CompanyId before fetching courses
+            // Wait for CompanyId before fetching courses
             StartCoroutine(WaitForCompanyIdAndFetchCourses());
 
-            // ✅ Fetch user data
+            // Fetch user data
             string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
             Debug.Log($"CourseLoader: Fetching user data for userId: {UserManager.UserId}");
             StartCoroutine(FetchUserData(userEndpointFormatted));
@@ -63,17 +85,98 @@ public class CourseLoader: MonoBehaviour
         }
     }
 
+    void SetupFilteringControls()
+    {
+        // Setup course filter dropdown if it exists
+        if (courseFilterDropdown != null)
+        {
+            courseFilterDropdown.ClearOptions();
+            courseFilterDropdown.AddOptions(new List<string> { "All Courses", "Active Only", "By Duration", "By Type" });
+            courseFilterDropdown.onValueChanged.AddListener(OnFilterChanged);
+        }
+        
+        // Setup mandatory toggle if it exists
+        if (showMandatoryOnlyToggle != null)
+        {
+            showMandatoryOnlyToggle.onValueChanged.AddListener(OnMandatoryFilterChanged);
+        }
+        
+        // Setup pagination buttons
+        if (nextPageButton != null)
+        {
+            nextPageButton.onClick.AddListener(OnNextPageClicked);
+        }
+        
+        if (prevPageButton != null)
+        {
+            prevPageButton.onClick.AddListener(OnPrevPageClicked);
+        }
+    }
+    
+    void OnFilterChanged(int index)
+    {
+        // Reset to first page when filter changes
+        currentPage = 1;
+        
+        // Apply selected filter
+        string endpoint = "";
+        switch (index)
+        {
+            case 0: // All Courses
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+                break;
+            case 1: // Active Only
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&status=ACTIVE";
+                break;
+            case 2: // By Duration
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=duration";
+                break;
+            case 3: // By Type
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=type";
+                break;
+        }
+        
+        StartCoroutine(FetchCourseData(endpoint));
+    }
+    
+    void OnMandatoryFilterChanged(bool isOn)
+    {
+        // Apply mandatory filter
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        if (isOn)
+        {
+            endpoint += "&mandatory=true";
+        }
+        
+        StartCoroutine(FetchCourseData(endpoint));
+    }
+    
+    void OnNextPageClicked()
+    {
+        currentPage++;
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        StartCoroutine(FetchCourseData(endpoint));
+    }
+    
+    void OnPrevPageClicked()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+            StartCoroutine(FetchCourseData(endpoint));
+        }
+    }
     
     IEnumerator WaitForCompanyIdAndFetchCourses()
     {
-        
         while (string.IsNullOrEmpty(UserManager.CompanyId))
         {
             Debug.Log("⌛ Waiting for CompanyId...");
             yield return new WaitForSeconds(0.5f);
         }
 
-        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId);
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
         Debug.Log($"📡 Fetching courses for Company ID: {UserManager.CompanyId}");
         StartCoroutine(FetchCourseData(endpoint));
     }
@@ -135,8 +238,6 @@ public class CourseLoader: MonoBehaviour
         }
     }
 
-
-
     void ProcessUserData(string jsonData)
     {
         ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
@@ -145,10 +246,29 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
-            pointsText.text= $"{user.points} points";
+            pointsText.text = $"{user.points} points";
+            
+            // Add new user information to UI
+            if (roleText != null)
+                roleText.text = user.roleName ?? (user.role?.roleName ?? "Member");
+                
+            if (companyNameText != null && user.company != null)
+                companyNameText.text = user.company.companyName;
+                
+            if (statusText != null)
+            {
+                statusText.text = user.status;
+                
+                // Color-code the status
+                if (user.status == "ACTIVE")
+                    statusText.color = new Color(0.2f, 0.8f, 0.2f); // Green
+                else
+                    statusText.color = new Color(0.8f, 0.2f, 0.2f); // Red
+            }
+            
             Debug.Log($"👤 User: {user.username}");
 
-            // ✅ Lưu company.id vào UserManager
+            // Save company.id to UserManager
             if (user.company != null && !string.IsNullOrEmpty(user.company.id))
             {
                 UserManager.CompanyId = user.company.id;
@@ -165,7 +285,6 @@ public class CourseLoader: MonoBehaviour
             Debug.LogError("❌ Failed to parse user data.");
         }
     }
-
 
     IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
@@ -193,10 +312,12 @@ public class CourseLoader: MonoBehaviour
         }
     }
     
-    
     public void ReloadCourseData()
     {
-        Start(); // Gọi lại Start() để load dữ liệu
+        // Reset to first page
+        currentPage = 1;
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        StartCoroutine(FetchCourseData(endpoint));
     }
     
     IEnumerator FetchCourseData(string endpoint)
@@ -220,28 +341,35 @@ public class CourseLoader: MonoBehaviour
             }
         }
     }
-    
 
     void ProcessCourseData(string jsonData)
     {
         Debug.Log("📡 CourseLoader: Processing course data.");
-        Debug.Log($"📜 Raw JSON Data: {jsonData}"); // ✅ Debug JSON before parsing
+        Debug.Log($"📜 Raw JSON Data: {jsonData}");
 
         try
         {
-            // ✅ Corrected to match new API structure
             var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
             if (response == null || response.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
             {
                 Debug.LogError("❌ No courses found or invalid response.");
                 nocourseText.SetActive(true);
+                
+                // Update pagination controls
+                UpdatePaginationInfo(0, 0, 0);
                 return;
             }
 
             Debug.Log($"📌 Found {response.result.objectList.Count} courses.");
+            
+            // Update pagination controls
+            UpdatePaginationInfo(response.result.page, response.result.totalPages, response.result.totalItems);
+            
+            // Update dashboard stats
+            UpdateDashboardStats(response.result);
 
-            // ✅ Clear old UI panels before adding new ones
+            // Clear old UI panels before adding new ones
             foreach (Transform child in contentParent)
             {
                 Destroy(child.gameObject);
@@ -255,7 +383,7 @@ public class CourseLoader: MonoBehaviour
                     continue;
                 }
 
-                // ✅ Shorten title and description
+                // Shorten title and description
                 string truncatedTitle = course.title.Length > 20 ? course.title.Substring(0, 20) + "..." : course.title;
                 string truncatedDescription = course.description.Length > 50 ? course.description.Substring(0, 50) + "..." : course.description;
 
@@ -264,7 +392,7 @@ public class CourseLoader: MonoBehaviour
 
                 nocourseText.SetActive(false);
 
-                // ✅ Create the UI panel
+                // Create the UI panel
                 CreateCoursePanel(course);
             }
         }
@@ -273,8 +401,68 @@ public class CourseLoader: MonoBehaviour
             Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
-
-
+    
+    void UpdatePaginationInfo(int currentPage, int totalPages, int totalItems)
+    {
+        // Update page info text
+        if (pageInfoText != null)
+        {
+            pageInfoText.text = $"Page {currentPage} of {totalPages} ({totalItems} courses)";
+        }
+        
+        // Enable/disable pagination buttons
+        if (prevPageButton != null)
+        {
+            prevPageButton.interactable = (currentPage > 1);
+        }
+        
+        if (nextPageButton != null)
+        {
+            nextPageButton.interactable = (currentPage < totalPages);
+        }
+    }
+    
+    void UpdateDashboardStats(PaginationResult<CourseResult> data)
+    {
+        // Update total courses text
+        if (totalCoursesText != null)
+        {
+            totalCoursesText.text = $"Total Courses: {data.totalItems}";
+        }
+        
+        // Count course types
+        Dictionary<string, int> courseTypes = new Dictionary<string, int>();
+        foreach (var course in data.objectList)
+        {
+            if (!string.IsNullOrEmpty(course.type))
+            {
+                if (courseTypes.ContainsKey(course.type))
+                    courseTypes[course.type]++;
+                else
+                    courseTypes[course.type] = 1;
+            }
+        }
+        
+        // Update course types text
+        if (courseTypeText != null && courseTypes.Count > 0)
+        {
+            string typesText = "Course Types: ";
+            foreach (var type in courseTypes)
+            {
+                typesText += $"{type.Key} ({type.Value}), ";
+            }
+            typesText = typesText.TrimEnd(' ', ',');
+            courseTypeText.text = typesText;
+        }
+        
+        // Update progress bar (this is just a visual element - you may want to modify based on actual progress data)
+        if (courseProgressFill != null)
+        {
+            // Example: Fill based on how many pages viewed out of total
+            float fillAmount = (float)currentPage / data.totalPages;
+            courseProgressFill.fillAmount = fillAmount;
+        }
+    }
 
     void CreateCoursePanel(CourseResult course)
     {
@@ -284,10 +472,46 @@ public class CourseLoader: MonoBehaviour
         TMP_Text titleText = panel.transform.Find("course_titleText").GetComponent<TMP_Text>();
         TMP_Text descriptionText = panel.transform.Find("course_descriptionText").GetComponent<TMP_Text>();
         TMP_Text scoreText = panel.transform.Find("course_scoreText").GetComponent<TMP_Text>();
-
+        
+        // Look for additional UI elements that might exist in your prefab
+        TMP_Text typeText = panel.transform.Find("course_typeText")?.GetComponent<TMP_Text>();
+        TMP_Text durationText = panel.transform.Find("course_durationText")?.GetComponent<TMP_Text>();
+        GameObject mandatoryBadge = panel.transform.Find("mandatoryBadge")?.gameObject;
+        
+        // Set existing information
         if (titleText != null) titleText.text = course.title;
         if (descriptionText != null) descriptionText.text = course.description;
-        if (scoreText != null) scoreText.text = $"Lessons: {course.numberOfLessons}";
+        
+        // Enhanced information display
+        if (scoreText != null)
+        {
+            string scoreInfo = $"Lessons: {course.numberOfLessons ?? 0}";
+            
+            // Add participants count if available
+            if (course.numberOfParticipants.HasValue && course.numberOfParticipants > 0)
+                scoreInfo += $" | Participants: {course.numberOfParticipants}";
+                
+            scoreText.text = scoreInfo;
+        }
+        
+        // Set additional information if UI elements exist
+        if (typeText != null && !string.IsNullOrEmpty(course.type))
+        {
+            typeText.text = course.type;
+            typeText.gameObject.SetActive(true);
+        }
+        
+        if (durationText != null && course.duration.HasValue)
+        {
+            durationText.text = $"Duration: {course.duration} min";
+            durationText.gameObject.SetActive(true);
+        }
+        
+        // Show mandatory badge if course is mandatory
+        if (mandatoryBadge != null)
+        {
+            mandatoryBadge.SetActive(course.isMandatory);
+        }
 
         Button courseButton = panel.GetComponent<Button>();
         if (courseButton != null)
@@ -303,6 +527,32 @@ public class CourseLoader: MonoBehaviour
                 StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
             }
         }
+        
+        // Add animation effect (fade in)
+        StartCoroutine(AnimatePanelEntry(panel, 0.3f));
+    }
+    
+    IEnumerator AnimatePanelEntry(GameObject panel, float duration)
+    {
+        // Add a Canvas Group if it doesn't exist
+        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = panel.AddComponent<CanvasGroup>();
+            
+        // Start transparent    
+        canvasGroup.alpha = 0f;
+        
+        // Fade in over duration
+        float startTime = Time.time;
+        while (Time.time < startTime + duration)
+        {
+            float normalizedTime = (Time.time - startTime) / duration;
+            canvasGroup.alpha = normalizedTime;
+            yield return null;
+        }
+        
+        // Ensure we end at full opacity
+        canvasGroup.alpha = 1f;
     }
 
     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
@@ -313,13 +563,12 @@ public class CourseLoader: MonoBehaviour
             yield break;
         }
 
-        // ✅ Use ApiConfig to get base URL
         string fullUrl = "/files/" + imageUrl;
         Debug.Log(fullUrl);
         string filename = Path.GetFileName(imageUrl);
         string localPath = Path.Combine(Application.persistentDataPath, filename);
 
-        // ✅ Check if image is cached
+        // Check if image is cached
         if (File.Exists(localPath))
         {
             Debug.Log($"📂 Loading cached image: {localPath}");
@@ -327,7 +576,7 @@ public class CourseLoader: MonoBehaviour
             yield break;
         }
 
-        // ✅ Download image
+        // Download image
         yield return StartCoroutine(DownloadFile(fullUrl, localPath));
 
         if (File.Exists(localPath))
@@ -335,9 +584,6 @@ public class CourseLoader: MonoBehaviour
             yield return LoadImageFromLocal(localPath, imageComponent);
         }
     }
-
-
-    
 
     IEnumerator DownloadFile(string url, string localPath)
     {
@@ -358,8 +604,6 @@ public class CourseLoader: MonoBehaviour
             }
         }
     }
-
-
 
     IEnumerator LoadImageFromLocal(string path, Image imageComponent)
     {
@@ -399,10 +643,6 @@ public class CourseLoader: MonoBehaviour
         yield return null;
     }
 
-
-
-  
-
     public void OnCourseClicked(string courseId)
     {
         Debug.Log($"CourseLoader: Course clicked with ID {courseId}");
@@ -410,13 +650,45 @@ public class CourseLoader: MonoBehaviour
 
         if (detailPage != null)
         {
-            detailPage.SetActive(true);
+            // Animate transition to detail page
+            StartCoroutine(TransitionToDetailPage(courseId));
         }
         else
         {
             Debug.LogError("CourseLoader: DetailPage is not assigned!");
         }
-
+    }
+    
+    IEnumerator TransitionToDetailPage(string courseId)
+    {
+        // Fade out home page if using a canvas group
+        CanvasGroup homeCanvasGroup = homePage.GetComponent<CanvasGroup>();
+        if (homeCanvasGroup != null)
+        {
+            float duration = 0.3f;
+            float startTime = Time.time;
+            
+            while (Time.time < startTime + duration)
+            {
+                float normalizedTime = (Time.time - startTime) / duration;
+                homeCanvasGroup.alpha = 1 - normalizedTime;
+                yield return null;
+            }
+        }
+        
+        // Show detail page
+        detailPage.SetActive(true);
+        
+        // Hide home page
+        homePage.SetActive(false);
+        
+        // Reset home page opacity if needed
+        if (homeCanvasGroup != null)
+        {
+            homeCanvasGroup.alpha = 1;
+        }
+        
+        // Load course details
         CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
         if (courseDetailLoader != null)
         {
@@ -432,23 +704,77 @@ public class CourseLoader: MonoBehaviour
     {
         Debug.Log("📌 Navigating to See All Page...");
 
-        if (homePage != null)
+        // Update endpoint to get more courses
+        string allCoursesEndpoint = string.Format("/course/company/{0}?page=1&size=20&status=ACTIVE", UserManager.CompanyId);
+        
+        // Fetch more courses for the "See All" page
+        StartCoroutine(FetchCoursesForSeeAllPage(allCoursesEndpoint));
+    }
+    
+    IEnumerator FetchCoursesForSeeAllPage(string endpoint)
+    {
+        // Show loading indicator if you have one
+        
+        // Fetch data for see all page
+        using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
         {
-            homePage.SetActive(false); // Hide Home Page
-        }
+            yield return request.SendWebRequest();
+            
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                // Successfully loaded courses, switch to see all page
+                if (homePage != null)
+                {
+                    homePage.SetActive(false);
+                }
 
-        if (seeAllPage != null)
-        {
-            seeAllPage.SetActive(true); // Show See All Page
+                if (seeAllPage != null)
+                {
+                    seeAllPage.SetActive(true);
+                    
+                    // If your SeeAllPage has a CourseListLoader component, use it
+                    var courseListLoader = seeAllPage.GetComponent<CourseLoader>();
+                    if (courseListLoader != null)
+                    {
+                        courseListLoader.ProcessCourseData(request.downloadHandler.text);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("SeeAllPage does not have a CourseListLoader component");
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to fetch courses for See All page: {request.error}");
+            }
         }
     }
     
     public void LoadVRScene()
     {
-        SceneManager.LoadScene("QRScanner1"); // Load the VR scene
+        // Show loading indicator if you have one
+        StartCoroutine(LoadVRSceneWithTransition());
+    }
+    
+    IEnumerator LoadVRSceneWithTransition()
+    {
+        // Fade out current screen
+        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            float duration = 0.5f;
+            float startTime = Time.time;
+            
+            while (Time.time < startTime + duration)
+            {
+                float normalizedTime = (Time.time - startTime) / duration;
+                canvasGroup.alpha = 1 - normalizedTime;
+                yield return null;
+            }
+        }
+        
+        // Load VR scene
+        SceneManager.LoadScene("QRScanner1");
     }
 }
-
-
-
-

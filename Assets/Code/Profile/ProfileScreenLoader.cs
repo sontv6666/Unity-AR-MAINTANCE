@@ -165,6 +165,22 @@ public class ProfileScreenLoader : MonoBehaviour
         // ✅ Clear stored user data
         PlayerPrefs.DeleteKey("UserId");
         PlayerPrefs.DeleteKey("AuthToken");
+        PlayerPrefs.DeleteKey("CompanyId");
+        PlayerPrefs.DeleteKey("ShowHomePage");
+        PlayerPrefs.DeleteKey("ShowDetailPage");
+        PlayerPrefs.DeleteKey("SelectedCourseID");
+        
+        // Reset any cached data in static managers
+        UserManager.UserId = "";
+        UserManager.CompanyId = "";
+        CourseManager.SelectedCourseId = "";
+        
+        // Clear UI elements
+        if (nameText != null) nameText.text = "";
+        if (companyText != null) companyText.text = "";
+        if (emailText != null) emailText.text = "";
+        if (roleText != null) roleText.text = "";
+        if (pointsText != null) pointsText.text = "";
         PlayerPrefs.Save();
 
         // ✅ Return to Login Screen

@@ -28,6 +28,11 @@ public class CourseAllLoader : MonoBehaviour
     private bool isLoading = false; // Prevent multiple simultaneous requests
     void Start()
     {
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+        }
+        
         if (!string.IsNullOrEmpty(UserManager.CompanyId))
         {
             LoadCourses(true); // Load first page
@@ -59,6 +64,12 @@ public class CourseAllLoader : MonoBehaviour
 
     IEnumerator WaitForCompanyIdAndFetchCourses()
     {
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+        }
+        
+        
         while (string.IsNullOrEmpty(UserManager.CompanyId))
         {
             Debug.Log("⌛ Waiting for CompanyId...");

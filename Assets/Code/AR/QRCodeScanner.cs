@@ -130,8 +130,8 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-           //centerModelButton.onClick.AddListener(CenterModel); 
-            centerModelButton.onClick.AddListener(MoveModelBackToQR);
+           centerModelButton.onClick.AddListener(CenterModel); 
+          //  centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -172,7 +172,7 @@ public class QRCodeScanner : MonoBehaviour
         if (isScanning && Time.time - lastScanTime > scanInterval)
         {
             lastScanTime = Time.time;
-            TryScanQRCode();
+          //  TryScanQRCode();
         }
     }
 
@@ -205,10 +205,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-       StartScanning();
+      // StartScanning();
      
      
-     //  StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+      StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -1583,146 +1583,166 @@ void HideInstructionStepUIElements(GameObject stepItem)
 
 
 
-    void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, Slider animationProgressSlider, TMP_Text animationTimeText, float speed = 1f)
+    void PlayStepAnimation(GameObject firstModel, InstructionDetail detail, Slider animationProgressSlider,
+        TMP_Text animationTimeText, float speed = 1f)
+    {
+        if (!firstModel) return;
+
+        // Make sure animation UI elements are visible when starting an animation
+        if (animationProgressSlider) animationProgressSlider.gameObject.SetActive(true);
+        if (animationTimeText) animationTimeText.gameObject.SetActive(true);
+
+        // ✅ Disable buttons at the start (force this so they don’t get overridden)
+        SetNavigationButtonsInteractable(false);
+        isAnimationPlaying = true;
+
+        SetReplayButtonInteractable(false);
+
+        // ✅ Reset ALL individual meshes before playing animation
+        MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
+        foreach (MeshFilter meshFilter in meshFilters)
         {
-            if (!firstModel) return;
+            Transform meshTransform = meshFilter.transform;
 
-            // Make sure animation UI elements are visible when starting an animation
-            if (animationProgressSlider) animationProgressSlider.gameObject.SetActive(true);
-            if (animationTimeText) animationTimeText.gameObject.SetActive(true);
-            
-            // ✅ Disable buttons at the start (force this so they don’t get overridden)
-            SetNavigationButtonsInteractable(false);
-            isAnimationPlaying = true;
-            
-            SetReplayButtonInteractable(false); 
-            
-            // ✅ Reset ALL individual meshes before playing animation
-            MeshFilter[] meshFilters = firstModel.GetComponentsInChildren<MeshFilter>(true);
-            foreach (MeshFilter meshFilter in meshFilters)
+            if (latestMeshTransforms.ContainsKey(meshTransform))
             {
-                Transform meshTransform = meshFilter.transform;
+                var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
+                meshTransform.localPosition = savedPos;
+                meshTransform.localRotation = savedRot;
+                meshTransform.localScale = savedScale;
+                Debug.Log($"🔄 Reset mesh {meshTransform.name} to Position: {savedPos}, Rotation: {savedRot}");
+            }
+        }
 
-                if (latestMeshTransforms.ContainsKey(meshTransform))
+
+        // ✅ Get the Animation component
+        Animation animation = firstModel.GetComponentInChildren<Animation>(true);
+
+
+        if (animation != null)
+        {
+
+            // ✅ Disable Animator to avoid conflicts
+            Animator animator = firstModel.GetComponentInChildren<Animator>();
+            if (animator) animator.enabled = false;
+
+            animation.Stop();
+            animation.Rewind();
+
+
+            animation.Stop();
+            animation.Rewind(); // ✅ Force rewind to first frame
+            Debug.Log("🔄 Stopped and rewound all animations.");
+
+            // ✅ Ensure all animations reset before playing a new on
+            foreach (AnimationState state in animation)
+            {
+                if (state != null)
                 {
-                    var (savedPos, savedRot, savedScale) = latestMeshTransforms[meshTransform];
-                    meshTransform.localPosition = savedPos;
-                    meshTransform.localRotation = savedRot;
-                    meshTransform.localScale = savedScale;
-                    Debug.Log($"🔄 Reset mesh {meshTransform.name} to Position: {savedPos}, Rotation: {savedRot}");
+                    state.time = 0f; // Rewind to first frame
+                    state.enabled = true; // Ensure it's enabled so Sample() works
+                    animation.Play(state.name);
+                    animation.Stop(); // Stop immediately after playing
+                    animation.Sample(); // Apply first frame
+                    state.enabled = false; // Disable after sampling
                 }
             }
-            
 
-            // ✅ Get the Animation component
-            Animation animation = firstModel.GetComponentInChildren<Animation>(true);
-     
-            
-            if (animation != null)
+
+            // ✅ Disable looping for ALL animations
+            foreach (AnimationState state in animation)
             {
-                
-                // ✅ Disable Animator to avoid conflicts
-                Animator animator = firstModel.GetComponentInChildren<Animator>();
-                if (animator) animator.enabled = false;
+                if (state != null)
+                {
+                    state.wrapMode = WrapMode.Once; // 🔴 Prevent looping
+                }
+            }
 
+
+            Debug.Log("🔄 Reset all previous animations.");
+
+            // ✅ Reset the last played animation if available
+            if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
+                animation.GetClip(lastPlayedAnimationName) != null)
+            {
+                AnimationState lastState = animation[lastPlayedAnimationName];
+                lastState.time = 0f;
+                lastState.enabled = true;
+                animation.Play(lastPlayedAnimationName);
                 animation.Stop();
-                animation.Rewind();
+                animation.Sample();
+                lastState.enabled = false;
+                Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
+            }
 
-
-                animation.Stop();
-                animation.Rewind(); // ✅ Force rewind to first frame
-                Debug.Log("🔄 Stopped and rewound all animations.");
-                
-                // ✅ Ensure all animations reset before playing a new on
-                foreach (AnimationState state in animation)
-                {
-                    if (state != null)
-                    {
-                        state.time = 0f; // Rewind to first frame
-                        state.enabled = true; // Ensure it's enabled so Sample() works
-                        animation.Play(state.name);
-                        animation.Stop(); // Stop immediately after playing
-                        animation.Sample(); // Apply first frame
-                        state.enabled = false; // Disable after sampling
-                    }
-                }
-                
-                
-                // ✅ Disable looping for ALL animations
-                foreach (AnimationState state in animation)
-                {
-                    if (state != null)
-                    {
-                        state.wrapMode = WrapMode.Once; // 🔴 Prevent looping
-                    }
-                }
-                
-
-                Debug.Log("🔄 Reset all previous animations.");
-
-                // ✅ Reset the last played animation if available
-                if (!string.IsNullOrEmpty(lastPlayedAnimationName) &&
-                    animation.GetClip(lastPlayedAnimationName) != null)
-                {
-                    AnimationState lastState = animation[lastPlayedAnimationName];
-                    lastState.time = 0f;
-                    lastState.enabled = true;
-                    animation.Play(lastPlayedAnimationName);
-                    animation.Stop();
-                    animation.Sample();
-                    lastState.enabled = false;
-                    Debug.Log($"🔄 Reset last played animation: {lastPlayedAnimationName}");
-                }
-                
-                // ✅ Play the new animation with speed control
-                if (animation.GetClip(detail.animationName) != null)
-                {
-                    AnimationState newState = animation[detail.animationName];
-                    lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
-                    newState.speed = lastAnimationSpeed;
-                    newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
-                    animation.Play(detail.animationName);
-                    Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
-                    StartCoroutine(WaitForAnimationToEnd(animation, newState, firstModel));
-                    StartCoroutine(UpdateAnimationProgress(animation, newState, animationProgressSlider, animationTimeText)); // ✅ Pass UI
-                }
-                else
-                {
-                    Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
-                    isAnimationPlaying = false;
-                    SetNavigationButtonsInteractable(true);
-                    SetReplayButtonInteractable(true);
-                }
+            // ✅ Play the new animation with speed control
+            if (animation.GetClip(detail.animationName) != null)
+            {
+                AnimationState newState = animation[detail.animationName];
+                lastPlayedAnimationName = detail.animationName; // ✅ Store last played animation
+                newState.speed = lastAnimationSpeed;
+                newState.wrapMode = WrapMode.Once; // 🔴 Ensure it only runs once
+                animation.Play(detail.animationName);
+                Debug.Log($"▶️ Playing animation: {detail.animationName} at speed {speed}x");
+                StartCoroutine(WaitForAnimationToEnd(animation, newState, firstModel));
+                StartCoroutine(UpdateAnimationProgress(animation, newState, animationProgressSlider,
+                    animationTimeText)); // ✅ Pass UI
             }
             else
             {
-                Debug.LogWarning("⚠️ No Animation component found!");
+                Debug.LogWarning($"⚠️ Animation '{detail.animationName}' not found!");
                 isAnimationPlaying = false;
                 SetNavigationButtonsInteractable(true);
+                SetReplayButtonInteractable(true);
             }
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ No Animation component found!");
+            isAnimationPlaying = false;
+            SetNavigationButtonsInteractable(true);
+        }
 
-            // ✅ Reset all meshes to active before hiding specific ones
-            foreach (Transform child in firstModel.transform)
-            {
-                child.gameObject.SetActive(true);
-            }
+        // ✅ Reset all meshes to active before hiding specific ones
+        foreach (Transform child in firstModel.transform)
+        {
+            child.gameObject.SetActive(true);
+        }
 
-            // ✅ Hide only specific meshes if needed
-            HashSet<string> meshesToHide = detail.meshes != null ? new HashSet<string>(detail.meshes) : null;
+        Debug.Log($"hi: {detail.meshes.Count}");
+        // ✅ Hide only specific meshes if needed
+        // ✅ Hide only specific meshes if needed
+        HashSet<string> meshesToHide = detail.meshes != null ? new HashSet<string>(detail.meshes) : null;
+
+// Log all actual mesh names in the scene
+        Debug.Log("All meshes in scene:");
+        MeshRenderer[] allRenderers = firstModel.GetComponentsInChildren<MeshRenderer>(true);
+        foreach (MeshRenderer renderer in allRenderers)
+        {
+            Debug.Log($"- {renderer.gameObject.name}");
+
+            // Add this check to hide meshes with name normalization
             if (meshesToHide != null)
             {
-                foreach (Transform child in firstModel.transform)
+                string normalizedName = renderer.gameObject.name.Replace(' ', '_');
+                if (meshesToHide.Contains(normalizedName))
                 {
-                    if (meshesToHide.Contains(child.name))
-                    {
-                        child.gameObject.SetActive(false);
-                        Debug.Log($"🚫 Hiding mesh: {child.name}");
-                    }
+                    Debug.Log(
+                        $"Hiding mesh: {renderer.gameObject.name} (matched with normalized name: {normalizedName})");
+                    renderer.gameObject.SetActive(false);
+                }
+
+                // Also check the original name just in case
+                if (meshesToHide.Contains(renderer.gameObject.name))
+                {
+                    Debug.Log($"Hiding mesh: {renderer.gameObject.name} (direct match)");
+                    renderer.gameObject.SetActive(false);
                 }
             }
         }
-        
-        
+    }
+
+
     IEnumerator UpdateAnimationProgress(Animation animation, AnimationState state, Slider animationProgressSlider, TMP_Text animationTimeText)
     {
         if (animationProgressSlider == null || state == null) yield break;
