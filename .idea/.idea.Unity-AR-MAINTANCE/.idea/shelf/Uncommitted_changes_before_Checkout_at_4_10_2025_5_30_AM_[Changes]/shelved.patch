@@ -1,0 +1,567 @@
+Index: .idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"7b5b480d-9a49-4aec-85e8-ea64d607a72b\" name=\"Changes\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"DpaMonitoringSettings\">\r\n    <option name=\"firstShow\" value=\"false\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"production\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;huucuong-unn&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/sontv6666/Unity-AR-MAINTANCE.git&quot;,\r\n    &quot;accountId&quot;: &quot;fc4a391a-986d-4df7-895c-8e9e3abf596c&quot;\r\n  }\r\n}</component>\r\n  <component name=\"HighlightingSettingsPerFile\">\r\n    <setting file=\"file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs\" root0=\"FORCE_HIGHLIGHTING\" />\r\n    <setting file=\"mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset\" root0=\"SKIP_HIGHLIGHTING\" />\r\n    <setting file=\"file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs\" root0=\"SKIP_HIGHLIGHTING\" />\r\n  </component>\r\n  <component name=\"MetaFilesCheckinStateConfiguration\" checkMetaFiles=\"false\" />\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 8\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2ufix93TQLF7ZLhgWaLFF3s3xSt\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"Attach to Unity Editor.Attach to Unity Editor & Play.executor\": \"Debug\",\r\n    \"Attach to Unity Editor.Attach to Unity Editor.executor\": \"Debug\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"Standalone Player.Start Unity.executor\": \"Run\",\r\n    \"XThreadsFramesViewSplitterKey\": \"0.6744548\",\r\n    \"git-widget-placeholder\": \"production\",\r\n    \"last_opened_file_path\": \"/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"settings.editor.selected.configurable\": \"preferences.environmentSetup\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  },\r\n  \"keyToStringList\": {\r\n    \"rider.external.source.directories\": [\r\n      \"C:\\\\Users\\\\Admin\\\\AppData\\\\Roaming\\\\JetBrains\\\\Rider2024.1\\\\resharper-host\\\\DecompilerCache\",\r\n      \"C:\\\\Users\\\\Admin\\\\AppData\\\\Roaming\\\\JetBrains\\\\Rider2024.1\\\\resharper-host\\\\SourcesCache\",\r\n      \"C:\\\\Users\\\\Admin\\\\AppData\\\\Local\\\\Symbols\\\\src\"\r\n    ]\r\n  }\r\n}]]></component>\r\n  <component name=\"RunManager\" selected=\"Attach to Unity Editor.Attach to Unity Editor\">\r\n    <configuration name=\"Start Unity\" type=\"RunUnityExe\" factoryName=\"Unity Executable\">\r\n      <option name=\"EXE_PATH\" value=\"C:\\Program Files\\Unity\\Hub\\Editor\\6000.0.43f1\\Editor\\Unity.exe\" />\r\n      <option name=\"PROGRAM_PARAMETERS\" value=\"-projectPath $PROJECT_DIR$ -debugCodeOptimization\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\r\n      <option name=\"PASS_PARENT_ENVS\" value=\"1\" />\r\n      <option name=\"USE_EXTERNAL_CONSOLE\" value=\"0\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"Unit Tests (batch mode)\" type=\"RunUnityExe\" factoryName=\"Unity Executable\">\r\n      <option name=\"EXE_PATH\" value=\"C:\\Program Files\\Unity\\Hub\\Editor\\6000.0.43f1\\Editor\\Unity.exe\" />\r\n      <option name=\"PROGRAM_PARAMETERS\" value=\"-runTests -batchmode -projectPath $PROJECT_DIR$ -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\r\n      <option name=\"PASS_PARENT_ENVS\" value=\"1\" />\r\n      <option name=\"USE_EXTERNAL_CONSOLE\" value=\"0\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"Attach to Unity Editor &amp; Play\" type=\"UNITY_DEBUG_RUN_CONFIGURATION\" factoryName=\"UNITY_ATTACH_AND_PLAY\" show_console_on_std_err=\"false\" show_console_on_std_out=\"false\" port=\"50000\" address=\"localhost\">\r\n      <option name=\"allowRunningInParallel\" value=\"false\" />\r\n      <option name=\"listenPortForConnections\" value=\"false\" />\r\n      <option name=\"pid\" />\r\n      <option name=\"projectPathOnTarget\" />\r\n      <option name=\"selectedOptions\">\r\n        <list />\r\n      </option>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"Attach to Unity Editor\" type=\"UNITY_DEBUG_RUN_CONFIGURATION\" factoryName=\"Unity Debug\" show_console_on_std_err=\"false\" show_console_on_std_out=\"false\" port=\"50000\" address=\"localhost\">\r\n      <option name=\"allowRunningInParallel\" value=\"false\" />\r\n      <option name=\"listenPortForConnections\" value=\"false\" />\r\n      <option name=\"pid\" />\r\n      <option name=\"projectPathOnTarget\" />\r\n      <option name=\"selectedOptions\">\r\n        <list />\r\n      </option>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"7b5b480d-9a49-4aec-85e8-ea64d607a72b\" name=\"Changes\" comment=\"\" />\r\n      <created>1742646272745</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1742646272745</updated>\r\n      <workItem from=\"1742646273962\" duration=\"1000\" />\r\n      <workItem from=\"1742646292047\" duration=\"899000\" />\r\n      <workItem from=\"1742723454952\" duration=\"1429000\" />\r\n      <workItem from=\"1742991049999\" duration=\"375000\" />\r\n      <workItem from=\"1743003588098\" duration=\"14428000\" />\r\n      <workItem from=\"1743235030613\" duration=\"2005000\" />\r\n      <workItem from=\"1743356597323\" duration=\"4214000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"config files\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1742646410697</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1742646410697</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Update UI\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743006292518</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743006292518</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"Update\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743010451520</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743010451520</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"Update UI\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743081660762</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743081660762</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"add request list page\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743107126481</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743107126481</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"add\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743107170289</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743107170289</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"Time and load ui for ar\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743110638265</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743110638265</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"Add code to work with loading slider\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743111568366</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743111568366</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"save\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743112862676</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743112862676</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00010\" summary=\"merge, fix conflit\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743174589225</created>\r\n      <option name=\"number\" value=\"00010\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743174589225</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00011\" summary=\"Fix see all scene and color change in request\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743179614559</created>\r\n      <option name=\"number\" value=\"00011\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743179614559</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00012\" summary=\"handle return button\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743181549092</created>\r\n      <option name=\"number\" value=\"00012\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743181549092</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00013\" summary=\"Handle animation stop,rest when back to course UI\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743182110324</created>\r\n      <option name=\"number\" value=\"00013\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743182110324</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00014\" summary=\"Add missing point in ar\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743358042873</created>\r\n      <option name=\"number\" value=\"00014\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743358042873</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00015\" summary=\"fetch point s fro user\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743358671335</created>\r\n      <option name=\"number\" value=\"00015\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743358671335</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00016\" summary=\"add search page\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743360313475</created>\r\n      <option name=\"number\" value=\"00016\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743360313475</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00017\" summary=\"add paging\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743360927750</created>\r\n      <option name=\"number\" value=\"00017\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743360927750</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00018\" summary=\"remove hardcode\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1743361000512</created>\r\n      <option name=\"number\" value=\"00018\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00018\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1743361000512</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"19\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"UnityCheckinConfiguration\" checkUnsavedScenes=\"false\" />\r\n  <component name=\"UnityProjectConfiguration\" hasMinimizedUI=\"true\" />\r\n  <component name=\"UnityProjectDiscoverer\">\r\n    <option name=\"hasUnityReference\" value=\"true\" />\r\n    <option name=\"unityProject\" value=\"true\" />\r\n    <option name=\"unityProjectFolder\" value=\"true\" />\r\n  </component>\r\n  <component name=\"UnityUnitTestConfiguration\" currentTestLauncher=\"Both\" />\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <option name=\"CLEAR_INITIAL_COMMIT_MESSAGE\" value=\"true\" />\r\n    <MESSAGE value=\"config files\" />\r\n    <MESSAGE value=\"Update\" />\r\n    <MESSAGE value=\"Update UI\" />\r\n    <MESSAGE value=\"add request list page\" />\r\n    <MESSAGE value=\"add\" />\r\n    <MESSAGE value=\"Time and load ui for ar\" />\r\n    <MESSAGE value=\"Add code to work with loading slider\" />\r\n    <MESSAGE value=\"save\" />\r\n    <MESSAGE value=\"merge, fix conflit\" />\r\n    <MESSAGE value=\"commit\" />\r\n    <MESSAGE value=\"Fix see all scene and color change in request\" />\r\n    <MESSAGE value=\"handle return button\" />\r\n    <MESSAGE value=\"Handle animation stop,rest when back to course UI\" />\r\n    <MESSAGE value=\"Add missing point in ar\" />\r\n    <MESSAGE value=\"fetch point s fro user\" />\r\n    <MESSAGE value=\"add search page\" />\r\n    <MESSAGE value=\"add paging\" />\r\n    <MESSAGE value=\"remove hardcode\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"remove hardcode\" />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>62</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'SendLoginRequest'\">\r\n            <startOffsets>\r\n              <option value=\"1850\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"1940\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"1\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>\r\n          <line>53</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs\" containingFunctionPresentation=\"Method 'Start'\">\r\n            <startOffsets>\r\n              <option value=\"1782\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"1861\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"3\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>131</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'SaveUserData'\">\r\n            <startOffsets>\r\n              <option value=\"4459\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"4501\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"4\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>111</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'ProcessLoginResponse'\">\r\n            <startOffsets>\r\n              <option value=\"3824\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"3866\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"5\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>100</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'ProcessLoginResponse'\">\r\n            <startOffsets>\r\n              <option value=\"3322\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"3368\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"6\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>32</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'Start'\">\r\n            <startOffsets>\r\n              <option value=\"846\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"891\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"8\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>\r\n          <line>70</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs\" containingFunctionPresentation=\"Method 'SendLoginRequest'\">\r\n            <startOffsets>\r\n              <option value=\"2158\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"2211\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"11\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>\r\n          <line>39</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs\" containingFunctionPresentation=\"Method 'Start'\">\r\n            <startOffsets>\r\n              <option value=\"1113\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"1156\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"18\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"DotNet Breakpoints\">\r\n          <url>file://$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs</url>\r\n          <line>165</line>\r\n          <properties documentPath=\"$PROJECT_DIR$/Assets/Code/Profile/ProfileScreenLoader.cs\" containingFunctionPresentation=\"Method 'OnLogout'\">\r\n            <startOffsets>\r\n              <option value=\"4624\" />\r\n            </startOffsets>\r\n            <endOffsets>\r\n              <option value=\"4656\" />\r\n            </endOffsets>\r\n          </properties>\r\n          <option name=\"timeStamp\" value=\"19\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n  </component>\r\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\r\n    <expand />\r\n    <select />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml b/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml
+--- a/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml	(revision 3c0be05bb713c17d535bd84ea212fcc8925779c0)
++++ b/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml	(date 1744237522892)
+@@ -5,12 +5,20 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_8_4_25__21_35__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_8_4_25__21_35__Changes_.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_1_4_25,_23_32_[Changes]/shelved.patch" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_2_4_25,_00_13_[Changes]/shelved.patch" beforeDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_8_4_25__21_36__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_8_4_25__21_36__Changes_.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_8_4_25__21_48__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Update_at_8_4_25__21_48__Changes_.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Assets/Code/Home/CourseDetailLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Home/CourseDetailLoader.cs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/ProjectSettings/GvhProjectSettings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/GvhProjectSettings.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.muse.common/Settings.json" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -23,7 +31,7 @@
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="production" />
++        <entry key="$PROJECT_DIR$" value="cuong-03-03-2025" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -37,15 +45,33 @@
+   <component name="GithubPullRequestsUISettings">{
+   &quot;selectedUrlAndAccountId&quot;: {
+     &quot;url&quot;: &quot;https://github.com/sontv6666/Unity-AR-MAINTANCE.git&quot;,
+-    &quot;accountId&quot;: &quot;fc4a391a-986d-4df7-895c-8e9e3abf596c&quot;
++    &quot;accountId&quot;: &quot;02a91f5d-3178-4d31-9e0a-fd51cccb3e10&quot;
+   }
+ }</component>
+   <component name="HighlightingSettingsPerFile">
++    <setting file="file://C:/Program Files/Unity/Hub/Editor/6000.0.43f1/Editor/Data/CGIncludes/HLSLSupport.cginc" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/Assets/Code/AR/JoystickModelController.cs" root0="FORCE_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRCodeScanner.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/Assets/Code/AR/SwipPanelController.cs" root0="FORCE_HIGHLIGHTING" />
+     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/ManageScence/SwitchToLoginPage.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" root0="FORCE_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/Notification/NotificationManager.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/Assets/Code/Profile/TransactionLoader.cs" root0="FORCE_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/ExternalDependencyManager/Editor/1.2.185/Google.IOSResolver.dll.meta" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
+-    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/EventSystem.cs" root0="SKIP_HIGHLIGHTING" />
+     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui@c82f62fefab3/Runtime/UGUI/EventSystem/UIBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
++    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/ProjectSettings/ProjectSettings.asset" root0="SKIP_HIGHLIGHTING" />
+   </component>
+   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="false" />
+   <component name="ProjectColorInfo">{
+@@ -56,33 +82,41 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
+-    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "RunOnceActivity.git.unshallow": "true",
+-    "Standalone Player.Start Unity.executor": "Run",
+-    "XThreadsFramesViewSplitterKey": "0.6744548",
+-    "git-widget-placeholder": "production",
+-    "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "settings.editor.selected.configurable": "preferences.environmentSetup",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Attach to Unity Editor.Attach to Unity Editor &amp; Play.executor&quot;: &quot;Debug&quot;,
++    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;Standalone Player.Start Unity.executor&quot;: &quot;Run&quot;,
++    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.6744548&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;Mergecode&quot;,
++    &quot;last_opened_file_path&quot;: &quot;/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.environmentSetup&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   },
+-  "keyToStringList": {
+-    "rider.external.source.directories": [
+-      "C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache",
+-      "C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache",
+-      "C:\\Users\\Admin\\AppData\\Local\\Symbols\\src"
++  &quot;keyToStringList&quot;: {
++    &quot;rider.external.source.directories&quot;: [
++      &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache&quot;,
++      &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache&quot;,
++      &quot;C:\\Users\\Admin\\AppData\\Local\\Symbols\\src&quot;
+     ]
+   }
+-}]]></component>
++}</component>
+   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
++    <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
++      <option name="EXE_PATH" value="$PROJECT_DIR$/../../TEST-AL\ArMaintance.exe" />
++      <option name="PROGRAM_PARAMETERS" value="" />
++      <option name="WORKING_DIRECTORY" value="D:\ArMaintance\TEST-AL" />
++      <option name="PASS_PARENT_ENVS" value="1" />
++      <option name="USE_EXTERNAL_CONSOLE" value="0" />
++      <method v="2" />
++    </configuration>
+     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
+       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.43f1\Editor\Unity.exe" />
+       <option name="PROGRAM_PARAMETERS" value="-projectPath $PROJECT_DIR$ -debugCodeOptimization" />
+@@ -135,6 +169,24 @@
+       <workItem from="1743003588098" duration="14428000" />
+       <workItem from="1743235030613" duration="2005000" />
+       <workItem from="1743356597323" duration="4214000" />
++      <workItem from="1743422318078" duration="1893000" />
++      <workItem from="1743432697021" duration="3094000" />
++      <workItem from="1743441651806" duration="1356000" />
++      <workItem from="1743443612211" duration="1711000" />
++      <workItem from="1743509332514" duration="653000" />
++      <workItem from="1743522573807" duration="5497000" />
++      <workItem from="1743529821483" duration="1218000" />
++      <workItem from="1743690613799" duration="2356000" />
++      <workItem from="1743856828797" duration="592000" />
++      <workItem from="1743857459262" duration="7996000" />
++      <workItem from="1743875911993" duration="30000" />
++      <workItem from="1744069020490" duration="15747000" />
++      <workItem from="1744115670380" duration="260000" />
++      <workItem from="1744115960186" duration="3000" />
++      <workItem from="1744116104864" duration="3000" />
++      <workItem from="1744116122337" duration="12000" />
++      <workItem from="1744120570277" duration="13052000" />
++      <workItem from="1744182517733" duration="1012000" />
+     </task>
+     <task id="LOCAL-00001" summary="config files">
+       <option name="closed" value="true" />
+@@ -280,7 +332,247 @@
+       <option name="project" value="LOCAL" />
+       <updated>1743361000512</updated>
+     </task>
+-    <option name="localTasksCounter" value="19" />
++    <task id="LOCAL-00019" summary="save">
++      <option name="closed" value="true" />
++      <created>1743422348128</created>
++      <option name="number" value="00019" />
++      <option name="presentableId" value="LOCAL-00019" />
++      <option name="project" value="LOCAL" />
++      <updated>1743422348128</updated>
++    </task>
++    <task id="LOCAL-00020" summary="merge code, merge scene">
++      <option name="closed" value="true" />
++      <created>1743424150773</created>
++      <option name="number" value="00020" />
++      <option name="presentableId" value="LOCAL-00020" />
++      <option name="project" value="LOCAL" />
++      <updated>1743424150773</updated>
++    </task>
++    <task id="LOCAL-00021" summary="fix course image">
++      <option name="closed" value="true" />
++      <created>1743432966470</created>
++      <option name="number" value="00021" />
++      <option name="presentableId" value="LOCAL-00021" />
++      <option name="project" value="LOCAL" />
++      <updated>1743432966470</updated>
++    </task>
++    <task id="LOCAL-00022" summary="savve">
++      <option name="closed" value="true" />
++      <created>1743434330155</created>
++      <option name="number" value="00022" />
++      <option name="presentableId" value="LOCAL-00022" />
++      <option name="project" value="LOCAL" />
++      <updated>1743434330155</updated>
++    </task>
++    <task id="LOCAL-00023" summary="Handle search, search loader">
++      <option name="closed" value="true" />
++      <created>1743442418419</created>
++      <option name="number" value="00023" />
++      <option name="presentableId" value="LOCAL-00023" />
++      <option name="project" value="LOCAL" />
++      <updated>1743442418419</updated>
++    </task>
++    <task id="LOCAL-00024" summary="handle course">
++      <option name="closed" value="true" />
++      <created>1743444105077</created>
++      <option name="number" value="00024" />
++      <option name="presentableId" value="LOCAL-00024" />
++      <option name="project" value="LOCAL" />
++      <updated>1743444105077</updated>
++    </task>
++    <task id="LOCAL-00025" summary="fix">
++      <option name="closed" value="true" />
++      <created>1743445215577</created>
++      <option name="number" value="00025" />
++      <option name="presentableId" value="LOCAL-00025" />
++      <option name="project" value="LOCAL" />
++      <updated>1743445215577</updated>
++    </task>
++    <task id="LOCAL-00026" summary="add joystick and moving model">
++      <option name="closed" value="true" />
++      <created>1743514461348</created>
++      <option name="number" value="00026" />
++      <option name="presentableId" value="LOCAL-00026" />
++      <option name="project" value="LOCAL" />
++      <updated>1743514461348</updated>
++    </task>
++    <task id="LOCAL-00027" summary="handle">
++      <option name="closed" value="true" />
++      <created>1743524873351</created>
++      <option name="number" value="00027" />
++      <option name="presentableId" value="LOCAL-00027" />
++      <option name="project" value="LOCAL" />
++      <updated>1743524873351</updated>
++    </task>
++    <task id="LOCAL-00028" summary="get original image">
++      <option name="closed" value="true" />
++      <created>1743526845714</created>
++      <option name="number" value="00028" />
++      <option name="presentableId" value="LOCAL-00028" />
++      <option name="project" value="LOCAL" />
++      <updated>1743526845714</updated>
++    </task>
++    <task id="LOCAL-00029" summary="fix scale">
++      <option name="closed" value="true" />
++      <created>1743527985377</created>
++      <option name="number" value="00029" />
++      <option name="presentableId" value="LOCAL-00029" />
++      <option name="project" value="LOCAL" />
++      <updated>1743527985377</updated>
++    </task>
++    <task id="LOCAL-00030" summary="savve">
++      <option name="closed" value="true" />
++      <created>1743824830777</created>
++      <option name="number" value="00030" />
++      <option name="presentableId" value="LOCAL-00030" />
++      <option name="project" value="LOCAL" />
++      <updated>1743824830777</updated>
++    </task>
++    <task id="LOCAL-00031" summary="new code loader">
++      <option name="closed" value="true" />
++      <created>1743855086636</created>
++      <option name="number" value="00031" />
++      <option name="presentableId" value="LOCAL-00031" />
++      <option name="project" value="LOCAL" />
++      <updated>1743855086636</updated>
++    </task>
++    <task id="LOCAL-00032" summary="savce">
++      <option name="closed" value="true" />
++      <created>1743857535432</created>
++      <option name="number" value="00032" />
++      <option name="presentableId" value="LOCAL-00032" />
++      <option name="project" value="LOCAL" />
++      <updated>1743857535432</updated>
++    </task>
++    <task id="LOCAL-00033" summary="handle search">
++      <option name="closed" value="true" />
++      <created>1743858298670</created>
++      <option name="number" value="00033" />
++      <option name="presentableId" value="LOCAL-00033" />
++      <option name="project" value="LOCAL" />
++      <updated>1743858298670</updated>
++    </task>
++    <task id="LOCAL-00034" summary="save">
++      <option name="closed" value="true" />
++      <created>1743859812514</created>
++      <option name="number" value="00034" />
++      <option name="presentableId" value="LOCAL-00034" />
++      <option name="project" value="LOCAL" />
++      <updated>1743859812514</updated>
++    </task>
++    <task id="LOCAL-00035" summary="save">
++      <option name="closed" value="true" />
++      <created>1743862817796</created>
++      <option name="number" value="00035" />
++      <option name="presentableId" value="LOCAL-00035" />
++      <option name="project" value="LOCAL" />
++      <updated>1743862817796</updated>
++    </task>
++    <task id="LOCAL-00036" summary="save">
++      <option name="closed" value="true" />
++      <created>1743875925270</created>
++      <option name="number" value="00036" />
++      <option name="presentableId" value="LOCAL-00036" />
++      <option name="project" value="LOCAL" />
++      <updated>1743875925270</updated>
++    </task>
++    <task id="LOCAL-00037" summary="save">
++      <option name="closed" value="true" />
++      <created>1744069058319</created>
++      <option name="number" value="00037" />
++      <option name="presentableId" value="LOCAL-00037" />
++      <option name="project" value="LOCAL" />
++      <updated>1744069058319</updated>
++    </task>
++    <task id="LOCAL-00038" summary="Save this change for api config and taransaction">
++      <option name="closed" value="true" />
++      <created>1744072908161</created>
++      <option name="number" value="00038" />
++      <option name="presentableId" value="LOCAL-00038" />
++      <option name="project" value="LOCAL" />
++      <updated>1744072908161</updated>
++    </task>
++    <task id="LOCAL-00039" summary="Fix error when changing step">
++      <option name="closed" value="true" />
++      <created>1744076194060</created>
++      <option name="number" value="00039" />
++      <option name="presentableId" value="LOCAL-00039" />
++      <option name="project" value="LOCAL" />
++      <updated>1744076194060</updated>
++    </task>
++    <task id="LOCAL-00040" summary="Add notification, handle scan time">
++      <option name="closed" value="true" />
++      <created>1744079911404</created>
++      <option name="number" value="00040" />
++      <option name="presentableId" value="LOCAL-00040" />
++      <option name="project" value="LOCAL" />
++      <updated>1744079911404</updated>
++    </task>
++    <task id="LOCAL-00041" summary="Add firebase">
++      <option name="closed" value="true" />
++      <created>1744081266677</created>
++      <option name="number" value="00041" />
++      <option name="presentableId" value="LOCAL-00041" />
++      <option name="project" value="LOCAL" />
++      <updated>1744081266677</updated>
++    </task>
++    <task id="LOCAL-00042" summary="save">
++      <option name="closed" value="true" />
++      <created>1744081393527</created>
++      <option name="number" value="00042" />
++      <option name="presentableId" value="LOCAL-00042" />
++      <option name="project" value="LOCAL" />
++      <updated>1744081393527</updated>
++    </task>
++    <task id="LOCAL-00043" summary="Add firebase to start">
++      <option name="closed" value="true" />
++      <created>1744083698630</created>
++      <option name="number" value="00043" />
++      <option name="presentableId" value="LOCAL-00043" />
++      <option name="project" value="LOCAL" />
++      <updated>1744083698630</updated>
++    </task>
++    <task id="LOCAL-00044" summary="ADD PERMISSONM">
++      <option name="closed" value="true" />
++      <created>1744085201974</created>
++      <option name="number" value="00044" />
++      <option name="presentableId" value="LOCAL-00044" />
++      <option name="project" value="LOCAL" />
++      <updated>1744085201974</updated>
++    </task>
++    <task id="LOCAL-00045" summary="ADD GOOOGLE SERVICE4">
++      <option name="closed" value="true" />
++      <created>1744085220590</created>
++      <option name="number" value="00045" />
++      <option name="presentableId" value="LOCAL-00045" />
++      <option name="project" value="LOCAL" />
++      <updated>1744085220590</updated>
++    </task>
++    <task id="LOCAL-00046" summary="save">
++      <option name="closed" value="true" />
++      <created>1744120611435</created>
++      <option name="number" value="00046" />
++      <option name="presentableId" value="LOCAL-00046" />
++      <option name="project" value="LOCAL" />
++      <updated>1744120611435</updated>
++    </task>
++    <task id="LOCAL-00047" summary="save">
++      <option name="closed" value="true" />
++      <created>1744134837248</created>
++      <option name="number" value="00047" />
++      <option name="presentableId" value="LOCAL-00047" />
++      <option name="project" value="LOCAL" />
++      <updated>1744134837248</updated>
++    </task>
++    <task id="LOCAL-00048" summary="save">
++      <option name="closed" value="true" />
++      <created>1744137045411</created>
++      <option name="number" value="00048" />
++      <option name="presentableId" value="LOCAL-00048" />
++      <option name="project" value="LOCAL" />
++      <updated>1744137045411</updated>
++    </task>
++    <option name="localTasksCounter" value="49" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -307,25 +599,32 @@
+   </component>
+   <component name="VcsManagerConfiguration">
+     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+-    <MESSAGE value="config files" />
+-    <MESSAGE value="Update" />
+-    <MESSAGE value="Update UI" />
+-    <MESSAGE value="add request list page" />
+-    <MESSAGE value="add" />
+-    <MESSAGE value="Time and load ui for ar" />
+-    <MESSAGE value="Add code to work with loading slider" />
+-    <MESSAGE value="save" />
+-    <MESSAGE value="merge, fix conflit" />
+-    <MESSAGE value="commit" />
+-    <MESSAGE value="Fix see all scene and color change in request" />
+-    <MESSAGE value="handle return button" />
+-    <MESSAGE value="Handle animation stop,rest when back to course UI" />
+-    <MESSAGE value="Add missing point in ar" />
+     <MESSAGE value="fetch point s fro user" />
+     <MESSAGE value="add search page" />
+     <MESSAGE value="add paging" />
+     <MESSAGE value="remove hardcode" />
+-    <option name="LAST_COMMIT_MESSAGE" value="remove hardcode" />
++    <MESSAGE value="merge code, merge scene" />
++    <MESSAGE value="fix course image" />
++    <MESSAGE value="Handle search, search loader" />
++    <MESSAGE value="handle course" />
++    <MESSAGE value="fix" />
++    <MESSAGE value="add joystick and moving model" />
++    <MESSAGE value="handle" />
++    <MESSAGE value="get original image" />
++    <MESSAGE value="fix scale" />
++    <MESSAGE value="savve" />
++    <MESSAGE value="new code loader" />
++    <MESSAGE value="savce" />
++    <MESSAGE value="handle search" />
++    <MESSAGE value="Save this change for api config and taransaction" />
++    <MESSAGE value="Fix error when changing step" />
++    <MESSAGE value="Add notification, handle scan time" />
++    <MESSAGE value="Add firebase" />
++    <MESSAGE value="Add firebase to start" />
++    <MESSAGE value="ADD PERMISSONM" />
++    <MESSAGE value="ADD GOOOGLE SERVICE4" />
++    <MESSAGE value="save" />
++    <option name="LAST_COMMIT_MESSAGE" value="save" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+@@ -344,19 +643,6 @@
+           <option name="timeStamp" value="1" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="DotNet Breakpoints">
+-          <url>file://$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs</url>
+-          <line>53</line>
+-          <properties documentPath="$PROJECT_DIR$/Assets/Code/Home/CourseLoader.cs" containingFunctionPresentation="Method 'Start'">
+-            <startOffsets>
+-              <option value="1782" />
+-            </startOffsets>
+-            <endOffsets>
+-              <option value="1861" />
+-            </endOffsets>
+-          </properties>
+-          <option name="timeStamp" value="3" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+           <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
+           <line>131</line>
+           <properties documentPath="$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs" containingFunctionPresentation="Method 'SaveUserData'">
+@@ -446,6 +732,19 @@
+             </endOffsets>
+           </properties>
+           <option name="timeStamp" value="19" />
++        </line-breakpoint>
++        <line-breakpoint enabled="true" type="DotNet Breakpoints">
++          <url>file://$PROJECT_DIR$/Assets/Code/LoginScreen/LoginManager.cs</url>
++          <line>113</line>
++          <properties documentPath="D:\ArMaintance\TEST-AL\Unity-AR-MAINTANCE\Assets\Code\LoginScreen\LoginManager.cs" containingFunctionPresentation="Method 'ProcessLoginResponse'">
++            <startOffsets>
++              <option value="3927" />
++            </startOffsets>
++            <endOffsets>
++              <option value="3946" />
++            </endOffsets>
++          </properties>
++          <option name="timeStamp" value="20" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
+Index: Assets/Resources/Figma/Files/list.png.meta
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>fileFormatVersion: 2\r\nguid: 9474470be46884cd5bcc21f634189bb7\r\nTextureImporter:\r\n  internalIDToNameTable:\r\n  - first:\r\n      213: -2055539290778825499\r\n    second: list_0\r\n  externalObjects: {}\r\n  serializedVersion: 13\r\n  mipmaps:\r\n    mipMapMode: 0\r\n    enableMipMap: 0\r\n    sRGBTexture: 1\r\n    linearTexture: 0\r\n    fadeOut: 0\r\n    borderMipMap: 0\r\n    mipMapsPreserveCoverage: 0\r\n    alphaTestReferenceValue: 0.5\r\n    mipMapFadeDistanceStart: 1\r\n    mipMapFadeDistanceEnd: 3\r\n  bumpmap:\r\n    convertToNormalMap: 0\r\n    externalNormalMap: 0\r\n    heightScale: 0.25\r\n    normalMapFilter: 0\r\n    flipGreenChannel: 0\r\n  isReadable: 0\r\n  streamingMipmaps: 0\r\n  streamingMipmapsPriority: 0\r\n  vTOnly: 0\r\n  ignoreMipmapLimit: 0\r\n  grayScaleToAlpha: 0\r\n  generateCubemap: 6\r\n  cubemapConvolution: 0\r\n  seamlessCubemap: 0\r\n  textureFormat: 1\r\n  maxTextureSize: 2048\r\n  textureSettings:\r\n    serializedVersion: 2\r\n    filterMode: 1\r\n    aniso: 1\r\n    mipBias: 0\r\n    wrapU: 1\r\n    wrapV: 1\r\n    wrapW: 1\r\n  nPOTScale: 0\r\n  lightmap: 0\r\n  compressionQuality: 50\r\n  spriteMode: 2\r\n  spriteExtrude: 1\r\n  spriteMeshType: 1\r\n  alignment: 0\r\n  spritePivot: {x: 0.5, y: 0.5}\r\n  spritePixelsToUnits: 100\r\n  spriteBorder: {x: 0, y: 0, z: 0, w: 0}\r\n  spriteGenerateFallbackPhysicsShape: 1\r\n  alphaUsage: 1\r\n  alphaIsTransparency: 1\r\n  spriteTessellationDetail: -1\r\n  textureType: 8\r\n  textureShape: 1\r\n  singleChannelComponent: 0\r\n  flipbookRows: 1\r\n  flipbookColumns: 1\r\n  maxTextureSizeSet: 0\r\n  compressionQualitySet: 0\r\n  textureFormatSet: 0\r\n  ignorePngGamma: 0\r\n  applyGammaDecoding: 0\r\n  swizzle: 50462976\r\n  cookieLightType: 0\r\n  platformSettings:\r\n  - serializedVersion: 4\r\n    buildTarget: DefaultTexturePlatform\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: Standalone\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: Android\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: iOS\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  spriteSheet:\r\n    serializedVersion: 2\r\n    sprites:\r\n    - serializedVersion: 2\r\n      name: list_0\r\n      rect:\r\n        serializedVersion: 2\r\n        x: 15\r\n        y: 9\r\n        width: 66\r\n        height: 78\r\n      alignment: 0\r\n      pivot: {x: 0, y: 0}\r\n      border: {x: 0, y: 0, z: 0, w: 0}\r\n      customData: \r\n      outline: []\r\n      physicsShape: []\r\n      tessellationDetail: -1\r\n      bones: []\r\n      spriteID: 5ec054fd7e14973e0800000000000000\r\n      internalID: -2055539290778825499\r\n      vertices: []\r\n      indices: \r\n      edges: []\r\n      weights: []\r\n    outline: []\r\n    customData: \r\n    physicsShape: []\r\n    bones: []\r\n    spriteID: \r\n    internalID: 0\r\n    vertices: []\r\n    indices: \r\n    edges: []\r\n    weights: []\r\n    secondaryTextures: []\r\n    spriteCustomMetadata:\r\n      entries: []\r\n    nameFileIdTable: {}\r\n  mipmapLimitGroupName: \r\n  pSDRemoveMatte: 0\r\n  userData: \r\n  assetBundleName: \r\n  assetBundleVariant: \r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Assets/Resources/Figma/Files/list.png.meta b/Assets/Resources/Figma/Files/list.png.meta
+--- a/Assets/Resources/Figma/Files/list.png.meta	(revision 3c0be05bb713c17d535bd84ea212fcc8925779c0)
++++ b/Assets/Resources/Figma/Files/list.png.meta	(date 1744237528271)
+@@ -160,7 +160,8 @@
+     secondaryTextures: []
+     spriteCustomMetadata:
+       entries: []
+-    nameFileIdTable: {}
++    nameFileIdTable:
++      list_0: -2055539290778825499
+   mipmapLimitGroupName: 
+   pSDRemoveMatte: 0
+   userData: 
+Index: Assets/Resources/Figma/Files/Request.png.meta
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>fileFormatVersion: 2\r\nguid: 070b56dffe7ea4717bdc935a7f9c4eed\r\nTextureImporter:\r\n  internalIDToNameTable:\r\n  - first:\r\n      213: -1884939416089576418\r\n    second: Request_0\r\n  externalObjects: {}\r\n  serializedVersion: 13\r\n  mipmaps:\r\n    mipMapMode: 0\r\n    enableMipMap: 0\r\n    sRGBTexture: 1\r\n    linearTexture: 0\r\n    fadeOut: 0\r\n    borderMipMap: 0\r\n    mipMapsPreserveCoverage: 0\r\n    alphaTestReferenceValue: 0.5\r\n    mipMapFadeDistanceStart: 1\r\n    mipMapFadeDistanceEnd: 3\r\n  bumpmap:\r\n    convertToNormalMap: 0\r\n    externalNormalMap: 0\r\n    heightScale: 0.25\r\n    normalMapFilter: 0\r\n    flipGreenChannel: 0\r\n  isReadable: 0\r\n  streamingMipmaps: 0\r\n  streamingMipmapsPriority: 0\r\n  vTOnly: 0\r\n  ignoreMipmapLimit: 0\r\n  grayScaleToAlpha: 0\r\n  generateCubemap: 6\r\n  cubemapConvolution: 0\r\n  seamlessCubemap: 0\r\n  textureFormat: 1\r\n  maxTextureSize: 2048\r\n  textureSettings:\r\n    serializedVersion: 2\r\n    filterMode: 1\r\n    aniso: 1\r\n    mipBias: 0\r\n    wrapU: 1\r\n    wrapV: 1\r\n    wrapW: 1\r\n  nPOTScale: 0\r\n  lightmap: 0\r\n  compressionQuality: 50\r\n  spriteMode: 2\r\n  spriteExtrude: 1\r\n  spriteMeshType: 1\r\n  alignment: 0\r\n  spritePivot: {x: 0.5, y: 0.5}\r\n  spritePixelsToUnits: 100\r\n  spriteBorder: {x: 0, y: 0, z: 0, w: 0}\r\n  spriteGenerateFallbackPhysicsShape: 1\r\n  alphaUsage: 1\r\n  alphaIsTransparency: 1\r\n  spriteTessellationDetail: -1\r\n  textureType: 8\r\n  textureShape: 1\r\n  singleChannelComponent: 0\r\n  flipbookRows: 1\r\n  flipbookColumns: 1\r\n  maxTextureSizeSet: 0\r\n  compressionQualitySet: 0\r\n  textureFormatSet: 0\r\n  ignorePngGamma: 0\r\n  applyGammaDecoding: 0\r\n  swizzle: 50462976\r\n  cookieLightType: 0\r\n  platformSettings:\r\n  - serializedVersion: 4\r\n    buildTarget: DefaultTexturePlatform\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: Standalone\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: Android\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  - serializedVersion: 4\r\n    buildTarget: iOS\r\n    maxTextureSize: 2048\r\n    resizeAlgorithm: 0\r\n    textureFormat: -1\r\n    textureCompression: 1\r\n    compressionQuality: 50\r\n    crunchedCompression: 0\r\n    allowsAlphaSplitting: 0\r\n    overridden: 0\r\n    ignorePlatformSupport: 0\r\n    androidETC2FallbackOverride: 0\r\n    forceMaximumCompressionQuality_BC6H_BC7: 0\r\n  spriteSheet:\r\n    serializedVersion: 2\r\n    sprites:\r\n    - serializedVersion: 2\r\n      name: Request_0\r\n      rect:\r\n        serializedVersion: 2\r\n        x: 7\r\n        y: 7\r\n        width: 82\r\n        height: 82\r\n      alignment: 0\r\n      pivot: {x: 0, y: 0}\r\n      border: {x: 0, y: 0, z: 0, w: 0}\r\n      customData: \r\n      outline: []\r\n      physicsShape: []\r\n      tessellationDetail: -1\r\n      bones: []\r\n      spriteID: e1c39d0869957d5e0800000000000000\r\n      internalID: -1884939416089576418\r\n      vertices: []\r\n      indices: \r\n      edges: []\r\n      weights: []\r\n    outline: []\r\n    customData: \r\n    physicsShape: []\r\n    bones: []\r\n    spriteID: \r\n    internalID: 0\r\n    vertices: []\r\n    indices: \r\n    edges: []\r\n    weights: []\r\n    secondaryTextures: []\r\n    spriteCustomMetadata:\r\n      entries: []\r\n    nameFileIdTable: {}\r\n  mipmapLimitGroupName: \r\n  pSDRemoveMatte: 0\r\n  userData: \r\n  assetBundleName: \r\n  assetBundleVariant: \r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Assets/Resources/Figma/Files/Request.png.meta b/Assets/Resources/Figma/Files/Request.png.meta
+--- a/Assets/Resources/Figma/Files/Request.png.meta	(revision 3c0be05bb713c17d535bd84ea212fcc8925779c0)
++++ b/Assets/Resources/Figma/Files/Request.png.meta	(date 1744237528332)
+@@ -160,7 +160,8 @@
+     secondaryTextures: []
+     spriteCustomMetadata:
+       entries: []
+-    nameFileIdTable: {}
++    nameFileIdTable:
++      Request_0: -1884939416089576418
+   mipmapLimitGroupName: 
+   pSDRemoveMatte: 0
+   userData: 
+Index: ProjectSettings/ProjectSettings.asset
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>%YAML 1.1\r\n%TAG !u! tag:unity3d.com,2011:\r\n--- !u!129 &1\r\nPlayerSettings:\r\n  m_ObjectHideFlags: 0\r\n  serializedVersion: 28\r\n  productGUID: 8a92cc2f3f8327947a09e032febca3a6\r\n  AndroidProfiler: 0\r\n  AndroidFilterTouchesWhenObscured: 0\r\n  AndroidEnableSustainedPerformanceMode: 0\r\n  defaultScreenOrientation: 4\r\n  targetDevice: 0\r\n  useOnDemandResources: 1\r\n  accelerometerFrequency: 0\r\n  companyName: AmazingTech\r\n  productName: ArMaintance\r\n  defaultCursor: {fileID: 0}\r\n  cursorHotspot: {x: 0, y: 0}\r\n  m_SplashScreenBackgroundColor: {r: 1, g: 1, b: 1, a: 1}\r\n  m_ShowUnitySplashScreen: 1\r\n  m_ShowUnitySplashLogo: 1\r\n  m_SplashScreenOverlayOpacity: 0.5\r\n  m_SplashScreenAnimation: 1\r\n  m_SplashScreenLogoStyle: 1\r\n  m_SplashScreenDrawMode: 0\r\n  m_SplashScreenBackgroundAnimationZoom: 1\r\n  m_SplashScreenLogoAnimationZoom: 1\r\n  m_SplashScreenBackgroundLandscapeAspect: 1\r\n  m_SplashScreenBackgroundPortraitAspect: 1\r\n  m_SplashScreenBackgroundLandscapeUvs:\r\n    serializedVersion: 2\r\n    x: 0\r\n    y: 0\r\n    width: 1\r\n    height: 1\r\n  m_SplashScreenBackgroundPortraitUvs:\r\n    serializedVersion: 2\r\n    x: 0\r\n    y: 0\r\n    width: 1\r\n    height: 1\r\n  m_SplashScreenLogos: []\r\n  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 44f095fe61b525145ab8ba52f4ba11ab,\r\n    type: 3}\r\n  m_HolographicTrackingLossScreen: {fileID: 0}\r\n  defaultScreenWidth: 1024\r\n  defaultScreenHeight: 768\r\n  defaultScreenWidthWeb: 960\r\n  defaultScreenHeightWeb: 600\r\n  m_StereoRenderingPath: 0\r\n  m_ActiveColorSpace: 0\r\n  unsupportedMSAAFallback: 0\r\n  m_SpriteBatchMaxVertexCount: 65535\r\n  m_SpriteBatchVertexThreshold: 300\r\n  m_MTRendering: 1\r\n  mipStripping: 0\r\n  numberOfMipsStripped: 0\r\n  numberOfMipsStrippedPerMipmapLimitGroup: {}\r\n  m_StackTraceTypes: 010000000100000001000000010000000100000001000000\r\n  iosShowActivityIndicatorOnLoading: -1\r\n  androidShowActivityIndicatorOnLoading: -1\r\n  iosUseCustomAppBackgroundBehavior: 0\r\n  allowedAutorotateToPortrait: 1\r\n  allowedAutorotateToPortraitUpsideDown: 1\r\n  allowedAutorotateToLandscapeRight: 0\r\n  allowedAutorotateToLandscapeLeft: 0\r\n  useOSAutorotation: 1\r\n  use32BitDisplayBuffer: 1\r\n  preserveFramebufferAlpha: 0\r\n  disableDepthAndStencilBuffers: 0\r\n  androidStartInFullscreen: 1\r\n  androidRenderOutsideSafeArea: 1\r\n  androidUseSwappy: 0\r\n  androidBlitType: 0\r\n  androidResizeableActivity: 0\r\n  androidDefaultWindowWidth: 1920\r\n  androidDefaultWindowHeight: 1080\r\n  androidMinimumWindowWidth: 400\r\n  androidMinimumWindowHeight: 300\r\n  androidFullscreenMode: 1\r\n  androidAutoRotationBehavior: 1\r\n  androidPredictiveBackSupport: 0\r\n  androidApplicationEntry: 1\r\n  defaultIsNativeResolution: 1\r\n  macRetinaSupport: 1\r\n  runInBackground: 1\r\n  muteOtherAudioSources: 1\r\n  Prepare IOS For Recording: 0\r\n  Force IOS Speakers When Recording: 0\r\n  deferSystemGesturesMode: 0\r\n  hideHomeButton: 1\r\n  submitAnalytics: 1\r\n  usePlayerLog: 1\r\n  dedicatedServerOptimizations: 0\r\n  bakeCollisionMeshes: 0\r\n  forceSingleInstance: 0\r\n  useFlipModelSwapchain: 1\r\n  resizableWindow: 0\r\n  useMacAppStoreValidation: 0\r\n  macAppStoreCategory: public.app-category.games\r\n  gpuSkinning: 0\r\n  meshDeformation: 0\r\n  xboxPIXTextureCapture: 0\r\n  xboxEnableAvatar: 0\r\n  xboxEnableKinect: 0\r\n  xboxEnableKinectAutoTracking: 0\r\n  xboxEnableFitness: 0\r\n  visibleInBackground: 1\r\n  allowFullscreenSwitch: 1\r\n  fullscreenMode: 1\r\n  xboxSpeechDB: 0\r\n  xboxEnableHeadOrientation: 0\r\n  xboxEnableGuest: 0\r\n  xboxEnablePIXSampling: 0\r\n  metalFramebufferOnly: 0\r\n  xboxOneResolution: 0\r\n  xboxOneSResolution: 0\r\n  xboxOneXResolution: 3\r\n  xboxOneMonoLoggingLevel: 0\r\n  xboxOneLoggingLevel: 1\r\n  xboxOneDisableEsram: 0\r\n  xboxOneEnableTypeOptimization: 0\r\n  xboxOnePresentImmediateThreshold: 0\r\n  switchQueueCommandMemory: 0\r\n  switchQueueControlMemory: 16384\r\n  switchQueueComputeMemory: 262144\r\n  switchNVNShaderPoolsGranularity: 33554432\r\n  switchNVNDefaultPoolsGranularity: 16777216\r\n  switchNVNOtherPoolsGranularity: 16777216\r\n  switchGpuScratchPoolGranularity: 2097152\r\n  switchAllowGpuScratchShrinking: 0\r\n  switchNVNMaxPublicTextureIDCount: 0\r\n  switchNVNMaxPublicSamplerIDCount: 0\r\n  switchMaxWorkerMultiple: 8\r\n  switchNVNGraphicsFirmwareMemory: 32\r\n  vulkanNumSwapchainBuffers: 3\r\n  vulkanEnableSetSRGBWrite: 0\r\n  vulkanEnablePreTransform: 0\r\n  vulkanEnableLateAcquireNextImage: 0\r\n  vulkanEnableCommandBufferRecycling: 1\r\n  loadStoreDebugModeEnabled: 0\r\n  visionOSBundleVersion: 1.0\r\n  tvOSBundleVersion: 1.0\r\n  bundleVersion: 1.0.131\r\n  preloadedAssets:\r\n  - {fileID: 11400000, guid: c199e683398494f32b4cde18e73ab731, type: 2}\r\n  - {fileID: -369734831818211097, guid: 7b87f403c0bb29f4994780aee884b4ec, type: 2}\r\n  - {fileID: 5156968084640159096, guid: 81e7021a079abab42851314d2a753051, type: 2}\r\n  metroInputSource: 0\r\n  wsaTransparentSwapchain: 0\r\n  m_HolographicPauseOnTrackingLoss: 1\r\n  xboxOneDisableKinectGpuReservation: 1\r\n  xboxOneEnable7thCore: 1\r\n  vrSettings:\r\n    enable360StereoCapture: 0\r\n  isWsaHolographicRemotingEnabled: 0\r\n  enableFrameTimingStats: 0\r\n  enableOpenGLProfilerGPURecorders: 1\r\n  allowHDRDisplaySupport: 0\r\n  useHDRDisplay: 0\r\n  hdrBitDepth: 0\r\n  m_ColorGamuts: 00000000\r\n  targetPixelDensity: 1000\r\n  resolutionScalingMode: 0\r\n  resetResolutionOnWindowResize: 0\r\n  androidSupportedAspectRatio: 1\r\n  androidMaxAspectRatio: 2.1\r\n  androidMinAspectRatio: 1\r\n  applicationIdentifier:\r\n    Android: com.AmazingTech.ArMaintance\r\n    Standalone: com.AmazingTech.ArMaintance\r\n    iPhone: com.AmazingTech.ArMaintance\r\n  buildNumber:\r\n    Standalone: 0\r\n    VisionOS: 0\r\n    iPhone: 0\r\n    tvOS: 0\r\n  overrideDefaultApplicationIdentifier: 0\r\n  AndroidBundleVersionCode: 83\r\n  AndroidMinSdkVersion: 26\r\n  AndroidTargetSdkVersion: 33\r\n  AndroidPreferredInstallLocation: 1\r\n  aotOptions: \r\n  stripEngineCode: 1\r\n  iPhoneStrippingLevel: 0\r\n  iPhoneScriptCallOptimization: 0\r\n  ForceInternetPermission: 0\r\n  ForceSDCardPermission: 0\r\n  CreateWallpaper: 0\r\n  androidSplitApplicationBinary: 0\r\n  keepLoadedShadersAlive: 0\r\n  StripUnusedMeshComponents: 1\r\n  strictShaderVariantMatching: 0\r\n  VertexChannelCompressionMask: 4054\r\n  iPhoneSdkVersion: 988\r\n  iOSSimulatorArchitecture: 0\r\n  iOSTargetOSVersionString: 13.0\r\n  tvOSSdkVersion: 0\r\n  tvOSSimulatorArchitecture: 0\r\n  tvOSRequireExtendedGameController: 0\r\n  tvOSTargetOSVersionString: 13.0\r\n  VisionOSSdkVersion: 0\r\n  VisionOSTargetOSVersionString: 1.0\r\n  uIPrerenderedIcon: 0\r\n  uIRequiresPersistentWiFi: 0\r\n  uIRequiresFullScreen: 0\r\n  uIStatusBarHidden: 0\r\n  uIExitOnSuspend: 0\r\n  uIStatusBarStyle: 0\r\n  appleTVSplashScreen: {fileID: 0}\r\n  appleTVSplashScreen2x: {fileID: 0}\r\n  tvOSSmallIconLayers: []\r\n  tvOSSmallIconLayers2x: []\r\n  tvOSLargeIconLayers: []\r\n  tvOSLargeIconLayers2x: []\r\n  tvOSTopShelfImageLayers: []\r\n  tvOSTopShelfImageLayers2x: []\r\n  tvOSTopShelfImageWideLayers: []\r\n  tvOSTopShelfImageWideLayers2x: []\r\n  iOSLaunchScreenType: 1\r\n  iOSLaunchScreenPortrait: {fileID: 2800000, guid: 44f095fe61b525145ab8ba52f4ba11ab,\r\n    type: 3}\r\n  iOSLaunchScreenLandscape: {fileID: 2800000, guid: 44f095fe61b525145ab8ba52f4ba11ab,\r\n    type: 3}\r\n  iOSLaunchScreenBackgroundColor:\r\n    serializedVersion: 2\r\n    rgba: 4294967295\r\n  iOSLaunchScreenFillPct: 100\r\n  iOSLaunchScreenSize: 100\r\n  iOSLaunchScreeniPadType: 1\r\n  iOSLaunchScreeniPadImage: {fileID: 2800000, guid: 44f095fe61b525145ab8ba52f4ba11ab,\r\n    type: 3}\r\n  iOSLaunchScreeniPadBackgroundColor:\r\n    serializedVersion: 2\r\n    rgba: 4294967295\r\n  iOSLaunchScreeniPadFillPct: 100\r\n  iOSLaunchScreeniPadSize: 100\r\n  iOSLaunchScreenCustomStoryboardPath: \r\n  iOSLaunchScreeniPadCustomStoryboardPath: \r\n  iOSDeviceRequirements: []\r\n  iOSURLSchemes: []\r\n  macOSURLSchemes: []\r\n  iOSBackgroundModes: 0\r\n  iOSMetalForceHardShadows: 0\r\n  metalEditorSupport: 1\r\n  metalAPIValidation: 1\r\n  metalCompileShaderBinary: 0\r\n  iOSRenderExtraFrameOnPause: 0\r\n  iosCopyPluginsCodeInsteadOfSymlink: 0\r\n  appleDeveloperTeamID: VAF6YM986P\r\n  iOSManualSigningProvisioningProfileID: \r\n  tvOSManualSigningProvisioningProfileID: \r\n  VisionOSManualSigningProvisioningProfileID: \r\n  iOSManualSigningProvisioningProfileType: 0\r\n  tvOSManualSigningProvisioningProfileType: 0\r\n  VisionOSManualSigningProvisioningProfileType: 0\r\n  appleEnableAutomaticSigning: 0\r\n  iOSRequireARKit: 0\r\n  iOSAutomaticallyDetectAndAddCapabilities: 1\r\n  appleEnableProMotion: 0\r\n  shaderPrecisionModel: 0\r\n  clonedFromGUID: 5a962c62a6b70424b9e9ab050412050f\r\n  templatePackageId: \r\n  templateDefaultScene: Assets/Scenes/SampleScene.unity\r\n  useCustomMainManifest: 0\r\n  useCustomLauncherManifest: 0\r\n  useCustomMainGradleTemplate: 0\r\n  useCustomLauncherGradleManifest: 0\r\n  useCustomBaseGradleTemplate: 0\r\n  useCustomGradlePropertiesTemplate: 0\r\n  useCustomGradleSettingsTemplate: 0\r\n  useCustomProguardFile: 0\r\n  AndroidTargetArchitectures: 2\r\n  AndroidSplashScreenScale: 2\r\n  androidSplashScreen: {fileID: 0}\r\n  AndroidKeystoreName: '{inproject}: Assets/SeaDoKey.keystore'\r\n  AndroidKeyaliasName: sea\r\n  AndroidEnableArmv9SecurityFeatures: 0\r\n  AndroidEnableArm64MTE: 0\r\n  AndroidBuildApkPerCpuArchitecture: 0\r\n  AndroidTVCompatibility: 0\r\n  AndroidIsGame: 1\r\n  AndroidEnableTango: 0\r\n  androidEnableBanner: 1\r\n  androidUseLowAccuracyLocation: 0\r\n  androidUseCustomKeystore: 0\r\n  m_AndroidBanners:\r\n  - width: 320\r\n    height: 180\r\n    banner: {fileID: 0}\r\n  androidGamepadSupportLevel: 0\r\n  AndroidMinifyRelease: 0\r\n  AndroidMinifyDebug: 0\r\n  AndroidValidateAppBundleSize: 1\r\n  AndroidAppBundleSizeToValidate: 150\r\n  AndroidReportGooglePlayAppDependencies: 1\r\n  androidSymbolsSizeThreshold: 800\r\n  m_BuildTargetIcons:\r\n  - m_BuildTarget: \r\n    m_Icons:\r\n    - serializedVersion: 2\r\n      m_Icon: {fileID: 2800000, guid: 7af58860f91f23f4a98e20ed20f8aeb3, type: 3}\r\n      m_Width: 128\r\n      m_Height: 128\r\n      m_Kind: 0\r\n  m_BuildTargetPlatformIcons:\r\n  - m_BuildTarget: Android\r\n    m_Icons:\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 192\r\n      m_Height: 192\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 144\r\n      m_Height: 144\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 96\r\n      m_Height: 96\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 72\r\n      m_Height: 72\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 48\r\n      m_Height: 48\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 36\r\n      m_Height: 36\r\n      m_Kind: 0\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 192\r\n      m_Height: 192\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 144\r\n      m_Height: 144\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 96\r\n      m_Height: 96\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 72\r\n      m_Height: 72\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 48\r\n      m_Height: 48\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 36\r\n      m_Height: 36\r\n      m_Kind: 1\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 432\r\n      m_Height: 432\r\n      m_Kind: 2\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 324\r\n      m_Height: 324\r\n      m_Kind: 2\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 216\r\n      m_Height: 216\r\n      m_Kind: 2\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 162\r\n      m_Height: 162\r\n      m_Kind: 2\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 108\r\n      m_Height: 108\r\n      m_Kind: 2\r\n      m_SubKind: \r\n    - m_Textures: []\r\n      m_Width: 81\r\n      m_Height: 81\r\n      m_Kind: 2\r\n      m_SubKind: \r\n  - m_BuildTarget: iPhone\r\n    m_Icons:\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 120\r\n      m_Height: 120\r\n      m_Kind: 3\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 80\r\n      m_Height: 80\r\n      m_Kind: 3\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 80\r\n      m_Height: 80\r\n      m_Kind: 3\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 40\r\n      m_Height: 40\r\n      m_Kind: 3\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 87\r\n      m_Height: 87\r\n      m_Kind: 1\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 58\r\n      m_Height: 58\r\n      m_Kind: 1\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 29\r\n      m_Height: 29\r\n      m_Kind: 1\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 58\r\n      m_Height: 58\r\n      m_Kind: 1\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 29\r\n      m_Height: 29\r\n      m_Kind: 1\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 60\r\n      m_Height: 60\r\n      m_Kind: 2\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 40\r\n      m_Height: 40\r\n      m_Kind: 2\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 40\r\n      m_Height: 40\r\n      m_Kind: 2\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 20\r\n      m_Height: 20\r\n      m_Kind: 2\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 1024\r\n      m_Height: 1024\r\n      m_Kind: 4\r\n      m_SubKind: App Store\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 180\r\n      m_Height: 180\r\n      m_Kind: 0\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 120\r\n      m_Height: 120\r\n      m_Kind: 0\r\n      m_SubKind: iPhone\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 167\r\n      m_Height: 167\r\n      m_Kind: 0\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 152\r\n      m_Height: 152\r\n      m_Kind: 0\r\n      m_SubKind: iPad\r\n    - m_Textures:\r\n      - {fileID: 0}\r\n      m_Width: 76\r\n      m_Height: 76\r\n      m_Kind: 0\r\n      m_SubKind: iPad\r\n  m_BuildTargetBatching: []\r\n  m_BuildTargetShaderSettings: []\r\n  m_BuildTargetGraphicsJobs:\r\n  - m_BuildTarget: GameCoreScarlettSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: Switch\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: iOSSupport\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: LuminSupport\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: MacStandaloneSupport\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: PS5Player\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: WebGLSupport\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: AppleTVSupport\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: GameCoreXboxOneSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: CloudRendering\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: WindowsStandaloneSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: PS4Player\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: MetroSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: AndroidPlayer\r\n    m_GraphicsJobs: 0\r\n  - m_BuildTarget: BJMSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: LinuxStandaloneSupport\r\n    m_GraphicsJobs: 1\r\n  - m_BuildTarget: XboxOnePlayer\r\n    m_GraphicsJobs: 1\r\n  m_BuildTargetGraphicsJobMode:\r\n  - m_BuildTarget: PS4Player\r\n    m_GraphicsJobMode: 0\r\n  - m_BuildTarget: XboxOnePlayer\r\n    m_GraphicsJobMode: 0\r\n  m_BuildTargetGraphicsAPIs:\r\n  - m_BuildTarget: AndroidPlayer\r\n    m_APIs: 0b000000\r\n    m_Automatic: 0\r\n  - m_BuildTarget: iOSSupport\r\n    m_APIs: 10000000\r\n    m_Automatic: 1\r\n  m_BuildTargetVRSettings: []\r\n  m_DefaultShaderChunkSizeInMB: 16\r\n  m_DefaultShaderChunkCount: 0\r\n  openGLRequireES31: 0\r\n  openGLRequireES31AEP: 0\r\n  openGLRequireES32: 0\r\n  m_TemplateCustomTags: {}\r\n  mobileMTRendering:\r\n    Android: 1\r\n    iPhone: 1\r\n    tvOS: 1\r\n  m_BuildTargetGroupLightmapEncodingQuality: []\r\n  m_BuildTargetGroupLightmapSettings: []\r\n  m_BuildTargetGroupLoadStoreDebugModeSettings: []\r\n  m_BuildTargetNormalMapEncoding: []\r\n  m_BuildTargetDefaultTextureCompressionFormat:\r\n  - serializedVersion: 3\r\n    m_BuildTarget: iOS\r\n    m_Formats: 03000000\r\n  playModeTestRunnerEnabled: 0\r\n  runPlayModeTestAsEditModeTest: 0\r\n  actionOnDotNetUnhandledException: 1\r\n  editorGfxJobOverride: 1\r\n  enableInternalProfiler: 0\r\n  logObjCUncaughtExceptions: 1\r\n  enableCrashReportAPI: 1\r\n  cameraUsageDescription: Allow\r\n  locationUsageDescription: Allow\r\n  microphoneUsageDescription: Allow\r\n  bluetoothUsageDescription: \r\n  macOSTargetOSVersion: 11.0\r\n  switchNMETAOverride: \r\n  switchNetLibKey: \r\n  switchSocketMemoryPoolSize: 6144\r\n  switchSocketAllocatorPoolSize: 128\r\n  switchSocketConcurrencyLimit: 14\r\n  switchScreenResolutionBehavior: 2\r\n  switchUseCPUProfiler: 0\r\n  switchEnableFileSystemTrace: 0\r\n  switchLTOSetting: 0\r\n  switchApplicationID: 0x01004b9000490000\r\n  switchNSODependencies: \r\n  switchCompilerFlags: \r\n  switchTitleNames_0: \r\n  switchTitleNames_1: \r\n  switchTitleNames_2: \r\n  switchTitleNames_3: \r\n  switchTitleNames_4: \r\n  switchTitleNames_5: \r\n  switchTitleNames_6: \r\n  switchTitleNames_7: \r\n  switchTitleNames_8: \r\n  switchTitleNames_9: \r\n  switchTitleNames_10: \r\n  switchTitleNames_11: \r\n  switchTitleNames_12: \r\n  switchTitleNames_13: \r\n  switchTitleNames_14: \r\n  switchTitleNames_15: \r\n  switchPublisherNames_0: \r\n  switchPublisherNames_1: \r\n  switchPublisherNames_2: \r\n  switchPublisherNames_3: \r\n  switchPublisherNames_4: \r\n  switchPublisherNames_5: \r\n  switchPublisherNames_6: \r\n  switchPublisherNames_7: \r\n  switchPublisherNames_8: \r\n  switchPublisherNames_9: \r\n  switchPublisherNames_10: \r\n  switchPublisherNames_11: \r\n  switchPublisherNames_12: \r\n  switchPublisherNames_13: \r\n  switchPublisherNames_14: \r\n  switchPublisherNames_15: \r\n  switchIcons_0: {fileID: 0}\r\n  switchIcons_1: {fileID: 0}\r\n  switchIcons_2: {fileID: 0}\r\n  switchIcons_3: {fileID: 0}\r\n  switchIcons_4: {fileID: 0}\r\n  switchIcons_5: {fileID: 0}\r\n  switchIcons_6: {fileID: 0}\r\n  switchIcons_7: {fileID: 0}\r\n  switchIcons_8: {fileID: 0}\r\n  switchIcons_9: {fileID: 0}\r\n  switchIcons_10: {fileID: 0}\r\n  switchIcons_11: {fileID: 0}\r\n  switchIcons_12: {fileID: 0}\r\n  switchIcons_13: {fileID: 0}\r\n  switchIcons_14: {fileID: 0}\r\n  switchIcons_15: {fileID: 0}\r\n  switchSmallIcons_0: {fileID: 0}\r\n  switchSmallIcons_1: {fileID: 0}\r\n  switchSmallIcons_2: {fileID: 0}\r\n  switchSmallIcons_3: {fileID: 0}\r\n  switchSmallIcons_4: {fileID: 0}\r\n  switchSmallIcons_5: {fileID: 0}\r\n  switchSmallIcons_6: {fileID: 0}\r\n  switchSmallIcons_7: {fileID: 0}\r\n  switchSmallIcons_8: {fileID: 0}\r\n  switchSmallIcons_9: {fileID: 0}\r\n  switchSmallIcons_10: {fileID: 0}\r\n  switchSmallIcons_11: {fileID: 0}\r\n  switchSmallIcons_12: {fileID: 0}\r\n  switchSmallIcons_13: {fileID: 0}\r\n  switchSmallIcons_14: {fileID: 0}\r\n  switchSmallIcons_15: {fileID: 0}\r\n  switchManualHTML: \r\n  switchAccessibleURLs: \r\n  switchLegalInformation: \r\n  switchMainThreadStackSize: 1048576\r\n  switchPresenceGroupId: \r\n  switchLogoHandling: 0\r\n  switchReleaseVersion: 0\r\n  switchDisplayVersion: 1.0.0\r\n  switchStartupUserAccount: 0\r\n  switchSupportedLanguagesMask: 0\r\n  switchLogoType: 0\r\n  switchApplicationErrorCodeCategory: \r\n  switchUserAccountSaveDataSize: 0\r\n  switchUserAccountSaveDataJournalSize: 0\r\n  switchApplicationAttribute: 0\r\n  switchCardSpecSize: -1\r\n  switchCardSpecClock: -1\r\n  switchRatingsMask: 0\r\n  switchRatingsInt_0: 0\r\n  switchRatingsInt_1: 0\r\n  switchRatingsInt_2: 0\r\n  switchRatingsInt_3: 0\r\n  switchRatingsInt_4: 0\r\n  switchRatingsInt_5: 0\r\n  switchRatingsInt_6: 0\r\n  switchRatingsInt_7: 0\r\n  switchRatingsInt_8: 0\r\n  switchRatingsInt_9: 0\r\n  switchRatingsInt_10: 0\r\n  switchRatingsInt_11: 0\r\n  switchRatingsInt_12: 0\r\n  switchLocalCommunicationIds_0: \r\n  switchLocalCommunicationIds_1: \r\n  switchLocalCommunicationIds_2: \r\n  switchLocalCommunicationIds_3: \r\n  switchLocalCommunicationIds_4: \r\n  switchLocalCommunicationIds_5: \r\n  switchLocalCommunicationIds_6: \r\n  switchLocalCommunicationIds_7: \r\n  switchParentalControl: 0\r\n  switchAllowsScreenshot: 1\r\n  switchAllowsVideoCapturing: 1\r\n  switchAllowsRuntimeAddOnContentInstall: 0\r\n  switchDataLossConfirmation: 0\r\n  switchUserAccountLockEnabled: 0\r\n  switchSystemResourceMemory: 16777216\r\n  switchSupportedNpadStyles: 3\r\n  switchNativeFsCacheSize: 32\r\n  switchIsHoldTypeHorizontal: 0\r\n  switchSupportedNpadCount: 8\r\n  switchEnableTouchScreen: 1\r\n  switchSocketConfigEnabled: 0\r\n  switchTcpInitialSendBufferSize: 32\r\n  switchTcpInitialReceiveBufferSize: 64\r\n  switchTcpAutoSendBufferSizeMax: 256\r\n  switchTcpAutoReceiveBufferSizeMax: 256\r\n  switchUdpSendBufferSize: 9\r\n  switchUdpReceiveBufferSize: 42\r\n  switchSocketBufferEfficiency: 4\r\n  switchSocketInitializeEnabled: 1\r\n  switchNetworkInterfaceManagerInitializeEnabled: 1\r\n  switchDisableHTCSPlayerConnection: 0\r\n  switchUseNewStyleFilepaths: 0\r\n  switchUseLegacyFmodPriorities: 0\r\n  switchUseMicroSleepForYield: 1\r\n  switchEnableRamDiskSupport: 0\r\n  switchMicroSleepForYieldTime: 25\r\n  switchRamDiskSpaceSize: 12\r\n  switchUpgradedPlayerSettingsToNMETA: 0\r\n  ps4NPAgeRating: 12\r\n  ps4NPTitleSecret: \r\n  ps4NPTrophyPackPath: \r\n  ps4ParentalLevel: 11\r\n  ps4ContentID: ED1633-NPXX51362_00-0000000000000000\r\n  ps4Category: 0\r\n  ps4MasterVersion: 01.00\r\n  ps4AppVersion: 01.00\r\n  ps4AppType: 0\r\n  ps4ParamSfxPath: \r\n  ps4VideoOutPixelFormat: 0\r\n  ps4VideoOutInitialWidth: 1920\r\n  ps4VideoOutBaseModeInitialWidth: 1920\r\n  ps4VideoOutReprojectionRate: 60\r\n  ps4PronunciationXMLPath: \r\n  ps4PronunciationSIGPath: \r\n  ps4BackgroundImagePath: \r\n  ps4StartupImagePath: \r\n  ps4StartupImagesFolder: \r\n  ps4IconImagesFolder: \r\n  ps4SaveDataImagePath: \r\n  ps4SdkOverride: \r\n  ps4BGMPath: \r\n  ps4ShareFilePath: \r\n  ps4ShareOverlayImagePath: \r\n  ps4PrivacyGuardImagePath: \r\n  ps4ExtraSceSysFile: \r\n  ps4NPtitleDatPath: \r\n  ps4RemotePlayKeyAssignment: -1\r\n  ps4RemotePlayKeyMappingDir: \r\n  ps4PlayTogetherPlayerCount: 0\r\n  ps4EnterButtonAssignment: 1\r\n  ps4ApplicationParam1: 0\r\n  ps4ApplicationParam2: 0\r\n  ps4ApplicationParam3: 0\r\n  ps4ApplicationParam4: 0\r\n  ps4DownloadDataSize: 0\r\n  ps4GarlicHeapSize: 2048\r\n  ps4ProGarlicHeapSize: 2560\r\n  playerPrefsMaxSize: 32768\r\n  ps4Passcode: frAQBc8Wsa1xVPfvJcrgRYwTiizs2trQ\r\n  ps4pnSessions: 1\r\n  ps4pnPresence: 1\r\n  ps4pnFriends: 1\r\n  ps4pnGameCustomData: 1\r\n  playerPrefsSupport: 0\r\n  enableApplicationExit: 0\r\n  resetTempFolder: 1\r\n  restrictedAudioUsageRights: 0\r\n  ps4UseResolutionFallback: 0\r\n  ps4ReprojectionSupport: 0\r\n  ps4UseAudio3dBackend: 0\r\n  ps4UseLowGarlicFragmentationMode: 1\r\n  ps4SocialScreenEnabled: 0\r\n  ps4ScriptOptimizationLevel: 0\r\n  ps4Audio3dVirtualSpeakerCount: 14\r\n  ps4attribCpuUsage: 0\r\n  ps4PatchPkgPath: \r\n  ps4PatchLatestPkgPath: \r\n  ps4PatchChangeinfoPath: \r\n  ps4PatchDayOne: 0\r\n  ps4attribUserManagement: 0\r\n  ps4attribMoveSupport: 0\r\n  ps4attrib3DSupport: 0\r\n  ps4attribShareSupport: 0\r\n  ps4attribExclusiveVR: 0\r\n  ps4disableAutoHideSplash: 0\r\n  ps4videoRecordingFeaturesUsed: 0\r\n  ps4contentSearchFeaturesUsed: 0\r\n  ps4CompatibilityPS5: 0\r\n  ps4AllowPS5Detection: 0\r\n  ps4GPU800MHz: 1\r\n  ps4attribEyeToEyeDistanceSettingVR: 0\r\n  ps4IncludedModules: []\r\n  ps4attribVROutputEnabled: 0\r\n  monoEnv: \r\n  splashScreenBackgroundSourceLandscape: {fileID: 0}\r\n  splashScreenBackgroundSourcePortrait: {fileID: 0}\r\n  blurSplashScreenBackground: 0\r\n  spritePackerPolicy: \r\n  webGLMemorySize: 16\r\n  webGLExceptionSupport: 1\r\n  webGLNameFilesAsHashes: 0\r\n  webGLShowDiagnostics: 0\r\n  webGLDataCaching: 1\r\n  webGLDebugSymbols: 0\r\n  webGLEmscriptenArgs: \r\n  webGLModulesDirectory: \r\n  webGLTemplate: APPLICATION:Default\r\n  webGLAnalyzeBuildSize: 0\r\n  webGLUseEmbeddedResources: 0\r\n  webGLCompressionFormat: 1\r\n  webGLWasmArithmeticExceptions: 0\r\n  webGLLinkerTarget: 1\r\n  webGLThreadsSupport: 0\r\n  webGLDecompressionFallback: 0\r\n  webGLInitialMemorySize: 32\r\n  webGLMaximumMemorySize: 2048\r\n  webGLMemoryGrowthMode: 2\r\n  webGLMemoryLinearGrowthStep: 16\r\n  webGLMemoryGeometricGrowthStep: 0.2\r\n  webGLMemoryGeometricGrowthCap: 96\r\n  webGLEnableWebGPU: 0\r\n  webGLPowerPreference: 2\r\n  webGLWebAssemblyTable: 0\r\n  webGLWebAssemblyBigInt: 0\r\n  webGLCloseOnQuit: 0\r\n  webWasm2023: 0\r\n  scriptingDefineSymbols:\r\n    Android: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3\r\n    EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2\r\n    GameCoreXboxOne: UNITY_POST_PROCESSING_STACK_V2\r\n    LinuxHeadlessSimulation: UNITY_POST_PROCESSING_STACK_V2\r\n    Nintendo Switch: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n    PS4: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n    PS5: UNITY_POST_PROCESSING_STACK_V2\r\n    QNX: UNITY_POST_PROCESSING_STACK_V2\r\n    Stadia: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n    Standalone: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3\r\n    VisionOS: UNITY_POST_PROCESSING_STACK_V2\r\n    WebGL: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n    Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2\r\n    XboxOne: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n    iPhone: TextMeshPro;UNITY_XR_ARKIT_LOADER_ENABLED;ODIN_VALIDATOR;ODIN_VALIDATOR_3_1;ODIN_VALIDATOR_3_2;ODIN_VALIDATOR_3_3;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3\r\n    tvOS: TextMeshPro;UNITY_POST_PROCESSING_STACK_V2\r\n  additionalCompilerArguments: {}\r\n  platformArchitecture: {}\r\n  scriptingBackend:\r\n    Android: 1\r\n  il2cppCompilerConfiguration: {}\r\n  il2cppCodeGeneration: {}\r\n  il2cppStacktraceInformation: {}\r\n  managedStrippingLevel:\r\n    Android: 1\r\n    EmbeddedLinux: 1\r\n    GameCoreScarlett: 1\r\n    GameCoreXboxOne: 1\r\n    Nintendo Switch: 1\r\n    PS4: 1\r\n    PS5: 1\r\n    QNX: 1\r\n    Stadia: 1\r\n    VisionOS: 1\r\n    WebGL: 1\r\n    Windows Store Apps: 1\r\n    XboxOne: 1\r\n    iPhone: 1\r\n    tvOS: 1\r\n  incrementalIl2cppBuild: {}\r\n  suppressCommonWarnings: 1\r\n  allowUnsafeCode: 0\r\n  useDeterministicCompilation: 1\r\n  additionalIl2CppArgs: \r\n  scriptingRuntimeVersion: 1\r\n  gcIncremental: 0\r\n  gcWBarrierValidation: 0\r\n  apiCompatibilityLevelPerPlatform: {}\r\n  editorAssembliesCompatibilityLevel: 1\r\n  m_RenderingPath: 1\r\n  m_MobileRenderingPath: 1\r\n  metroPackageName: DoAnPRO\r\n  metroPackageVersion: \r\n  metroCertificatePath: \r\n  metroCertificatePassword: \r\n  metroCertificateSubject: \r\n  metroCertificateIssuer: \r\n  metroCertificateNotAfter: 0000000000000000\r\n  metroApplicationDescription: DoAnPRO\r\n  wsaImages: {}\r\n  metroTileShortName: \r\n  metroTileShowName: 0\r\n  metroMediumTileShowName: 0\r\n  metroLargeTileShowName: 0\r\n  metroWideTileShowName: 0\r\n  metroSupportStreamingInstall: 0\r\n  metroLastRequiredScene: 0\r\n  metroDefaultTileSize: 1\r\n  metroTileForegroundText: 2\r\n  metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}\r\n  metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902, b: 0.21568628,\r\n    a: 1}\r\n  metroSplashScreenUseBackgroundColor: 0\r\n  syncCapabilities: 0\r\n  platformCapabilities: {}\r\n  metroTargetDeviceFamilies: {}\r\n  metroFTAName: \r\n  metroFTAFileTypes: []\r\n  metroProtocolName: \r\n  vcxProjDefaultLanguage: \r\n  XboxOneProductId: \r\n  XboxOneUpdateKey: \r\n  XboxOneSandboxId: \r\n  XboxOneContentId: \r\n  XboxOneTitleId: \r\n  XboxOneSCId: \r\n  XboxOneGameOsOverridePath: \r\n  XboxOnePackagingOverridePath: \r\n  XboxOneAppManifestOverridePath: \r\n  XboxOneVersion: 1.0.0.0\r\n  XboxOnePackageEncryption: 0\r\n  XboxOnePackageUpdateGranularity: 2\r\n  XboxOneDescription: \r\n  XboxOneLanguage:\r\n  - enus\r\n  XboxOneCapability: []\r\n  XboxOneGameRating: {}\r\n  XboxOneIsContentPackage: 0\r\n  XboxOneEnhancedXboxCompatibilityMode: 0\r\n  XboxOneEnableGPUVariability: 1\r\n  XboxOneSockets: {}\r\n  XboxOneSplashScreen: {fileID: 0}\r\n  XboxOneAllowedProductIds: []\r\n  XboxOnePersistentLocalStorageSize: 0\r\n  XboxOneXTitleMemory: 8\r\n  XboxOneOverrideIdentityName: \r\n  XboxOneOverrideIdentityPublisher: \r\n  vrEditorSettings: {}\r\n  cloudServicesEnabled:\r\n    Build: 0\r\n    Collab: 0\r\n    ErrorHub: 0\r\n    Hub: 0\r\n    Purchasing: 1\r\n    UNet: 1\r\n  luminIcon:\r\n    m_Name: \r\n    m_ModelFolderPath: \r\n    m_PortalFolderPath: \r\n  luminCert:\r\n    m_CertPath: \r\n    m_SignPackage: 1\r\n  luminIsChannelApp: 0\r\n  luminVersion:\r\n    m_VersionCode: 1\r\n    m_VersionName: \r\n  hmiPlayerDataPath: \r\n  hmiForceSRGBBlit: 1\r\n  embeddedLinuxEnableGamepadInput: 1\r\n  hmiCpuConfiguration: \r\n  hmiLogStartupTiming: 0\r\n  qnxGraphicConfPath: \r\n  apiCompatibilityLevel: 6\r\n  captureStartupLogs: {}\r\n  activeInputHandler: 2\r\n  windowsGamepadBackendHint: 0\r\n  cloudProjectId: 0b5fb40b-1c6e-4b90-a2f2-88743c957b83\r\n  framebufferDepthMemorylessMode: 0\r\n  qualitySettingsNames: []\r\n  projectName: DoAnPRO\r\n  organizationId: sonbuitv\r\n  cloudEnabled: 0\r\n  legacyClampBlendShapeWeights: 0\r\n  hmiLoadingImage: {fileID: 0}\r\n  platformRequiresReadableAssets: 0\r\n  virtualTexturingSupportEnabled: 0\r\n  insecureHttpOption: 0\r\n  androidVulkanDenyFilterList: []\r\n  androidVulkanAllowFilterList: []\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ProjectSettings/ProjectSettings.asset b/ProjectSettings/ProjectSettings.asset
+--- a/ProjectSettings/ProjectSettings.asset	(revision 3c0be05bb713c17d535bd84ea212fcc8925779c0)
++++ b/ProjectSettings/ProjectSettings.asset	(date 1744237589854)
+@@ -144,8 +144,10 @@
+   bundleVersion: 1.0.131
+   preloadedAssets:
+   - {fileID: 11400000, guid: c199e683398494f32b4cde18e73ab731, type: 2}
+-  - {fileID: -369734831818211097, guid: 7b87f403c0bb29f4994780aee884b4ec, type: 2}
+-  - {fileID: 5156968084640159096, guid: 81e7021a079abab42851314d2a753051, type: 2}
++  - {fileID: 5877420343849218177, guid: 7b87f403c0bb29f4994780aee884b4ec, type: 2}
++  - {fileID: -3766759289120239282, guid: 81e7021a079abab42851314d2a753051, type: 2}
++  - {fileID: 4800000, guid: c9f956787b1d945e7b36e0516201fc76, type: 3}
++  - {fileID: 4800000, guid: 0945859e5a1034c2cb6dce53cb4fb899, type: 3}
+   metroInputSource: 0
+   wsaTransparentSwapchain: 0
+   m_HolographicPauseOnTrackingLoss: 1

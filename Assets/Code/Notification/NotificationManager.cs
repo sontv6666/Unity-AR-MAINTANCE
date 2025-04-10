@@ -1,4 +1,3 @@
-
 using System;
 using UnityEngine;
 using System.Collections;
@@ -22,7 +21,10 @@ public class MaintenanceNotificationManager : MonoBehaviour
 {
     private static MaintenanceNotificationManager _instance;
     
-
+// Added retry mechanism for token registration
+    private const int MAX_REGISTRATION_RETRIES = 3;
+    private int registrationRetryCount = 0;
+    private const float RETRY_DELAY = 5.0f; // 5 seconds
 
     public static MaintenanceNotificationManager Instance
     {
@@ -79,6 +81,9 @@ public class MaintenanceNotificationManager : MonoBehaviour
             FirebaseMessaging.TokenReceived += OnTokenReceived;
             FirebaseMessaging.MessageReceived += OnMessageReceived;
 
+            // Force token refresh to ensure we have the latest token
+            StartCoroutine(ForceTokenRefresh());
+
             Debug.Log("✅ Firebase initialized successfully!");
             firebaseInitialized = true;
 
@@ -94,6 +99,33 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 
+    // Force token refresh to ensure we have a valid token
+    private IEnumerator ForceTokenRefresh()
+    {
+        var tokenTask = FirebaseMessaging.GetTokenAsync();
+        yield return new WaitUntil(() => tokenTask.IsCompleted);
+
+        if (tokenTask.Exception != null)
+        {
+            Debug.LogError($"❌ Failed to get Firebase token: {tokenTask.Exception.Message}");
+        }
+        else
+        {
+            string token = tokenTask.Result;
+            Debug.Log($"📱 Firebase token refreshed: {token}");
+            
+            // Store the token
+            PlayerPrefs.SetString("FirebaseToken", token);
+            PlayerPrefs.Save();
+            
+            // Register with backend if user is logged in
+            if (!string.IsNullOrEmpty(UserManager.UserId) && !string.IsNullOrEmpty(PlayerPrefs.GetString("CompanyId", "")))
+            {
+                RegisterDeviceWithBackend(UserManager.UserId, PlayerPrefs.GetString("CompanyId", ""));
+            }
+        }
+    }
+    
     void OnTokenReceived(object sender, TokenReceivedEventArgs token)
     {
         Debug.Log($"📱 Firebase device token received: {token.Token}");
@@ -109,112 +141,89 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 
-
-private string lastNotificationId = "";
-private float lastNotificationTime = 0f;
-private bool notificationReceived = false;
-
-void OnMessageReceived(object sender, MessageReceivedEventArgs e)
-{
-    Debug.Log("📨 Firebase message received!");
-
-    // Extract notification data
-    string title = e.Message.Notification?.Title ?? "Notification";
-    string body = e.Message.Notification?.Body ?? "You have a new notification";
-    
-    Debug.Log($"Title: {title}, Body: {body}");
-
-    // Generate a unique ID for this notification
-    string currentNotificationId = e.Message.MessageId ?? $"{title}_{body}_{Time.time}";
-    
-    // More flexible duplicate detection specific to iOS
-    #if UNITY_IOS
-    // For iOS, use a more lenient duplicate detection
-    bool isDuplicate = currentNotificationId == lastNotificationId && 
-                       Time.time - lastNotificationTime < 1.5f;
-    #else
-    // For other platforms (Android), use the original detection
-    bool isDuplicate = currentNotificationId == lastNotificationId && 
-                       Time.time - lastNotificationTime < 3f;
-    #endif
-
-    if (isDuplicate)
+    void OnMessageReceived(object sender, MessageReceivedEventArgs e)
     {
-        Debug.Log("🔁 Duplicate notification detected. Skipping...");
-        return;
-    }
+        Debug.Log("📨 Firebase message received!");
 
-    // Update tracking variables
-    lastNotificationId = currentNotificationId;
-    lastNotificationTime = Time.time;
+        // Extract notification data
+        string title = e.Message.Notification?.Title ?? "Notification";
+        string body = e.Message.Notification?.Body ?? "You have a new notification";
 
-    // Only skip completely empty notifications
-    if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(body) && 
-        (e.Message.Data == null || e.Message.Data.Count == 0))
-    {
-        Debug.Log("🚫 Notification has no content. Skipping...");
-        return;
-    }
+        Debug.Log($"Title: {title}, Body: {body}");
+        Debug.Log($"Message data count: {e.Message.Data.Count}");
 
-    // Handle data payload
-    if (e.Message.Data != null && e.Message.Data.Count > 0)
-    {
-        Debug.Log("Data payload:");
-        foreach (var pair in e.Message.Data)
+        // Debug the data payload
+        if (e.Message.Data.Count > 0)
         {
-            Debug.Log($"{pair.Key}: {pair.Value}");
-        }
-
-        // Check for notification type
-        if (e.Message.Data.TryGetValue("type", out string notificationType))
-        {
-            switch (notificationType)
+            Debug.Log("Data payload:");
+            foreach (var pair in e.Message.Data)
             {
-                case "new_course":
-                    if (e.Message.Data.TryGetValue("courseId", out string courseId) &&
-                        e.Message.Data.TryGetValue("courseName", out string courseName))
-                    {
-                        HandleNewCourseNotification(courseId, courseName);
-                    }
-                    DisplayInAppNotification(title, body);
-                    break;
+                Debug.Log($"{pair.Key}: {pair.Value}");
+            }
 
-                case "point_used":
-                    DisplayInAppNotification(title, body);
-                    break;
+            // Check for notification type
+            if (e.Message.Data.TryGetValue("type", out string notificationType))
+            {
+                // Handle different notification types
+                switch (notificationType)
+                {
+                    case "new_course":
+                        // Show new course notification
+                        if (e.Message.Data.TryGetValue("courseId", out string courseId) &&
+                            e.Message.Data.TryGetValue("courseName", out string courseName))
+                        {
+                            HandleNewCourseNotification(courseId, courseName);
+                        }
 
-                case "maintenance":
-                    DisplayInAppNotification(title, body);
-                    break;
-
-                case "point_request":
-                    if (e.Message.Data.TryGetValue("status", out string status) &&
-                        e.Message.Data.TryGetValue("points", out string pointsStr))
-                    {
-                        HandlePointRequestNotification(status, pointsStr);
-                    }
-                    DisplayInAppNotification(title, body);
-                    break;
-
-                default:
-                    DisplayInAppNotification(title, body);
-                    break;
+                        DisplayInAppNotification(title, body);
+                        break;
+                    case "point_used":
+                        // Show in-app notification for points
+                        DisplayInAppNotification(title, body);
+                        break;
+                    case "maintenance":
+                        // Show maintenance notification
+                        DisplayInAppNotification(title, body);
+                        break;
+                    case "point_request":
+                        if (e.Message.Data.TryGetValue("status", out string status))
+                        {
+                            string pointsStr = "";
+                            // Try to get points from either field (for compatibility)
+                            if (e.Message.Data.TryGetValue("points", out pointsStr) || 
+                                e.Message.Data.TryGetValue("amount", out pointsStr))
+                            {
+                                HandlePointRequestNotification(status, pointsStr);
+                            }
+                            else
+                            {
+                                Debug.LogWarning("⚠️ Point request notification missing points/amount data");
+                            }
+                        }
+                        DisplayInAppNotification(title, body);
+                        break;
+                    default:
+                        // Default case
+                        DisplayInAppNotification(title, body);
+                        break;
+                }
+            }
+            else
+            {
+                // If no type specified, display default notification
+                DisplayInAppNotification(title, body);
             }
         }
         else
         {
+            // If no data payload, display default notification
             DisplayInAppNotification(title, body);
         }
     }
-    else
-    {
-        // If there's no data payload but there's still a title/body, display it
-        DisplayInAppNotification(title, body);
-    }
-}
     
     
-    // Add this new method to handle point request notifications
+    
+    
     private void HandlePointRequestNotification(string status, string pointsStr)
     {
         Debug.Log($"💰 Point request notification received: Status={status}, Points={pointsStr}");
@@ -240,6 +249,8 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
             // Show notification
             ShowLocalNotification(title, message, "progress_updates");
             
+            // Refresh points from server to ensure consistency
+            RefreshUserPoints();
         }
         else
         {
@@ -247,14 +258,13 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         }
     }
 
-    
- 
-    
-// Add this method to manually refresh points from the server
+    // Add this method to manually refresh points from the server
     public void RefreshUserPoints()
     {
         StartCoroutine(FetchUserPoints());
     }
+ 
+
     private void HandleNewCourseNotification(string courseId, string courseName)
     {
         Debug.Log($"📚 New course notification: {courseName} (ID: {courseId})");
@@ -341,7 +351,6 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
             Title = title,
             Body = message,
             ShowInForeground = true,
-            ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
             Trigger = new iOSNotificationTimeIntervalTrigger
             {
                 TimeInterval = new TimeSpan(0, 0, 1),
@@ -385,51 +394,54 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         AndroidNotificationCenter.RegisterNotificationChannel(maintenanceChannel);
         AndroidNotificationCenter.RegisterNotificationChannel(progressChannel);
 #elif UNITY_IOS
-        if (!PlayerPrefs.HasKey("WelcomeNotificationSent"))
+        // Setup iOS notification categories
+        var courseCategory = new iOSNotificationCategory("course_notifications", new List<iOSNotificationAction>());
+        var maintenanceCategory = new iOSNotificationCategory("maintenance_alerts", new List<iOSNotificationAction>());
+        var progressCategory = new iOSNotificationCategory("progress_updates", new List<iOSNotificationAction>());
+        
+        // Register notification categories
+        iOSNotificationCenter.SetNotificationCategories(new List<iOSNotificationCategory>
         {
-            var timeTrigger = new iOSNotificationTimeIntervalTrigger()
-            {
-                TimeInterval = new TimeSpan(0, 0, 5),
-                Repeats = false
-            };
-
-            var notification = new iOSNotification()
-            {
-                Identifier = "_notification_01",
-                Title = "Welcome!",
-                Body = "Enjoy your AR guideline",
-                Subtitle = "Try your best and gain your skills",
-                ShowInForeground = true,
-                ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
-                Trigger = timeTrigger,
-            };
-
-            iOSNotificationCenter.ScheduleNotification(notification);
-            PlayerPrefs.SetInt("WelcomeNotificationSent", 1);
-            PlayerPrefs.Save();
-        }
+            courseCategory,
+            maintenanceCategory,
+            progressCategory
+        });
+        
+        // Request authorization
+        iOSNotificationCenter.RequestAuthorization(
+            AuthorizationOption.Alert | 
+            AuthorizationOption.Badge | 
+            AuthorizationOption.Sound);
 #endif
         Debug.Log("📱 Notification system initialized");
     }
 
-    // Register device with backend
-    public async void RegisterDeviceWithBackend(string userId, string companyId)
+    // Register device with backend with retry mechanism
+    public void RegisterDeviceWithBackend(string userId, string companyId)
     {
         if (!firebaseInitialized)
         {
-            Debug.LogWarning("⚠️ Firebase not initialized yet, skipping registration");
+            Debug.LogWarning("⚠️ Firebase not initialized yet, scheduling registration for later");
+            StartCoroutine(RetryRegistration(userId, companyId));
             return;
         }
 
         string token = PlayerPrefs.GetString("FirebaseToken", "");
         if (string.IsNullOrEmpty(token))
         {
-            Debug.LogWarning("⚠️ No Firebase token available to register");
+            Debug.LogWarning("⚠️ No Firebase token available, requesting token and scheduling registration");
+            StartCoroutine(ForceTokenRefresh());
+            StartCoroutine(RetryRegistration(userId, companyId));
             return;
         }
 
         Debug.Log($"🔄 Registering device with backend - User: {userId}, Company: {companyId}, Token: {token}");
-
+        registrationRetryCount = 0;
+        StartCoroutine(SendRegistrationRequest(userId, companyId, token));
+    }
+    
+    private IEnumerator SendRegistrationRequest(string userId, string companyId, string token)
+    {
         // Create registration request
         Dictionary<string, string> requestData = new Dictionary<string, string>
         {
@@ -443,8 +455,7 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         // Send registration request to backend
         UnityWebRequest request = ApiConfig.CreateRequest(registrationEndpoint, "POST", jsonBody);
 
-        // Send the request
-        await request.SendWebRequest();
+        yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -456,8 +467,31 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         else
         {
             Debug.LogError($"❌ Error registering device: {request.error}");
+            
+            // Retry if possible
+            if (registrationRetryCount < MAX_REGISTRATION_RETRIES)
+            {
+                StartCoroutine(RetryRegistration(userId, companyId));
+            }
         }
     }
+
+
+    private IEnumerator RetryRegistration(string userId, string companyId)
+    {
+        if (registrationRetryCount >= MAX_REGISTRATION_RETRIES)
+        {
+            Debug.LogError("❌ Maximum registration retries reached");
+            yield break;
+        }
+        
+        registrationRetryCount++;
+        Debug.Log($"🔁 Scheduling registration retry {registrationRetryCount}/{MAX_REGISTRATION_RETRIES} in {RETRY_DELAY} seconds");
+        
+        yield return new WaitForSeconds(RETRY_DELAY);
+        RegisterDeviceWithBackend(userId, companyId);
+    }
+    
 
     public void SubscribeToCompanyTopic(string companyId)
     {
@@ -540,7 +574,19 @@ void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         iOSNotificationCenter.RemoveAllDeliveredNotifications();
 #endif
     }
-    
+    // Add this to handle application focus changes
+    void OnApplicationPause(bool pause)
+    {
+        if (!pause)
+        {
+            // App returned to foreground
+            Debug.Log("App is back in foreground, refreshing user points...");
+            RefreshUserPoints();
+            
+            // Refresh Firebase token
+            StartCoroutine(ForceTokenRefresh());
+        }
+    }
 }
 
 
