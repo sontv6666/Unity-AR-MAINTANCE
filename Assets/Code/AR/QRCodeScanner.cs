@@ -67,6 +67,8 @@ public class QRCodeScanner : MonoBehaviour
 
     public GameObject instructionDetailStepPrefab; // Prefab for each step
 
+    public GameObject overlayUI;
+
 
     public TMP_Text courseTitleText;
     private bool[] stepUIHidden;
@@ -172,7 +174,7 @@ public class QRCodeScanner : MonoBehaviour
         if (isScanning && Time.time - lastScanTime > scanInterval)
         {
             lastScanTime = Time.time;
-          TryScanQRCode();
+            TryScanQRCode();
         }
     }
 
@@ -185,6 +187,7 @@ public class QRCodeScanner : MonoBehaviour
         centerModelButton.gameObject.SetActive(false);
         JoyStick.gameObject.SetActive(false);
         realDataButton.gameObject.SetActive(false);
+        overlayUI.gameObject.SetActive(false);
         Debug.Log($"📥 Downloading course data for ID: {courseId}");
 
         // Fetch course data before scanning
@@ -203,12 +206,13 @@ public class QRCodeScanner : MonoBehaviour
         JoyStick.gameObject.SetActive(false);
         instructionDetailPanel.SetActive(false);
         realDataButton.gameObject.SetActive(false);
+        overlayUI.gameObject.SetActive(false);
      
         // scan
-       StartScanning();
+      StartScanning();
      
      
-     // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+    StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -507,7 +511,7 @@ void TryScanQRCode()
                 {
                     UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
                     StartCoroutine(SendCourseScan(response.result.id, UserManager.UserId));
-
+                    overlayUI.gameObject.SetActive(true);
                     StartCoroutine(FetchModelData(response.result));
                     StartCoroutine(DownloadAndLoadUI(response.result));
                     centerModelButton.gameObject.SetActive(true);
@@ -760,6 +764,8 @@ void TryScanQRCode()
             loadedModel.transform.localScale = scale;
             Debug.Log(
                 $"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
+            
+            overlayUI.gameObject.SetActive(false);
 
         }
 
@@ -817,10 +823,11 @@ void TryScanQRCode()
                     }
                 }
             }
-
+            overlayUI.SetActive(true);
             // ✅ Load UI with local images
             Debug.Log($"Load UI: {course.title} with {imagePaths.Count} images");
             LoadUI(course, imagePaths);
+            
         }
         
 
@@ -828,6 +835,7 @@ void TryScanQRCode()
         {
             ShowCourseUI(course); // This method sets course title, description, and instructions
             Debug.Log($"📂 Application Persistent Data Path: {Application.persistentDataPath}");
+           
 
             // ✅ Load the course image if available
             if (!string.IsNullOrEmpty(course.imageUrl) && imagePaths.ContainsKey(course.imageUrl))
@@ -1073,7 +1081,10 @@ void TryScanQRCode()
                 // ✅ Add button click event to move to instructionDetailPanel
                 Button instructionButton = instructionItem.GetComponent<Button>();
                 instructionButton.onClick.AddListener(() => ShowInstructionDetails(instruction));
+                
             }
+            
+           
         }
 
 
