@@ -130,8 +130,8 @@ public class QRCodeScanner : MonoBehaviour
         if (centerModelButton != null)
         {
             //center
-           centerModelButton.onClick.AddListener(CenterModel); 
-          //  centerModelButton.onClick.AddListener(MoveModelBackToQR);
+          // centerModelButton.onClick.AddListener(CenterModel); 
+          centerModelButton.onClick.AddListener(MoveModelBackToQR);
         }
 
         if (backButton != null)
@@ -172,7 +172,7 @@ public class QRCodeScanner : MonoBehaviour
         if (isScanning && Time.time - lastScanTime > scanInterval)
         {
             lastScanTime = Time.time;
-          //  TryScanQRCode();
+          TryScanQRCode();
         }
     }
 
@@ -205,10 +205,10 @@ public class QRCodeScanner : MonoBehaviour
         realDataButton.gameObject.SetActive(false);
      
         // scan
-      // StartScanning();
+       StartScanning();
      
      
-      StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+     // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
