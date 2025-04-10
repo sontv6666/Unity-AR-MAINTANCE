@@ -1,4 +1,3 @@
-
 using System;
 using UnityEngine;
 using System.Collections;
@@ -22,7 +21,10 @@ public class MaintenanceNotificationManager : MonoBehaviour
 {
     private static MaintenanceNotificationManager _instance;
     
-
+// Added retry mechanism for token registration
+    private const int MAX_REGISTRATION_RETRIES = 3;
+    private int registrationRetryCount = 0;
+    private const float RETRY_DELAY = 5.0f; // 5 seconds
 
     public static MaintenanceNotificationManager Instance
     {
@@ -79,6 +81,9 @@ public class MaintenanceNotificationManager : MonoBehaviour
             FirebaseMessaging.TokenReceived += OnTokenReceived;
             FirebaseMessaging.MessageReceived += OnMessageReceived;
 
+            // Force token refresh to ensure we have the latest token
+            StartCoroutine(ForceTokenRefresh());
+
             Debug.Log("✅ Firebase initialized successfully!");
             firebaseInitialized = true;
 
@@ -94,6 +99,33 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 
+    // Force token refresh to ensure we have a valid token
+    private IEnumerator ForceTokenRefresh()
+    {
+        var tokenTask = FirebaseMessaging.GetTokenAsync();
+        yield return new WaitUntil(() => tokenTask.IsCompleted);
+
+        if (tokenTask.Exception != null)
+        {
+            Debug.LogError($"❌ Failed to get Firebase token: {tokenTask.Exception.Message}");
+        }
+        else
+        {
+            string token = tokenTask.Result;
+            Debug.Log($"📱 Firebase token refreshed: {token}");
+            
+            // Store the token
+            PlayerPrefs.SetString("FirebaseToken", token);
+            PlayerPrefs.Save();
+            
+            // Register with backend if user is logged in
+            if (!string.IsNullOrEmpty(UserManager.UserId) && !string.IsNullOrEmpty(PlayerPrefs.GetString("CompanyId", "")))
+            {
+                RegisterDeviceWithBackend(UserManager.UserId, PlayerPrefs.GetString("CompanyId", ""));
+            }
+        }
+    }
+    
     void OnTokenReceived(object sender, TokenReceivedEventArgs token)
     {
         Debug.Log($"📱 Firebase device token received: {token.Token}");
@@ -109,7 +141,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 
-
     void OnMessageReceived(object sender, MessageReceivedEventArgs e)
     {
         Debug.Log("📨 Firebase message received!");
@@ -119,8 +150,9 @@ public class MaintenanceNotificationManager : MonoBehaviour
         string body = e.Message.Notification?.Body ?? "You have a new notification";
 
         Debug.Log($"Title: {title}, Body: {body}");
+        Debug.Log($"Message data count: {e.Message.Data.Count}");
 
-        // Handle data payload
+        // Debug the data payload
         if (e.Message.Data.Count > 0)
         {
             Debug.Log("Data payload:");
@@ -154,10 +186,19 @@ public class MaintenanceNotificationManager : MonoBehaviour
                         DisplayInAppNotification(title, body);
                         break;
                     case "point_request":
-                        if (e.Message.Data.TryGetValue("status", out string status) &&
-                            e.Message.Data.TryGetValue("points", out string pointsStr))
+                        if (e.Message.Data.TryGetValue("status", out string status))
                         {
-                            HandlePointRequestNotification(status, pointsStr);
+                            string pointsStr = "";
+                            // Try to get points from either field (for compatibility)
+                            if (e.Message.Data.TryGetValue("points", out pointsStr) || 
+                                e.Message.Data.TryGetValue("amount", out pointsStr))
+                            {
+                                HandlePointRequestNotification(status, pointsStr);
+                            }
+                            else
+                            {
+                                Debug.LogWarning("⚠️ Point request notification missing points/amount data");
+                            }
                         }
                         DisplayInAppNotification(title, body);
                         break;
@@ -181,7 +222,8 @@ public class MaintenanceNotificationManager : MonoBehaviour
     }
     
     
-    // Add this new method to handle point request notifications
+    
+    
     private void HandlePointRequestNotification(string status, string pointsStr)
     {
         Debug.Log($"💰 Point request notification received: Status={status}, Points={pointsStr}");
@@ -207,6 +249,8 @@ public class MaintenanceNotificationManager : MonoBehaviour
             // Show notification
             ShowLocalNotification(title, message, "progress_updates");
             
+            // Refresh points from server to ensure consistency
+            RefreshUserPoints();
         }
         else
         {
@@ -214,14 +258,13 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 
-    
- 
-    
-// Add this method to manually refresh points from the server
+    // Add this method to manually refresh points from the server
     public void RefreshUserPoints()
     {
         StartCoroutine(FetchUserPoints());
     }
+ 
+
     private void HandleNewCourseNotification(string courseId, string courseName)
     {
         Debug.Log($"📚 New course notification: {courseName} (ID: {courseId})");
@@ -351,46 +394,54 @@ public class MaintenanceNotificationManager : MonoBehaviour
         AndroidNotificationCenter.RegisterNotificationChannel(maintenanceChannel);
         AndroidNotificationCenter.RegisterNotificationChannel(progressChannel);
 #elif UNITY_IOS
-        var timeTrigger = new iOSNotificationTimeIntervalTrigger()
+        // Setup iOS notification categories
+        var courseCategory = new iOSNotificationCategory("course_notifications", new List<iOSNotificationAction>());
+        var maintenanceCategory = new iOSNotificationCategory("maintenance_alerts", new List<iOSNotificationAction>());
+        var progressCategory = new iOSNotificationCategory("progress_updates", new List<iOSNotificationAction>());
+        
+        // Register notification categories
+        iOSNotificationCenter.SetNotificationCategories(new List<iOSNotificationCategory>
         {
-            TimeInterval = new TimeSpan(0, 0, 5),
-            Repeats = false
-        };
-
-        var notification = new iOSNotification()
-        {
-            Identifier = "_notification_01",
-            Title = "Hello",
-            Body = "This is a test notification!",
-            Subtitle = "Subtitle here",
-            ShowInForeground = true,
-            ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
-            Trigger = timeTrigger,
-        };
-
-        iOSNotificationCenter.ScheduleNotification(notification);
+            courseCategory,
+            maintenanceCategory,
+            progressCategory
+        });
+        
+        // Request authorization
+        iOSNotificationCenter.RequestAuthorization(
+            AuthorizationOption.Alert | 
+            AuthorizationOption.Badge | 
+            AuthorizationOption.Sound);
 #endif
         Debug.Log("📱 Notification system initialized");
     }
 
-    // Register device with backend
-    public async void RegisterDeviceWithBackend(string userId, string companyId)
+    // Register device with backend with retry mechanism
+    public void RegisterDeviceWithBackend(string userId, string companyId)
     {
         if (!firebaseInitialized)
         {
-            Debug.LogWarning("⚠️ Firebase not initialized yet, skipping registration");
+            Debug.LogWarning("⚠️ Firebase not initialized yet, scheduling registration for later");
+            StartCoroutine(RetryRegistration(userId, companyId));
             return;
         }
 
         string token = PlayerPrefs.GetString("FirebaseToken", "");
         if (string.IsNullOrEmpty(token))
         {
-            Debug.LogWarning("⚠️ No Firebase token available to register");
+            Debug.LogWarning("⚠️ No Firebase token available, requesting token and scheduling registration");
+            StartCoroutine(ForceTokenRefresh());
+            StartCoroutine(RetryRegistration(userId, companyId));
             return;
         }
 
         Debug.Log($"🔄 Registering device with backend - User: {userId}, Company: {companyId}, Token: {token}");
-
+        registrationRetryCount = 0;
+        StartCoroutine(SendRegistrationRequest(userId, companyId, token));
+    }
+    
+    private IEnumerator SendRegistrationRequest(string userId, string companyId, string token)
+    {
         // Create registration request
         Dictionary<string, string> requestData = new Dictionary<string, string>
         {
@@ -404,8 +455,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
         // Send registration request to backend
         UnityWebRequest request = ApiConfig.CreateRequest(registrationEndpoint, "POST", jsonBody);
 
-        // Send the request
-        await request.SendWebRequest();
+        yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -417,8 +467,31 @@ public class MaintenanceNotificationManager : MonoBehaviour
         else
         {
             Debug.LogError($"❌ Error registering device: {request.error}");
+            
+            // Retry if possible
+            if (registrationRetryCount < MAX_REGISTRATION_RETRIES)
+            {
+                StartCoroutine(RetryRegistration(userId, companyId));
+            }
         }
     }
+
+
+    private IEnumerator RetryRegistration(string userId, string companyId)
+    {
+        if (registrationRetryCount >= MAX_REGISTRATION_RETRIES)
+        {
+            Debug.LogError("❌ Maximum registration retries reached");
+            yield break;
+        }
+        
+        registrationRetryCount++;
+        Debug.Log($"🔁 Scheduling registration retry {registrationRetryCount}/{MAX_REGISTRATION_RETRIES} in {RETRY_DELAY} seconds");
+        
+        yield return new WaitForSeconds(RETRY_DELAY);
+        RegisterDeviceWithBackend(userId, companyId);
+    }
+    
 
     public void SubscribeToCompanyTopic(string companyId)
     {
@@ -501,7 +574,19 @@ public class MaintenanceNotificationManager : MonoBehaviour
         iOSNotificationCenter.RemoveAllDeliveredNotifications();
 #endif
     }
-    
+    // Add this to handle application focus changes
+    void OnApplicationPause(bool pause)
+    {
+        if (!pause)
+        {
+            // App returned to foreground
+            Debug.Log("App is back in foreground, refreshing user points...");
+            RefreshUserPoints();
+            
+            // Refresh Firebase token
+            StartCoroutine(ForceTokenRefresh());
+        }
+    }
 }
 
 
