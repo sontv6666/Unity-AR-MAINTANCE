@@ -72,8 +72,7 @@ public class QRCodeScanner : MonoBehaviour
 
     public TMP_Text courseTitleText;
     private bool[] stepUIHidden;
-
-   
+    
 
     private List<InstructionDetail> instructionSteps = new List<InstructionDetail>();
 
@@ -212,7 +211,7 @@ public class QRCodeScanner : MonoBehaviour
       StartScanning();
      
      
-    StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+   // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
     }
 
 
@@ -397,16 +396,7 @@ void TryScanQRCode()
     }
 }
 
-    
 
-
-
-
-
-
-
-
-    
 
 
         IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
