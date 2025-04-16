@@ -266,7 +266,7 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
-            pointsText.text = $"{user.points} points";
+            pointsText.text = $"{user.points} ";
             
             // Add new user information to UI
             if (roleText != null)
