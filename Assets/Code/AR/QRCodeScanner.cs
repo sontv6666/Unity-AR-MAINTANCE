@@ -373,7 +373,7 @@ void TryScanQRCode()
 
             Debug.Log($"✅ QR Code Scanned: {result.Text}");
 
-            UpdateUIText("Scanning...", "QR: " + result.Text);
+            UpdateUIText("Scanning...", "QR: ");
 
             string[] values = result.Text.Split('@');
             if (values.Length != 2)
@@ -383,79 +383,187 @@ void TryScanQRCode()
                 Invoke(nameof(ResetScanning), 3f);
                 return;
             }
-
-            string firstValue = values[0].Trim();  // First value (Machine)
-            string secondValue = values[1].Trim(); // Second value (Course)
+            // Get the machine code from QR (now it's just a single value)
+            string machineCode = result.Text.Trim();
+            // string firstValue = values[0].Trim();  // First value (Machine)
+            // string secondValue = values[1].Trim(); // Second value (Course)
             ShowLoadingUI("Processing QR Code...");
             qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
             qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
 
             Debug.Log($"✅ Course Id: {courseID}");
-            StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
+          //  StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
+            StartCoroutine(FetchMachineData(machineCode, courseID));
         }
     }
 }
-
-
-
-
-        IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
+ IEnumerator FetchMachineData(string machineCode, string guidelineId)
+    {
+        currentMachineCode = machineCode; 
+    
+        // Get company ID from PlayerPrefs
+        string companyId = PlayerPrefs.GetString("CompanyId", "");
+    
+        if (string.IsNullOrEmpty(companyId))
         {
-            currentMachineCode = machineCode; 
+            Debug.LogError("❌ Company ID is missing! User might need to log in again.");
+            APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
+            Invoke(nameof(ResetScanning), 3f);
+            yield break;
+        }
     
-            // Get company ID from PlayerPrefs
-            string companyId = PlayerPrefs.GetString("CompanyId", "");
-    
-            if (string.IsNullOrEmpty(companyId))
+        // Updated endpoint to include company ID
+        string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
+        UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+        request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+
+        Debug.Log($"📡 Sending API Request to: {endpoint}");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            string jsonResponse = request.downloadHandler.text;
+            Debug.Log($"✅ Machine API Response: {jsonResponse}");
+
+            // 🔹 Parse JSON response into MachineResponse model
+            ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+            
+            if (response != null && response.result != null)
             {
-                Debug.LogError("❌ Company ID is missing! User might need to log in again.");
-                APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
-                Invoke(nameof(ResetScanning), 3f);
-                yield break;
+                MachineResponse machine = response.result;
+            
+                // 🔹 Send data to UI
+                APIRealTime.Instance.UpdateMachineUI(machine);
+                
+                // Now check if machine belongs to guideline
+                StartCoroutine(CheckMachineBelongsToGuideline(machineCode, guidelineId));
             }
-    
-            // Updated endpoint to include company ID
-            string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
-            UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-            request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
-
-            Debug.Log($"📡 Sending API Request to: {endpoint}");
-
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            else
             {
-                string jsonResponse = request.downloadHandler.text;
-                Debug.Log($"✅ Machine API Response: {jsonResponse}");
+                Debug.LogError("❌ Failed to parse machine response.");
+                APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
+                Invoke(nameof(ResetScanning), 3f);
+            }
+        }
+        else
+        {
+            Debug.LogError($"❌ Machine API Request Failed: {request.error}");
+            UpdateUIText("Failed to get machine data!", "");
+            Invoke(nameof(ResetScanning), 2f);
+        }
+    }
 
-                // 🔹 Parse JSON response into MachineResponse model
-                ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+ // New method to check if a machine belongs to a guideline
+    IEnumerator CheckMachineBelongsToGuideline(string machineCode, string guidelineId)
+    {
+        // New API endpoint to check if machine belongs to guideline
+        string endpoint = $"/machine/code/{machineCode}/guideline/{guidelineId}";
+        UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+        request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+
+        Debug.Log($"📡 Checking if machine belongs to guideline: {endpoint}");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            string jsonResponse = request.downloadHandler.text;
+            Debug.Log($"✅ Machine-Guideline Check Response: {jsonResponse}");
+
+            // Parse the response to get the boolean result
+            var response = JsonConvert.DeserializeObject<ApiResponse<bool>>(jsonResponse);
+            
+            if (response != null && response.code == 1000)
+            {
+                bool belongsToGuideline = response.result;
                 
-                if (response != null && response.result != null)
+                if (belongsToGuideline)
                 {
-                    MachineResponse machine = response.result;
-                
-                    // 🔹 Send data to UI
-                    APIRealTime.Instance.UpdateMachineUI(machine);
-                    
-
-                    // Continue with QR logic
-                    StartCoroutine(CheckQRCode(secondValue, courseId));
+                    Debug.Log("✅ Machine belongs to this guideline! Proceeding...");
+                    // Machine belongs to guideline, continue with course data
+                    StartCoroutine(FetchCourseData(guidelineId));
+                    // Additional processing can go here to handle the successful match
                 }
                 else
                 {
-                    Debug.LogError("❌ Failed to parse machine response.");
-                    APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
+                    Debug.LogWarning("⚠️ Machine does not belong to this guideline");
+                    UpdateUIText("Error", "This machine does not belong to this guideline");
                     Invoke(nameof(ResetScanning), 3f);
                 }
             }
             else
             {
-                Debug.LogError($"❌ Machine API Request Failed: {request.error}");
-                UpdateUIText("Failed to get machine data!", "");
+                Debug.LogError("❌ Invalid API response format");
+                UpdateUIText("API Error", "Please try again");
                 Invoke(nameof(ResetScanning), 2f);
             }
         }
+        else
+        {
+            Debug.LogError($"❌ API Request Failed: {request.error}");
+            UpdateUIText("Connection Error", "Please try again");
+            Invoke(nameof(ResetScanning), 2f);
+        }
+    }
+
+        // IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
+        // {
+        //     currentMachineCode = machineCode; 
+        //
+        //     // Get company ID from PlayerPrefs
+        //     string companyId = PlayerPrefs.GetString("CompanyId", "");
+        //
+        //     if (string.IsNullOrEmpty(companyId))
+        //     {
+        //         Debug.LogError("❌ Company ID is missing! User might need to log in again.");
+        //         APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
+        //         Invoke(nameof(ResetScanning), 3f);
+        //         yield break;
+        //     }
+        //
+        //     // Updated endpoint to include company ID
+        //     string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
+        //     UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+        //     request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
+        //
+        //     Debug.Log($"📡 Sending API Request to: {endpoint}");
+        //
+        //     yield return request.SendWebRequest();
+        //
+        //     if (request.result == UnityWebRequest.Result.Success)
+        //     {
+        //         string jsonResponse = request.downloadHandler.text;
+        //         Debug.Log($"✅ Machine API Response: {jsonResponse}");
+        //
+        //         // 🔹 Parse JSON response into MachineResponse model
+        //         ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
+        //         
+        //         if (response != null && response.result != null)
+        //         {
+        //             MachineResponse machine = response.result;
+        //         
+        //             // 🔹 Send data to UI
+        //             APIRealTime.Instance.UpdateMachineUI(machine);
+        //             
+        //
+        //             // Continue with QR logic
+        //             StartCoroutine(CheckQRCode(secondValue, courseId));
+        //         }
+        //         else
+        //         {
+        //             Debug.LogError("❌ Failed to parse machine response.");
+        //             APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
+        //             Invoke(nameof(ResetScanning), 3f);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         Debug.LogError($"❌ Machine API Request Failed: {request.error}");
+        //         UpdateUIText("Failed to get machine data!", "");
+        //         Invoke(nameof(ResetScanning), 2f);
+        //     }
+        // }
 
 
 
