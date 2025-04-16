@@ -117,7 +117,10 @@ public class CourseLoader: MonoBehaviour
     {
         // Reset to first page when filter changes
         currentPage = 1;
-        
+    
+        // Clear existing course panels immediately
+        ClearCourseList();
+    
         // Apply selected filter
         string endpoint = "";
         switch (index)
@@ -135,21 +138,38 @@ public class CourseLoader: MonoBehaviour
                 endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=type";
                 break;
         }
-        
+    
         StartCoroutine(FetchCourseData(endpoint));
     }
-    
+
     void OnMandatoryFilterChanged(bool isOn)
     {
+        // Clear existing course panels immediately
+        ClearCourseList();
+    
         // Apply mandatory filter
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
         if (isOn)
         {
             endpoint += "&mandatory=true";
         }
-        
+    
         StartCoroutine(FetchCourseData(endpoint));
     }
+
+// Add this helper method to clear course list
+    private void ClearCourseList()
+    {
+        // Show "no courses" text while loading
+        nocourseText.SetActive(true);
+    
+        // Clear all existing course panels
+        foreach (Transform child in contentParent)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    
     
     void OnNextPageClicked()
     {
@@ -196,7 +216,7 @@ public class CourseLoader: MonoBehaviour
         greetingText.text = greeting;
     }
 
-    IEnumerator FetchUserData(string endpoint)
+  IEnumerator FetchUserData(string endpoint)
     {
         string authToken = PlayerPrefs.GetString("AuthToken", "");
     
@@ -246,7 +266,7 @@ public class CourseLoader: MonoBehaviour
         {
             UserProfileResult user = response.result;
             usernameText.text = user.username;
-            pointsText.text = $"{user.points} points";
+            pointsText.text = $"{user.points} ";
             
             // Add new user information to UI
             if (roleText != null)
@@ -527,32 +547,6 @@ public class CourseLoader: MonoBehaviour
                 StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
             }
         }
-        
-        // Add animation effect (fade in)
-        StartCoroutine(AnimatePanelEntry(panel, 0.3f));
-    }
-    
-    IEnumerator AnimatePanelEntry(GameObject panel, float duration)
-    {
-        // Add a Canvas Group if it doesn't exist
-        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-            canvasGroup = panel.AddComponent<CanvasGroup>();
-            
-        // Start transparent    
-        canvasGroup.alpha = 0f;
-        
-        // Fade in over duration
-        float startTime = Time.time;
-        while (Time.time < startTime + duration)
-        {
-            float normalizedTime = (Time.time - startTime) / duration;
-            canvasGroup.alpha = normalizedTime;
-            yield return null;
-        }
-        
-        // Ensure we end at full opacity
-        canvasGroup.alpha = 1f;
     }
 
     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
@@ -650,8 +644,8 @@ public class CourseLoader: MonoBehaviour
 
         if (detailPage != null)
         {
-            // Animate transition to detail page
-            StartCoroutine(TransitionToDetailPage(courseId));
+            // Direct transition to detail page without animation
+            ShowDetailPage(courseId);
         }
         else
         {
@@ -659,34 +653,13 @@ public class CourseLoader: MonoBehaviour
         }
     }
     
-    IEnumerator TransitionToDetailPage(string courseId)
+    private void ShowDetailPage(string courseId)
     {
-        // Fade out home page if using a canvas group
-        CanvasGroup homeCanvasGroup = homePage.GetComponent<CanvasGroup>();
-        if (homeCanvasGroup != null)
-        {
-            float duration = 0.3f;
-            float startTime = Time.time;
-            
-            while (Time.time < startTime + duration)
-            {
-                float normalizedTime = (Time.time - startTime) / duration;
-                homeCanvasGroup.alpha = 1 - normalizedTime;
-                yield return null;
-            }
-        }
-        
         // Show detail page
         detailPage.SetActive(true);
         
         // Hide home page
         homePage.SetActive(false);
-        
-        // Reset home page opacity if needed
-        if (homeCanvasGroup != null)
-        {
-            homeCanvasGroup.alpha = 1;
-        }
         
         // Load course details
         CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
@@ -753,28 +726,7 @@ public class CourseLoader: MonoBehaviour
     
     public void LoadVRScene()
     {
-        // Show loading indicator if you have one
-        StartCoroutine(LoadVRSceneWithTransition());
-    }
-    
-    IEnumerator LoadVRSceneWithTransition()
-    {
-        // Fade out current screen
-        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
-        if (canvasGroup != null)
-        {
-            float duration = 0.5f;
-            float startTime = Time.time;
-            
-            while (Time.time < startTime + duration)
-            {
-                float normalizedTime = (Time.time - startTime) / duration;
-                canvasGroup.alpha = 1 - normalizedTime;
-                yield return null;
-            }
-        }
-        
-        // Load VR scene
+        // Load VR scene directly without transition
         SceneManager.LoadScene("QRScanner1");
     }
 }
