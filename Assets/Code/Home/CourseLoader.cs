@@ -217,58 +217,58 @@ public class CourseLoader: MonoBehaviour
     }
 
   IEnumerator FetchUserData(string endpoint)
-{
-    using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
     {
-        Debug.Log($"🔑 Fetching User Data from: {request.url}");
-        
-        yield return request.SendWebRequest();
-        
-        Debug.Log($"User API Response status: {request.result}");
-
-        if (request.result != UnityWebRequest.Result.Success)
+        string authToken = PlayerPrefs.GetString("AuthToken", "");
+    
+        if (string.IsNullOrEmpty(authToken))
         {
-            Debug.LogError($"❌ User API Error: {request.error}");
-            Debug.LogError($"❌ Response Code: {request.responseCode}");
-            Debug.LogError($"❌ Response Data: {request.downloadHandler.text}");
+            Debug.LogError("❌ Auth token is missing! Cannot fetch user data.");
+            yield break;
         }
-        else
-        {
-            string jsonData = request.downloadHandler.text;
-            Debug.Log($"✅ User API Response: {jsonData}");
 
-            try
+        string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
+        Debug.Log($"🔑 Using Auth Token to Fetch User Data from: {fullUrl}");
+
+        using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
+        {
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Authorization", "Bearer " + authToken);
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.Log($"START FETCHING USER DATA");
-                ProcessUserData(jsonData);
+                Debug.LogError($"❌ User API Error: {request.error}");
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
-                Debug.LogError($"❌ Stack Trace: {e.StackTrace}");
+                string jsonData = request.downloadHandler.text;
+                Debug.Log($"✅ User API Response: {jsonData}");
+
+                try
+                {
+                    ProcessUserData(jsonData);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
+                }
             }
         }
     }
-}
 
-void ProcessUserData(string jsonData)
-{
-    try {
-        // Try using Newtonsoft.Json instead of JsonUtility for more reliable parsing
-        ApiResponse<UserProfileResult> response = JsonConvert.DeserializeObject<ApiResponse<UserProfileResult>>(jsonData);
+    void ProcessUserData(string jsonData)
+    {
+        ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
 
         if (response != null && response.result != null)
         {
             UserProfileResult user = response.result;
+            usernameText.text = user.username;
+            pointsText.text = $"{user.points} points";
             
-            // Safely update UI elements with null checks
-            if (usernameText != null)
-                usernameText.text = user.username;
-                
-            if (pointsText != null)
-                pointsText.text = $"{user.points} points";
-            
-            // Add new user information to UI with null checks
+            // Add new user information to UI
             if (roleText != null)
                 roleText.text = user.roleName ?? (user.role?.roleName ?? "Member");
                 
@@ -286,14 +286,13 @@ void ProcessUserData(string jsonData)
                     statusText.color = new Color(0.8f, 0.2f, 0.2f); // Red
             }
             
-            Debug.Log($"👤 User data processed successfully: {user.username}");
+            Debug.Log($"👤 User: {user.username}");
 
             // Save company.id to UserManager
             if (user.company != null && !string.IsNullOrEmpty(user.company.id))
             {
                 UserManager.CompanyId = user.company.id;
-                PlayerPrefs.SetString("CompanyId", user.company.id); // Also save to PlayerPrefs
-                Debug.Log($"🏢 Company ID set: {UserManager.CompanyId}");
+                Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
             }
         
             if (!string.IsNullOrEmpty(user.avatar))
@@ -303,25 +302,9 @@ void ProcessUserData(string jsonData)
         }
         else
         {
-            Debug.LogError("❌ User data or result is null.");
+            Debug.LogError("❌ Failed to parse user data.");
         }
     }
-    catch (Exception ex) {
-        Debug.LogError($"❌ JSON parsing error in ProcessUserData: {ex.Message}");
-        
-        // Try alternative parsing method as fallback
-        try {
-            var simpleObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonData);
-            Debug.Log("Attempting to parse raw response structure...");
-            foreach (var key in simpleObject.Keys) {
-                Debug.Log($"Key found in response: {key}");
-            }
-        }
-        catch (Exception) {
-            Debug.LogError("Failed to analyze response structure");
-        }
-    }
-}
 
     IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
