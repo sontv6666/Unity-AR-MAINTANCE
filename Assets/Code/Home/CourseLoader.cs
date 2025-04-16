@@ -117,7 +117,10 @@ public class CourseLoader: MonoBehaviour
     {
         // Reset to first page when filter changes
         currentPage = 1;
-        
+    
+        // Clear existing course panels immediately
+        ClearCourseList();
+    
         // Apply selected filter
         string endpoint = "";
         switch (index)
@@ -135,21 +138,38 @@ public class CourseLoader: MonoBehaviour
                 endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=type";
                 break;
         }
-        
+    
         StartCoroutine(FetchCourseData(endpoint));
     }
-    
+
     void OnMandatoryFilterChanged(bool isOn)
     {
+        // Clear existing course panels immediately
+        ClearCourseList();
+    
         // Apply mandatory filter
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
         if (isOn)
         {
             endpoint += "&mandatory=true";
         }
-        
+    
         StartCoroutine(FetchCourseData(endpoint));
     }
+
+// Add this helper method to clear course list
+    private void ClearCourseList()
+    {
+        // Show "no courses" text while loading
+        nocourseText.SetActive(true);
+    
+        // Clear all existing course panels
+        foreach (Transform child in contentParent)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    
     
     void OnNextPageClicked()
     {
@@ -196,59 +216,59 @@ public class CourseLoader: MonoBehaviour
         greetingText.text = greeting;
     }
 
-    IEnumerator FetchUserData(string endpoint)
+  IEnumerator FetchUserData(string endpoint)
+{
+    using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
     {
-        string authToken = PlayerPrefs.GetString("AuthToken", "");
-    
-        if (string.IsNullOrEmpty(authToken))
+        Debug.Log($"🔑 Fetching User Data from: {request.url}");
+        
+        yield return request.SendWebRequest();
+        
+        Debug.Log($"User API Response status: {request.result}");
+
+        if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("❌ Auth token is missing! Cannot fetch user data.");
-            yield break;
+            Debug.LogError($"❌ User API Error: {request.error}");
+            Debug.LogError($"❌ Response Code: {request.responseCode}");
+            Debug.LogError($"❌ Response Data: {request.downloadHandler.text}");
         }
-
-        string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
-        Debug.Log($"🔑 Using Auth Token to Fetch User Data from: {fullUrl}");
-
-        using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
+        else
         {
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Authorization", "Bearer " + authToken);
-            request.SetRequestHeader("Content-Type", "application/json");
+            string jsonData = request.downloadHandler.text;
+            Debug.Log($"✅ User API Response: {jsonData}");
 
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            try
             {
-                Debug.LogError($"❌ User API Error: {request.error}");
+                Debug.Log($"START FETCHING USER DATA");
+                ProcessUserData(jsonData);
             }
-            else
+            catch (Exception e)
             {
-                string jsonData = request.downloadHandler.text;
-                Debug.Log($"✅ User API Response: {jsonData}");
-
-                try
-                {
-                    ProcessUserData(jsonData);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
-                }
+                Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
+                Debug.LogError($"❌ Stack Trace: {e.StackTrace}");
             }
         }
     }
+}
 
-    void ProcessUserData(string jsonData)
-    {
-        ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
+void ProcessUserData(string jsonData)
+{
+    try {
+        // Try using Newtonsoft.Json instead of JsonUtility for more reliable parsing
+        ApiResponse<UserProfileResult> response = JsonConvert.DeserializeObject<ApiResponse<UserProfileResult>>(jsonData);
 
         if (response != null && response.result != null)
         {
             UserProfileResult user = response.result;
-            usernameText.text = user.username;
-            pointsText.text = $"{user.points} points";
             
-            // Add new user information to UI
+            // Safely update UI elements with null checks
+            if (usernameText != null)
+                usernameText.text = user.username;
+                
+            if (pointsText != null)
+                pointsText.text = $"{user.points} points";
+            
+            // Add new user information to UI with null checks
             if (roleText != null)
                 roleText.text = user.roleName ?? (user.role?.roleName ?? "Member");
                 
@@ -266,13 +286,14 @@ public class CourseLoader: MonoBehaviour
                     statusText.color = new Color(0.8f, 0.2f, 0.2f); // Red
             }
             
-            Debug.Log($"👤 User: {user.username}");
+            Debug.Log($"👤 User data processed successfully: {user.username}");
 
             // Save company.id to UserManager
             if (user.company != null && !string.IsNullOrEmpty(user.company.id))
             {
                 UserManager.CompanyId = user.company.id;
-                Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
+                PlayerPrefs.SetString("CompanyId", user.company.id); // Also save to PlayerPrefs
+                Debug.Log($"🏢 Company ID set: {UserManager.CompanyId}");
             }
         
             if (!string.IsNullOrEmpty(user.avatar))
@@ -282,9 +303,25 @@ public class CourseLoader: MonoBehaviour
         }
         else
         {
-            Debug.LogError("❌ Failed to parse user data.");
+            Debug.LogError("❌ User data or result is null.");
         }
     }
+    catch (Exception ex) {
+        Debug.LogError($"❌ JSON parsing error in ProcessUserData: {ex.Message}");
+        
+        // Try alternative parsing method as fallback
+        try {
+            var simpleObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonData);
+            Debug.Log("Attempting to parse raw response structure...");
+            foreach (var key in simpleObject.Keys) {
+                Debug.Log($"Key found in response: {key}");
+            }
+        }
+        catch (Exception) {
+            Debug.LogError("Failed to analyze response structure");
+        }
+    }
+}
 
     IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
@@ -527,32 +564,6 @@ public class CourseLoader: MonoBehaviour
                 StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
             }
         }
-        
-        // Add animation effect (fade in)
-        StartCoroutine(AnimatePanelEntry(panel, 0.3f));
-    }
-    
-    IEnumerator AnimatePanelEntry(GameObject panel, float duration)
-    {
-        // Add a Canvas Group if it doesn't exist
-        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-            canvasGroup = panel.AddComponent<CanvasGroup>();
-            
-        // Start transparent    
-        canvasGroup.alpha = 0f;
-        
-        // Fade in over duration
-        float startTime = Time.time;
-        while (Time.time < startTime + duration)
-        {
-            float normalizedTime = (Time.time - startTime) / duration;
-            canvasGroup.alpha = normalizedTime;
-            yield return null;
-        }
-        
-        // Ensure we end at full opacity
-        canvasGroup.alpha = 1f;
     }
 
     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
@@ -650,8 +661,8 @@ public class CourseLoader: MonoBehaviour
 
         if (detailPage != null)
         {
-            // Animate transition to detail page
-            StartCoroutine(TransitionToDetailPage(courseId));
+            // Direct transition to detail page without animation
+            ShowDetailPage(courseId);
         }
         else
         {
@@ -659,34 +670,13 @@ public class CourseLoader: MonoBehaviour
         }
     }
     
-    IEnumerator TransitionToDetailPage(string courseId)
+    private void ShowDetailPage(string courseId)
     {
-        // Fade out home page if using a canvas group
-        CanvasGroup homeCanvasGroup = homePage.GetComponent<CanvasGroup>();
-        if (homeCanvasGroup != null)
-        {
-            float duration = 0.3f;
-            float startTime = Time.time;
-            
-            while (Time.time < startTime + duration)
-            {
-                float normalizedTime = (Time.time - startTime) / duration;
-                homeCanvasGroup.alpha = 1 - normalizedTime;
-                yield return null;
-            }
-        }
-        
         // Show detail page
         detailPage.SetActive(true);
         
         // Hide home page
         homePage.SetActive(false);
-        
-        // Reset home page opacity if needed
-        if (homeCanvasGroup != null)
-        {
-            homeCanvasGroup.alpha = 1;
-        }
         
         // Load course details
         CourseDetailLoader courseDetailLoader = detailPage.GetComponent<CourseDetailLoader>();
@@ -753,28 +743,7 @@ public class CourseLoader: MonoBehaviour
     
     public void LoadVRScene()
     {
-        // Show loading indicator if you have one
-        StartCoroutine(LoadVRSceneWithTransition());
-    }
-    
-    IEnumerator LoadVRSceneWithTransition()
-    {
-        // Fade out current screen
-        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
-        if (canvasGroup != null)
-        {
-            float duration = 0.5f;
-            float startTime = Time.time;
-            
-            while (Time.time < startTime + duration)
-            {
-                float normalizedTime = (Time.time - startTime) / duration;
-                canvasGroup.alpha = 1 - normalizedTime;
-                yield return null;
-            }
-        }
-        
-        // Load VR scene
+        // Load VR scene directly without transition
         SceneManager.LoadScene("QRScanner1");
     }
 }
