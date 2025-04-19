@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Unity.Notifications.Android;
 #elif UNITY_IOS
 using Unity.Notifications.iOS;
+using UnityEngine.iOS;
+
 #endif
 
 // Firebase imports
@@ -398,7 +400,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
         var courseCategory = new iOSNotificationCategory("course_notifications", new List<iOSNotificationAction>());
         var maintenanceCategory = new iOSNotificationCategory("maintenance_alerts", new List<iOSNotificationAction>());
         var progressCategory = new iOSNotificationCategory("progress_updates", new List<iOSNotificationAction>());
-        
+    
         // Register notification categories
         iOSNotificationCenter.SetNotificationCategories(new List<iOSNotificationCategory>
         {
@@ -406,12 +408,10 @@ public class MaintenanceNotificationManager : MonoBehaviour
             maintenanceCategory,
             progressCategory
         });
-        
-        // Request authorization
-        iOSNotificationCenter.RequestAuthorization(
-            AuthorizationOption.Alert | 
-            AuthorizationOption.Badge | 
-            AuthorizationOption.Sound);
+    
+        // The authorization will be requested automatically when scheduling the first notification
+        // No need for explicit RequestAuthorization call
+        Debug.Log("iOS notification categories registered. Authorization will be requested when first notification is scheduled.");
 #endif
         Debug.Log("📱 Notification system initialized");
     }

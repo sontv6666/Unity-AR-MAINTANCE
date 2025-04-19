@@ -6,13 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="save">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRSceneManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRSceneManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2 1.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2 1.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/Vector.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/Vector.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/cbackground.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/cbackground.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/machinebackground.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/machinebackground.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/UI/studylogo.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/UI/studylogo.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainApp2.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,32 +58,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Attach to Unity Editor.Attach to Unity Editor &amp; Play.executor&quot;: &quot;Debug&quot;,
-    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Standalone Player.Start Unity.executor&quot;: &quot;Run&quot;,
-    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.6744548&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Mergecode&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.environmentSetup&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
+    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Standalone Player.Start Unity.executor": "Run",
+    "XThreadsFramesViewSplitterKey": "0.6744548",
+    "git-widget-placeholder": "production",
+    "last_opened_file_path": "/Users/hucun/Downloads/FPTU/2024_Semester9_SPRING/DoAn/Unity-AR-MAINTANCE",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.environmentSetup",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache&quot;,
-      &quot;C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache&quot;,
-      &quot;C:\\Users\\Admin\\AppData\\Local\\Symbols\\src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache",
+      "C:\\Users\\Admin\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache",
+      "C:\\Users\\Admin\\AppData\\Local\\Symbols\\src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="$PROJECT_DIR$/../../TEST-AL\ArMaintance.exe" />
@@ -114,6 +114,9 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -124,6 +127,9 @@
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
       <option name="selectedOptions">
         <list />
       </option>
