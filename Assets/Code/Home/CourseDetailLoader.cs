@@ -311,7 +311,7 @@ namespace Code
             if (companyIdText != null) 
                 companyIdText.text = $"<b>Company ID:</b> {course.companyId}";
             
-            // Load course image with fade-in effect
+            // Load course image without fade-in effect
             if (!string.IsNullOrEmpty(course.imageUrl))
             {
                 StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl));
@@ -323,18 +323,10 @@ namespace Code
                 StartCoroutine(FetchMachineTypeDetails(course.machineTypeId));
             }
             
-            // Show the detail page
+            // Show the detail page immediately without animation
             if (detailPage != null)
             {
                 detailPage.SetActive(true);
-                
-                // Apply animation effect: fade in
-                CanvasGroup canvasGroup = detailPage.GetComponent<CanvasGroup>();
-                if (canvasGroup == null)
-                {
-                    canvasGroup = detailPage.AddComponent<CanvasGroup>();
-                }
-                StartCoroutine(FadeIn(canvasGroup, 0.5f));
             }
 
             // Setup AR button
@@ -351,21 +343,6 @@ namespace Code
             {
                 Debug.LogError("❌ AR Button not found!");
             }
-        }
-
-        private IEnumerator FadeIn(CanvasGroup canvasGroup, float duration)
-        {
-            canvasGroup.alpha = 0f;
-            
-            float startTime = Time.time;
-            while (Time.time < startTime + duration)
-            {
-                float t = (Time.time - startTime) / duration;
-                canvasGroup.alpha = Mathf.Lerp(0f, 1f, t);
-                yield return null;
-            }
-            
-            canvasGroup.alpha = 1f;
         }
 
         private IEnumerator DownloadAndLoadCourseImage(string imageUrl)
@@ -651,24 +628,9 @@ namespace Code
                 fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
                 fitter.aspectRatio = (float)texture.width / texture.height;
                 
-                // Add fade-in effect
-                StartCoroutine(FadeInImage(courseImage, 0.5f));
+                // Set image to fully visible immediately
+                courseImage.color = Color.white;
             }
-        }
-        
-        private IEnumerator FadeInImage(Image image, float duration)
-        {
-            image.color = new Color(1f, 1f, 1f, 0f);
-            
-            float startTime = Time.time;
-            while (Time.time < startTime + duration)
-            {
-                float t = (Time.time - startTime) / duration;
-                image.color = new Color(1f, 1f, 1f, Mathf.Lerp(0f, 1f, t));
-                yield return null;
-            }
-            
-            image.color = new Color(1f, 1f, 1f, 1f);
         }
         
         public void OnClickLoadARScene(string courseId)
@@ -795,48 +757,21 @@ namespace Code
         {
             Debug.Log("🔙 Hiding Course Detail Page and returning to Home...");
 
-            // Add animation for smoother transition
+            // Instantly hide detail page without animation
             if (detailPage != null)
             {
-                StartCoroutine(FadeOutAndHide(detailPage, 0.3f));
+                detailPage.SetActive(false);
             }
 
+            // Instantly show home page without animation
             if (homePage != null)
             {
                 homePage.SetActive(true);
-                
-                // Fade in the home page
-                CanvasGroup homeCanvasGroup = homePage.GetComponent<CanvasGroup>();
-                if (homeCanvasGroup == null)
-                {
-                    homeCanvasGroup = homePage.AddComponent<CanvasGroup>();
-                }
-                StartCoroutine(FadeIn(homeCanvasGroup, 0.3f));
             }
             else
             {
                 Debug.LogWarning("⚠️ HomePage reference is missing! Make sure to assign it.");
             }
-        }
-        
-        private IEnumerator FadeOutAndHide(GameObject obj, float duration)
-        {
-            CanvasGroup canvasGroup = obj.GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-            {
-                canvasGroup = obj.AddComponent<CanvasGroup>();
-            }
-            
-            float startTime = Time.time;
-            while (Time.time < startTime + duration)
-            {
-                float t = (Time.time - startTime) / duration;
-                canvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
-                yield return null;
-            }
-            
-            canvasGroup.alpha = 0f;
-            obj.SetActive(false);
         }
     }
 }
