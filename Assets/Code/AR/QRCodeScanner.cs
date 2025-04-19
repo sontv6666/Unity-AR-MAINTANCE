@@ -208,10 +208,10 @@ public class QRCodeScanner : MonoBehaviour
         overlayUI.gameObject.SetActive(false);
      
         // scan
-      StartScanning();
-     
-     
-   // StartCoroutine(FetchMachineData(testqrCode1, testqrCode2, courseID));
+    StartScanning();
+
+
+     //StartCoroutine(FetchMachineData("New", courseID));
     }
 
 
@@ -375,16 +375,10 @@ void TryScanQRCode()
 
             UpdateUIText("Scanning...", "QR: ");
 
-            string[] values = result.Text.Split('@');
-            if (values.Length != 2)
-            {
-                Debug.LogError("❌ QR Code format invalid. Expected format: 'value1 @ value2'");
-                UpdateUIText("Invalid QR Code format!", "");
-                Invoke(nameof(ResetScanning), 3f);
-                return;
-            }
+         
             // Get the machine code from QR (now it's just a single value)
             string machineCode = result.Text.Trim();
+          
             // string firstValue = values[0].Trim();  // First value (Machine)
             // string secondValue = values[1].Trim(); // Second value (Course)
             ShowLoadingUI("Processing QR Code...");
