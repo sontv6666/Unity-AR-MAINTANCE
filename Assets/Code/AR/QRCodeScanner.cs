@@ -400,9 +400,20 @@ void TryScanQRCode()
  IEnumerator FetchMachineData(string machineCode, string guidelineId)
     {
         currentMachineCode = machineCode; 
-        
+    
+        // Get company ID from PlayerPrefs
+        string companyId = PlayerPrefs.GetString("CompanyId", "");
+    
+        if (string.IsNullOrEmpty(companyId))
+        {
+            Debug.LogError("❌ Company ID is missing! User might need to log in again.");
+            APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
+            Invoke(nameof(ResetScanning), 3f);
+            yield break;
+        }
+    
         // Updated endpoint to include company ID
-        string endpoint = $"/machine/code/{machineCode}/guideline/{guidelineId}";
+        string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
         request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
 
