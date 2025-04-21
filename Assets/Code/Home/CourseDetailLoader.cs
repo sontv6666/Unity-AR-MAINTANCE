@@ -144,8 +144,7 @@ namespace Code
                     TMP_Text btnText = ARButton.GetComponentInChildren<TMP_Text>();
                     if (btnText != null)
                     {
-                        btnText.fontSize = 18;
-                        btnText.fontStyle = FontStyles.Bold;
+                        btnText.fontSize = 16;
                         btnText.color = Color.white;
                     }
                 }
