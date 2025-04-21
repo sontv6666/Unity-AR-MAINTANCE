@@ -4,14 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="SAVE">
+    <list default="true" id="7b5b480d-9a49-4aec-85e8-ea64d607a72b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_2.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_4_16_2025_4_36_AM__Changes_3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/shelf/Uncommitted_changes_before_Checkout_at_5_4_25__17_50__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Unity-AR-MAINTANCE/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Code/AR/QRCodeScanner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Resources/Fonts/Lato/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/Lato-Regular SDF.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +59,8 @@
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Code/AR/QRSceneManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Home/SearchCourseLoader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Code/Notification/NotificationManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/Fonts/Lato/Lato-Bold SDF.asset" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Resources/UI/cbackground.png.meta" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/Scenes/ARVRScanner.unity" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/ArMaintance/TEST-AL/Unity-AR-MAINTANCE/Assets/TextMesh Pro/Fonts/Lato-Regular SDF.asset" root0="SKIP_HIGHLIGHTING" />
@@ -182,23 +186,7 @@
       <workItem from="1744282936851" duration="1861000" />
       <workItem from="1744754917429" duration="12922000" />
       <workItem from="1745046384573" duration="9003000" />
-      <workItem from="1745221902765" duration="3817000" />
-    </task>
-    <task id="LOCAL-00015" summary="fetch point s fro user">
-      <option name="closed" value="true" />
-      <created>1743358671335</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1743358671335</updated>
-    </task>
-    <task id="LOCAL-00016" summary="add search page">
-      <option name="closed" value="true" />
-      <created>1743360313475</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1743360313475</updated>
+      <workItem from="1745221902765" duration="5664000" />
     </task>
     <task id="LOCAL-00017" summary="add paging">
       <option name="closed" value="true" />
@@ -576,7 +564,23 @@
       <option name="project" value="LOCAL" />
       <updated>1745225634045</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="sVE">
+      <option name="closed" value="true" />
+      <created>1745225790631</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1745225790631</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Update UI">
+      <option name="closed" value="true" />
+      <created>1745227800884</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1745227800884</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -603,7 +607,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix" />
     <MESSAGE value="add joystick and moving model" />
     <MESSAGE value="handle" />
     <MESSAGE value="get original image" />
@@ -621,14 +624,15 @@
     <MESSAGE value="ADD GOOOGLE SERVICE4" />
     <MESSAGE value="Change qr code method" />
     <MESSAGE value="Update home ui" />
-    <MESSAGE value="Update UI" />
     <MESSAGE value="Remove animation" />
     <MESSAGE value="Save" />
     <MESSAGE value="save" />
     <MESSAGE value="Scan logic updated" />
     <MESSAGE value="Update UI, FINALLY I CAN PUSH FUCK MAIN" />
     <MESSAGE value="SAVE" />
-    <option name="LAST_COMMIT_MESSAGE" value="SAVE" />
+    <MESSAGE value="sVE" />
+    <MESSAGE value="Update UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update UI" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
