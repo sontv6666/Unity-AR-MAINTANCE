@@ -401,7 +401,6 @@ void TryScanQRCode()
         if (string.IsNullOrEmpty(companyId))
         {
             Debug.LogError("❌ Company ID is missing! User might need to log in again.");
-            APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
             Invoke(nameof(ResetScanning), 3f);
             yield break;
         }
@@ -2662,7 +2661,7 @@ IEnumerator ForceMeshTransformReset(GameObject firstModel)
 
 
 
-        void ResetScanning()
+       public void ResetScanning()
         {
             isScanning = true;
             ShowScanUI();

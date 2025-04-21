@@ -37,7 +37,7 @@ public class CourseLoader: MonoBehaviour
     public Button prevPageButton; // New: Previous page button
     public TMP_Text pageInfoText; // New: Shows current page/total pages
     private int currentPage = 1;
-    private int pageSize = 4;
+    private int pageSize = 3;
     
     [Header("Dashboard Stats")]
     public TMP_Text totalCoursesText; // New: Show total available courses
