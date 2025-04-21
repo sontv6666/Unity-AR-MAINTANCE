@@ -172,7 +172,7 @@ public class QRCodeScanner : MonoBehaviour
         // Only scan at specified intervals when isScanning is true
         if (isScanning && Time.time - lastScanTime > scanInterval)
         {
-            lastScanTime = Time.time;
+            lastScanTime = Time.time; 
             TryScanQRCode();
         }
     }
@@ -208,10 +208,10 @@ public class QRCodeScanner : MonoBehaviour
         overlayUI.gameObject.SetActive(false);
      
         // scan
-    StartScanning();
+        StartScanning();
 
 
-     //StartCoroutine(FetchMachineData("New", courseID));
+       // StartCoroutine(FetchMachineData("New", courseID));
     }
 
 
@@ -426,11 +426,10 @@ void TryScanQRCode()
             {
                 MachineResponse machine = response.result;
             
-                // 🔹 Send data to UI
-                APIRealTime.Instance.UpdateMachineUI(machine);
+               
                 
                 // Now check if machine belongs to guideline
-                StartCoroutine(CheckMachineBelongsToGuideline(machineCode, guidelineId));
+                StartCoroutine(CheckMachineBelongsToGuideline(machine,machineCode, guidelineId));
             }
             else
             {
@@ -448,7 +447,7 @@ void TryScanQRCode()
     }
 
  // New method to check if a machine belongs to a guideline
-    IEnumerator CheckMachineBelongsToGuideline(string machineCode, string guidelineId)
+    IEnumerator CheckMachineBelongsToGuideline(MachineResponse machine,string machineCode, string guidelineId)
     {
         // New API endpoint to check if machine belongs to guideline
         string endpoint = $"/machine/code/{machineCode}/guideline/{guidelineId}";
@@ -464,6 +463,9 @@ void TryScanQRCode()
             string jsonResponse = request.downloadHandler.text;
             Debug.Log($"✅ Machine-Guideline Check Response: {jsonResponse}");
 
+            // 🔹 Send data to UI
+            APIRealTime.Instance.UpdateMachineUI(machine);
+            
             // Parse the response to get the boolean result
             var response = JsonConvert.DeserializeObject<ApiResponse<bool>>(jsonResponse);
             
@@ -853,8 +855,7 @@ void TryScanQRCode()
 
             // ✅ Apply correct scale
             loadedModel.transform.localScale = scale;
-            Debug.Log(
-                $"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
+            Debug.Log($"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
             
             overlayUI.gameObject.SetActive(false);
 
@@ -914,7 +915,7 @@ void TryScanQRCode()
                     }
                 }
             }
-            overlayUI.SetActive(true);
+            overlayUI.SetActive(false);
             // ✅ Load UI with local images
             Debug.Log($"Load UI: {course.title} with {imagePaths.Count} images");
             LoadUI(course, imagePaths);
