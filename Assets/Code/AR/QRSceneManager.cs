@@ -104,7 +104,7 @@ public class QRSceneManager : MonoBehaviour
         
         // Set initial status text
         if (statusText != null)
-            statusText.text = "📷 Scan a QR Code";
+            statusText.text = "Scan a QR Code";
     }
 
     void Update()
@@ -144,16 +144,9 @@ public class QRSceneManager : MonoBehaviour
             {
                 isScanning = false;
                 scanBoxUI?.SetActive(false);
+                
 
-                string[] values = result.Text.Split('@');
-                if (values.Length < 1 || string.IsNullOrWhiteSpace(values[0]))
-                {
-                    UpdateUIText("Invalid QR Format!", "");
-                    Invoke(nameof(ResetScanning), 2f);
-                    return;
-                }
-
-                string machineCode = values[0].Trim();
+                string machineCode = result.Text;
                 currentMachineCode = machineCode;
                 qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
                 qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
