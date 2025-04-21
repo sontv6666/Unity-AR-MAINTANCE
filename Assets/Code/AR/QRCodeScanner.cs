@@ -172,8 +172,8 @@ public class QRCodeScanner : MonoBehaviour
         // Only scan at specified intervals when isScanning is true
         if (isScanning && Time.time - lastScanTime > scanInterval)
         {
-            lastScanTime = Time.time;
-        //    TryScanQRCode();
+            lastScanTime = Time.time; 
+            TryScanQRCode();
         }
     }
 
@@ -198,8 +198,8 @@ public class QRCodeScanner : MonoBehaviour
 
         // ✅ Hide loading and show scan UI
         loadingUIPanel.SetActive(false);
-        scanUIPanel.SetActive(false); //true
-        scanBoxUI.SetActive(false); //true
+        scanUIPanel.SetActive(true); //true
+        scanBoxUI.SetActive(true); //true
         courseUIPanel.SetActive(false); 
         centerModelButton.gameObject.SetActive(false);
         JoyStick.gameObject.SetActive(false);
@@ -208,10 +208,10 @@ public class QRCodeScanner : MonoBehaviour
         overlayUI.gameObject.SetActive(false);
      
         // scan
-        //StartScanning();
+        StartScanning();
 
 
-        StartCoroutine(FetchMachineData("New", courseID));
+       // StartCoroutine(FetchMachineData("New", courseID));
     }
 
 
