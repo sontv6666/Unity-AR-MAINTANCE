@@ -297,7 +297,7 @@ public class APIRealTime : MonoBehaviour
         DisplayMachineTypeValues(machine);
         
         // Make sure panel is visible
-        ShowPanel();
+        //ShowPanel();
         
         // Store API headers for potential real-time data fetch later
         if (machine.headerResponses != null && machine.headerResponses.Count > 0)
