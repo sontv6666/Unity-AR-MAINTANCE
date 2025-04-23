@@ -18,24 +18,62 @@ public class SearchCourseLoader : MonoBehaviour
     public GameObject nocourseText;
     public GameObject searchPage;
     public GameObject detailPage;
-
-    private string searchApiTemplate = "/course/company/{0}?title={1}&status=ACTIVE";
+    
+    [Header("Pagination Controls")]
+    public Button nextPageButton; // Next page button
+    public Button prevPageButton; // Previous page button
+    public TMP_Text pageInfoText; // Shows current page/total pages
+    private int currentPage = 1;
+    private int pageSize = 3;
+    
+    private string currentSearchQuery = "";
+    private string searchApiTemplate = "/course/company/{0}?title={1}&page={2}&size={3}&status=ACTIVE";
 
     void Start()
     {
-        searchButton.onClick.AddListener(() => StartCoroutine(SearchCourse(searchInput.text)));
+        searchButton.onClick.AddListener(() => {
+            currentPage = 1; // Reset to first page on new search
+            currentSearchQuery = searchInput.text;
+            StartCoroutine(SearchCourse(currentSearchQuery, currentPage));
+        });
+        
+        // Setup pagination buttons
+        if (nextPageButton != null)
+        {
+            nextPageButton.onClick.AddListener(OnNextPageClicked);
+        }
+        
+        if (prevPageButton != null)
+        {
+            prevPageButton.onClick.AddListener(OnPrevPageClicked);
+        }
         
         // 🔄 Auto-load all courses when entering the page
-        StartCoroutine(SearchCourse(""));
+        StartCoroutine(SearchCourse("", currentPage));
+    }
+    
+    void OnNextPageClicked()
+    {
+        currentPage++;
+        StartCoroutine(SearchCourse(currentSearchQuery, currentPage));
+    }
+    
+    void OnPrevPageClicked()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            StartCoroutine(SearchCourse(currentSearchQuery, currentPage));
+        }
     }
     
     public void ReloadSearchResults()
     {
-        StartCoroutine(SearchCourse("")); // Calls private method to reload all courses
+        currentPage = 1; // Reset to first page
+        StartCoroutine(SearchCourse(currentSearchQuery, currentPage)); // Reload with current search query
     }
 
-
-    IEnumerator SearchCourse(string title)
+    IEnumerator SearchCourse(string title, int page)
     {
         if (string.IsNullOrEmpty(UserManager.CompanyId))
         {
@@ -43,10 +81,9 @@ public class SearchCourseLoader : MonoBehaviour
             yield break;
         }
 
-    
         // If title is empty, fetch ALL courses
         string searchQuery = string.IsNullOrEmpty(title) ? "" : title;
-        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, searchQuery);
+        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, searchQuery, page, pageSize);
         string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
 
         Debug.Log($"📡 Fetching courses from: {fullUrl}");
@@ -62,6 +99,7 @@ public class SearchCourseLoader : MonoBehaviour
             {
                 Debug.LogError($"❌ API Error: {request.error}");
                 nocourseText.SetActive(true);
+                UpdatePaginationInfo(0, 0, 0); // Reset pagination UI
             }
             else
             {
@@ -72,34 +110,30 @@ public class SearchCourseLoader : MonoBehaviour
         }
     }
 
-
     void ProcessSearchResults(string jsonData)
     {
         try
         {
             var response = JsonConvert.DeserializeObject<ApiResponse<PaginationResult<CourseResult>>>(jsonData);
 
-            // ✅ Clear previous results before checking for new ones
+            // Clear previous results before checking for new ones
             foreach (Transform child in contentParent)
             {
                 Destroy(child.gameObject);
             }
-            
             
             if (response == null || response.code != 1000 || response.result == null || response.result.objectList.Count == 0)
             {
                 Debug.LogError("❌ No courses found!");
                 nocourseText.SetActive(true);
+                UpdatePaginationInfo(0, 0, 0); // Reset pagination UI
                 return;
             }
 
-            // Clear previous results BEFORE adding new ones
-            foreach (Transform child in contentParent)
-            {
-                Destroy(child.gameObject);
-            }
-
             nocourseText.SetActive(false);
+
+            // Update pagination controls
+            UpdatePaginationInfo(response.result.page, response.result.totalPages, response.result.totalItems);
 
             foreach (var course in response.result.objectList)
             {
@@ -111,12 +145,30 @@ public class SearchCourseLoader : MonoBehaviour
             Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
         }
     }
-
+    
+    void UpdatePaginationInfo(int currentPage, int totalPages, int totalItems)
+    {
+        // Update page info text
+        if (pageInfoText != null)
+        {
+            pageInfoText.text = $"Page {currentPage} of {totalPages}";
+        }
+        
+        // Enable/disable pagination buttons
+        if (prevPageButton != null)
+        {
+            prevPageButton.interactable = (currentPage > 1);
+        }
+        
+        if (nextPageButton != null)
+        {
+            nextPageButton.interactable = (currentPage < totalPages);
+        }
+    }
 
     void CreateCoursePanel(CourseResult course)
     {
         Debug.Log($"📌 Displaying course: {course.title}");
-        
 
         GameObject panel = Instantiate(coursePanelPrefab, contentParent);
 
@@ -174,7 +226,6 @@ public class SearchCourseLoader : MonoBehaviour
             Debug.LogError("❌ CourseDetailLoader component is missing on DetailPage!");
         }
     }
-
 
     IEnumerator DownloadAndLoadCourseImage(string imageUrl, Image imageComponent)
     {

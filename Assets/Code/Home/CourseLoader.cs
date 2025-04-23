@@ -427,8 +427,9 @@ public class CourseLoader: MonoBehaviour
         // Update page info text
         if (pageInfoText != null)
         {
-            pageInfoText.text = $"Page {currentPage} of {totalPages} ({totalItems} courses)";
+            pageInfoText.text = $"Page {currentPage} of {totalPages} ";
         }
+       // ({totalItems} guidelines)
         
         // Enable/disable pagination buttons
         if (prevPageButton != null)
@@ -447,7 +448,7 @@ public class CourseLoader: MonoBehaviour
         // Update total courses text
         if (totalCoursesText != null)
         {
-            totalCoursesText.text = $"Total Courses: {data.totalItems}";
+            totalCoursesText.text = $"Total Guidelines: {data.totalItems}";
         }
         
         // Count course types
