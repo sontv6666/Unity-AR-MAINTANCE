@@ -54,6 +54,11 @@ public class CourseLoader: MonoBehaviour
     
     // Flag to track if initialization is complete
     private bool isInitialized = false;
+    
+    // Track pending requests to retry when network is restored
+    private bool isPendingUserDataRequest = false;
+    private bool isPendingCourseDataRequest = false;
+    private string pendingCourseEndpoint = "";
 
     void Awake()
     {
@@ -70,11 +75,47 @@ public class CourseLoader: MonoBehaviour
         // Set up filtering controls (dropdown, toggle buttons)
         SetupFilteringControls();
         
+        // Subscribe to network events
+        NetworkAwareAPIHandler.Instance.OnNetworkRestored += HandleNetworkRestored;
+        
         // Check authentication status
         CheckAuthenticationStatus();
     }
     
- 
+    void OnDestroy()
+    {
+        // Unsubscribe from network events
+        if (NetworkAwareAPIHandler.Instance != null)
+        {
+            NetworkAwareAPIHandler.Instance.OnNetworkRestored -= HandleNetworkRestored;
+        }
+        
+        // Unregister from user events
+        EventManager.StopListening("UserLoggedIn", OnUserLoggedIn);
+        EventManager.StopListening("UserLoggedOut", OnUserLoggedOut);
+    }
+    
+    // Handle network restoration
+    private void HandleNetworkRestored()
+    {
+        Debug.Log("📶 Network connection restored, retrying pending requests");
+        
+        // Retry pending user data request
+        if (isPendingUserDataRequest && !string.IsNullOrEmpty(UserManager.UserId))
+        {
+            string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
+            FetchUserData(userEndpointFormatted);
+            isPendingUserDataRequest = false;
+        }
+        
+        // Retry pending course data request
+        if (isPendingCourseDataRequest && !string.IsNullOrEmpty(pendingCourseEndpoint))
+        {
+            FetchCourseData(pendingCourseEndpoint);
+            isPendingCourseDataRequest = false;
+            pendingCourseEndpoint = "";
+        }
+    }
     
     private void CheckAuthenticationStatus()
     {
@@ -121,7 +162,7 @@ public class CourseLoader: MonoBehaviour
             
         // Fetch user profile first
         string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
-        StartCoroutine(FetchUserData(userEndpointFormatted));
+        FetchUserData(userEndpointFormatted);
             
         // Wait for CompanyId before fetching courses
         StartCoroutine(WaitForCompanyIdAndFetchCourses());
@@ -134,13 +175,6 @@ public class CourseLoader: MonoBehaviour
         // Register for events
         EventManager.StartListening("UserLoggedIn", OnUserLoggedIn);
         EventManager.StartListening("UserLoggedOut", OnUserLoggedOut);
-    }
-    
-    void OnDisable()
-    {
-        // Unregister from events
-        EventManager.StopListening("UserLoggedIn", OnUserLoggedIn);
-        EventManager.StopListening("UserLoggedOut", OnUserLoggedOut);
     }
     
     // Called when a user logs in
@@ -279,7 +313,7 @@ public class CourseLoader: MonoBehaviour
                 break;
         }
     
-        StartCoroutine(FetchCourseData(endpoint));
+        FetchCourseData(endpoint);
     }
 
     void OnMandatoryFilterChanged(bool isOn)
@@ -294,7 +328,7 @@ public class CourseLoader: MonoBehaviour
             endpoint += "&mandatory=true";
         }
     
-        StartCoroutine(FetchCourseData(endpoint));
+        FetchCourseData(endpoint);
     }
 
     // Add this helper method to clear course list
@@ -317,7 +351,7 @@ public class CourseLoader: MonoBehaviour
     {
         currentPage++;
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
-        StartCoroutine(FetchCourseData(endpoint));
+        FetchCourseData(endpoint);
     }
     
     void OnPrevPageClicked()
@@ -326,7 +360,7 @@ public class CourseLoader: MonoBehaviour
         {
             currentPage--;
             string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
-            StartCoroutine(FetchCourseData(endpoint));
+            FetchCourseData(endpoint);
         }
     }
     
@@ -357,7 +391,7 @@ public class CourseLoader: MonoBehaviour
 
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
         Debug.Log($"📡 Fetching courses for Company ID: {UserManager.CompanyId}");
-        StartCoroutine(FetchCourseData(endpoint));
+        FetchCourseData(endpoint);
     }
     
     void SetGreetingMessage()
@@ -376,64 +410,76 @@ public class CourseLoader: MonoBehaviour
 
         greetingText.text = greeting;
     }
-
-    IEnumerator FetchUserData(string endpoint)
+    
+    private void FetchUserData(string endpoint)
     {
         string authToken = PlayerPrefs.GetString("AuthToken", "");
 
         if (string.IsNullOrEmpty(authToken))
         {
             Debug.LogError("❌ Auth token is missing! Cannot fetch user data.");
-            yield break;
+            return;
         }
 
         string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
         Debug.Log($"🔑 Using Auth Token to Fetch User Data from: {fullUrl}");
 
-        using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
-        {
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Authorization", "Bearer " + authToken);
-            request.SetRequestHeader("Content-Type", "application/json");
+        UnityWebRequest request = UnityWebRequest.Get(fullUrl);
+        request.SetRequestHeader("Authorization", "Bearer " + authToken);
+        request.SetRequestHeader("Content-Type", "application/json");
 
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError($"❌ User API Error: {request.error}");
-            
-                // Check if unauthorized (401)
-                if (request.responseCode == 401)
-                {
-                    Debug.Log("🔒 Auth token expired or invalid. Logging out...");
-                
-                    // Clear cached credentials and show login page
-                    PlayerPrefs.DeleteKey("UserId");
-                    PlayerPrefs.DeleteKey("AuthToken");
-                    PlayerPrefs.Save();
-                
-                    // Fire logout event to notify other components
-                    EventManager.TriggerEvent("UserLoggedOut");
-                }
-            }
-            else
-            {
-                string jsonData = request.downloadHandler.text;
-                Debug.Log($"✅ User API Response: {jsonData}");
-
-                try
-                {
-                    ProcessUserData(jsonData);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
-                }
-            }
+        // Use NetworkAwareAPIHandler to handle the request
+        StartCoroutine(NetworkAwareAPIHandler.Instance.SendAPIRequest(
+            request,
+            OnUserDataSuccess,
+            OnUserDataFailure
+        ));
         
-            request.Dispose(); // Clean up resources
+        // Mark that we have a pending request
+        isPendingUserDataRequest = true;
+    }
+    
+    private void OnUserDataSuccess(UnityWebRequest request)
+    {
+        // Request succeeded
+        isPendingUserDataRequest = false;
+        string jsonData = request.downloadHandler.text;
+        Debug.Log($"✅ User API Response: {jsonData}");
+
+        try
+        {
+            ProcessUserData(jsonData);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
         }
     }
+    
+    private void OnUserDataFailure(string errorMessage)
+    {
+        // Request failed
+        Debug.LogError($"❌ User Data Error: {errorMessage}");
+        
+        // Check for authentication errors in the error message
+        if (errorMessage.Contains("401") || errorMessage.Contains("Unauthorized"))
+        {
+            Debug.Log("🔒 Auth token expired or invalid. Logging out...");
+            
+            // Clear cached credentials and show login page
+            PlayerPrefs.DeleteKey("UserId");
+            PlayerPrefs.DeleteKey("AuthToken");
+            PlayerPrefs.Save();
+            
+            // Fire logout event to notify other components
+            EventManager.TriggerEvent("UserLoggedOut");
+            
+            // Clear the pending flag since we're logging out
+            isPendingUserDataRequest = false;
+        }
+        // Keep isPendingUserDataRequest true if it's a network error so it can be retried
+    }
+
     void ProcessUserData(string jsonData)
     {
         ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
@@ -510,7 +556,8 @@ public class CourseLoader: MonoBehaviour
         }
     }
 
-    IEnumerator DownloadAndLoadProfileImage(string imageUrl)
+    // USING NETWORK AWARE API HANDLER
+    private IEnumerator DownloadAndLoadProfileImage(string imageUrl)
     {
         if (string.IsNullOrEmpty(imageUrl))
         {
@@ -566,45 +613,63 @@ public class CourseLoader: MonoBehaviour
         }
         
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
-        StartCoroutine(FetchCourseData(endpoint));
+        FetchCourseData(endpoint);
     }
     
-    IEnumerator FetchCourseData(string endpoint)
+    // USING NETWORK AWARE API HANDLER
+    private void FetchCourseData(string endpoint)
     {
         Debug.Log("CourseLoader: Sending request to API.");
-        using (UnityWebRequest request = ApiConfig.CreateRequest(endpoint))
+        UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
+        
+        // Store endpoint for potential retries
+        pendingCourseEndpoint = endpoint;
+        
+        // Use NetworkAwareAPIHandler to handle the request
+        StartCoroutine(NetworkAwareAPIHandler.Instance.SendAPIRequest(
+            request,
+            OnCourseDataSuccess,
+            OnCourseDataFailure
+        ));
+        
+        // Mark that we have a pending request
+        isPendingCourseDataRequest = true;
+    }
+    
+    private void OnCourseDataSuccess(UnityWebRequest request)
+    {
+        // Request succeeded
+        isPendingCourseDataRequest = false;
+        pendingCourseEndpoint = "";
+        
+        string jsonData = request.downloadHandler.text;
+        Debug.Log($"API Response: {jsonData}");
+
+        ProcessCourseData(jsonData);
+    }
+    
+    private void OnCourseDataFailure(string errorMessage)
+    {
+        Debug.LogError($"❌ Course Data Error: {errorMessage}");
+        
+        // Check for authentication errors
+        if (errorMessage.Contains("401") || errorMessage.Contains("Unauthorized"))
         {
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError ||
-                request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError($"API Error: {request.error}");
-                
-                // Check if unauthorized (401)
-                if (request.responseCode == 401)
-                {
-                    Debug.Log("🔒 Auth token expired or invalid. Logging out...");
-                    
-                    // Clear cached credentials and show login page
-                    PlayerPrefs.DeleteKey("UserId");
-                    PlayerPrefs.DeleteKey("AuthToken");
-                    PlayerPrefs.Save();
-                    
-                    // Fire logout event to notify other components
-                    EventManager.TriggerEvent("UserLoggedOut");
-                }
-            }
-            else
-            {
-                string jsonData = request.downloadHandler.text;
-                Debug.Log($"API Response: {jsonData}");
-
-                ProcessCourseData(jsonData);
-            }
+            Debug.Log("🔒 Auth token expired or invalid. Logging out...");
             
-            request.Dispose(); // Clean up resources
+            // Clear cached credentials and show login page
+            PlayerPrefs.DeleteKey("UserId");
+            PlayerPrefs.DeleteKey("AuthToken");
+            PlayerPrefs.Save();
+            
+            // Fire logout event to notify other components
+            EventManager.TriggerEvent("UserLoggedOut");
+            
+            // Clear the pending flag since we're logging out
+            isPendingCourseDataRequest = false;
+            pendingCourseEndpoint = "";
         }
+        // Keep isPendingCourseDataRequest true if it's a network error so it can be retried
     }
 
     void ProcessCourseData(string jsonData)
@@ -802,7 +867,6 @@ public class CourseLoader: MonoBehaviour
         {
             courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
         }
-
         if (!string.IsNullOrEmpty(course.imageUrl))
         {
             Image imageComponent = panel.transform.Find("courseImage_background/course_image")?.GetComponent<Image>();
@@ -988,7 +1052,6 @@ public class CourseLoader: MonoBehaviour
             }
         }
     }
-    // Add this to CourseLoader class
     public void ReloadUserData()
     {
         string userId = PlayerPrefs.GetString("UserId", "");
@@ -996,13 +1059,14 @@ public class CourseLoader: MonoBehaviour
         {
             Debug.Log($"🔄 Reloading user data for ID: {userId}");
             string endpoint = string.Format(userEndpoint, userId);
-            StartCoroutine(FetchUserData(endpoint));
+            FetchUserData(endpoint); 
         }
         else
         {
             Debug.LogWarning("⚠️ Cannot reload user data - userId is empty!");
         }
     }
+   
     public void LoadVRScene()
     {
         // Load VR scene directly without transition

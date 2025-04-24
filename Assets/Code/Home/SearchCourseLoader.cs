@@ -28,6 +28,9 @@ public class SearchCourseLoader : MonoBehaviour
     
     private string currentSearchQuery = "";
     private string searchApiTemplate = "/course/company/{0}?title={1}&page={2}&size={3}&status=ACTIVE";
+    
+    // Flag to track if we need to retry loading when network is restored
+    private bool needsReload = false;
 
     void Start()
     {
@@ -50,6 +53,28 @@ public class SearchCourseLoader : MonoBehaviour
         
         // 🔄 Auto-load all courses when entering the page
         StartCoroutine(SearchCourse("", currentPage));
+        
+        // Subscribe to network events
+        NetworkAwareAPIHandler.Instance.OnNetworkRestored += HandleNetworkRestored;
+    }
+    
+    private void OnDestroy()
+    {
+        // Unsubscribe when destroyed to prevent memory leaks
+        if (NetworkAwareAPIHandler.Instance != null)
+        {
+            NetworkAwareAPIHandler.Instance.OnNetworkRestored -= HandleNetworkRestored;
+        }
+    }
+    
+    private void HandleNetworkRestored()
+    {
+        if (needsReload)
+        {
+            Debug.Log("🔄 Network restored - reloading search results");
+            needsReload = false;
+            StartCoroutine(SearchCourse(currentSearchQuery, currentPage));
+        }
     }
     
     void OnNextPageClicked()
@@ -94,20 +119,29 @@ public class SearchCourseLoader : MonoBehaviour
             request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
             request.SetRequestHeader("Content-Type", "application/json");
 
-            yield return request.SendWebRequest();
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError($"❌ API Error: {request.error}");
-                nocourseText.SetActive(true);
-                UpdatePaginationInfo(0, 0, 0); // Reset pagination UI
-            }
-            else
-            {
-                string jsonData = request.downloadHandler.text;
-                Debug.Log($"✅ API Response: {jsonData}");
-                ProcessSearchResults(jsonData);
-            }
+            // Use NetworkAwareAPIHandler instead of direct web request
+            yield return NetworkAwareAPIHandler.Instance.SendAPIRequest(
+                request,
+                OnSearchRequestSuccess,
+                OnSearchRequestFailure
+            );
         }
+    }
+    
+    private void OnSearchRequestSuccess(UnityWebRequest request)
+    {
+        string jsonData = request.downloadHandler.text;
+        Debug.Log($"✅ API Response: {jsonData}");
+        ProcessSearchResults(jsonData);
+        needsReload = false; // Clear the reload flag as we've successfully loaded
+    }
+    
+    private void OnSearchRequestFailure(string errorMessage)
+    {
+        Debug.LogError($"❌ Search request failed: {errorMessage}");
+        nocourseText.SetActive(true);
+        UpdatePaginationInfo(0, 0, 0); // Reset pagination UI
+        needsReload = true; // Set flag to reload when network is restored
     }
 
     void ProcessSearchResults(string jsonData)
@@ -240,17 +274,17 @@ public class SearchCourseLoader : MonoBehaviour
 
         using (UnityWebRequest request = UnityWebRequest.Get(fullUrl))
         {
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError($"❌ Image Download Error: {request.error}");
-            }
-            else
-            {
-                File.WriteAllBytes(localPath, request.downloadHandler.data);
-                yield return LoadImageFromLocal(localPath, imageComponent);
-            }
+            // Use NetworkAwareAPIHandler for image downloads too
+            yield return NetworkAwareAPIHandler.Instance.SendAPIRequest(
+                request,
+                (successRequest) => {
+                    File.WriteAllBytes(localPath, successRequest.downloadHandler.data);
+                    StartCoroutine(LoadImageFromLocal(localPath, imageComponent));
+                },
+                (errorMessage) => {
+                    Debug.LogError($"❌ Image Download Error: {errorMessage}");
+                }
+            );
         }
     }
 
