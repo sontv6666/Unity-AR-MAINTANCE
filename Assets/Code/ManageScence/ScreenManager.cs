@@ -182,19 +182,35 @@ public class ScreenManager : MonoBehaviour
         callback(isConnected);
     }
     
-    private void ShowNoInternetMessage()
+    public void ShowNoInternetMessage()
     {
         // Save current screen before showing no internet panel
         string currentScreenName = screens[currentScreenIndex].name;
         PlayerPrefs.SetString("LastActiveScreen", currentScreenName);
-        
+    
         // Show no internet panel if it exists
         if (noInternetPanel != null)
         {
             noInternetPanel.SetActive(true);
             StartCoroutine(AutoCheckInternetConnection());
         }
+    
+        // If the user is on a screen that requires network connectivity
+        // (except login screen), navigate back to login
+        if (currentScreenName != "LoginScreen" && 
+            (currentScreenName == "HomePage" || currentScreenName == "DetailPage"))
+        {
+            // Find index of login screen
+            int loginScreenIndex = screens.FindIndex(s => s.name.Contains("LoginScreen") || s.name.Contains("Login"));
+            if (loginScreenIndex >= 0)
+            {
+                // Use SlideTransition to go to login screen
+                StartCoroutine(SlideTransition(loginScreenIndex));
+            }
+        }
     }
+    
+    
     
     private IEnumerator AutoCheckInternetConnection()
     {

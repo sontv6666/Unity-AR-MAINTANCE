@@ -74,17 +74,11 @@ public class NetworkAwareAPIHandler : MonoBehaviour
             isNetworkError = true;
             onFailure?.Invoke("No internet connection. Please check your network.");
             
-            // Find the ScreenManager and show no internet message
+         
             ScreenManager screenManager = FindObjectOfType<ScreenManager>();
             if (screenManager != null)
             {
-                // Use reflection to access private method if necessary
-                var method = screenManager.GetType().GetMethod("ShowNoInternetMessage", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (method != null)
-                {
-                    method.Invoke(screenManager, null);
-                }
+                screenManager.ShowNoInternetMessage();
             }
         }
         else if (request.result != UnityWebRequest.Result.Success)

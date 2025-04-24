@@ -24,6 +24,9 @@ public class ProfileScreenLoader : MonoBehaviour
 
     private string userId;
     private string authToken;
+    
+    // Flag to track if we need to retry loading when network is restored
+    private bool needsProfileReload = false;
 
     void Start()
     {
@@ -40,6 +43,9 @@ public class ProfileScreenLoader : MonoBehaviour
             logoutButton.onClick.AddListener(OnLogout);
         }
         
+        // Subscribe to network events
+        NetworkAwareAPIHandler.Instance.OnNetworkRestored += HandleNetworkRestored;
+        
         // Check if user is already logged in
         CheckForExistingLogin();
     }
@@ -49,6 +55,22 @@ public class ProfileScreenLoader : MonoBehaviour
         // Clean up event listeners when component is destroyed
         EventManager.StopListening("UserLoggedIn", OnUserLoggedIn);
         EventManager.StopListening("UserLoggedOut", OnUserLoggedOut);
+        
+        // Unsubscribe from network events to prevent memory leaks
+        if (NetworkAwareAPIHandler.Instance != null)
+        {
+            NetworkAwareAPIHandler.Instance.OnNetworkRestored -= HandleNetworkRestored;
+        }
+    }
+    
+    private void HandleNetworkRestored()
+    {
+        if (needsProfileReload && !string.IsNullOrEmpty(userId))
+        {
+            Debug.Log("🔄 Network restored - reloading user profile");
+            needsProfileReload = false;
+            StartCoroutine(FetchUserProfile(userId));
+        }
     }
     
     private void CheckForExistingLogin()
@@ -95,6 +117,7 @@ public class ProfileScreenLoader : MonoBehaviour
         // Clear cached user data
         userId = "";
         authToken = "";
+        needsProfileReload = false; // Reset the reload flag since we're logged out
     }
 
     public void ReloadUserInfo()
@@ -118,51 +141,64 @@ public class ProfileScreenLoader : MonoBehaviour
 
         Debug.Log($"📡 Fetching user profile: {endpoint} for userId: {userId}");
 
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        // Use NetworkAwareAPIHandler instead of direct web request
+        yield return NetworkAwareAPIHandler.Instance.SendAPIRequest(
+            request,
+            OnProfileRequestSuccess,
+            OnProfileRequestFailure
+        );
+    }
+    
+    private void OnProfileRequestSuccess(UnityWebRequest request)
+    {
+        string jsonResponse = request.downloadHandler.text;
+        Debug.Log($"✅ API Response: {jsonResponse}");
+        needsProfileReload = false; // Clear the reload flag since we've succeeded
+        
+        try
         {
-            string jsonResponse = request.downloadHandler.text;
-            Debug.Log($"✅ API Response: {jsonResponse}");
-
-            try
+            // ✅ Debug before deserializing
+            if (string.IsNullOrEmpty(jsonResponse))
             {
-                // ✅ Debug before deserializing
-                if (string.IsNullOrEmpty(jsonResponse))
-                {
-                    Debug.LogError("❌ Empty JSON response!");
-                    yield break;
-                }
+                Debug.LogError("❌ Empty JSON response!");
+                return;
+            }
 
-                ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonResponse);
+            ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonResponse);
 
-                if (response != null && response.code == 1000)
+            if (response != null && response.code == 1000)
+            {
+                if (response.result == null)
                 {
-                    if (response.result == null)
-                    {
-                        Debug.LogError("❌ API returned NULL result object!");
-                    }
-                    else
-                    {
-                        UpdateUserInfo(response.result);
-                    }
+                    Debug.LogError("❌ API returned NULL result object!");
                 }
                 else
                 {
-                    Debug.LogError($"❌ Invalid API response: {jsonResponse}");
+                    UpdateUserInfo(response.result);
                 }
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogError($"❌ JSON Parsing Error: {e.Message}\n{e.StackTrace}");
+                Debug.LogError($"❌ Invalid API response: {jsonResponse}");
             }
         }
-        else
+        catch (Exception e)
         {
-            Debug.LogError($"❌ API Request Failed: {request.error}");
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\n{e.StackTrace}");
         }
-
+        
         request.Dispose(); // ✅ Dispose request to prevent memory leaks
+    }
+    
+    private void OnProfileRequestFailure(string errorMessage)
+    {
+        Debug.LogError($"❌ Profile request failed: {errorMessage}");
+        
+        if (errorMessage.Contains("connection") || errorMessage.Contains("network"))
+        {
+            // This is likely a network error, set flag to reload when network is restored
+            needsProfileReload = true;
+        }
     }
 
     void UpdateUserInfo(UserProfileResult user)
@@ -223,25 +259,34 @@ public class ProfileScreenLoader : MonoBehaviour
     IEnumerator LoadAvatarImage(string url)
     {
         UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        
+        // Use NetworkAwareAPIHandler for avatar loading too
+        yield return NetworkAwareAPIHandler.Instance.SendAPIRequest(
+            request,
+            OnAvatarLoadSuccess,
+            OnAvatarLoadFailure
+        );
+    }
+    
+    private void OnAvatarLoadSuccess(UnityWebRequest request)
+    {
+        if (avatarImage != null) // Check if the component still exists
         {
             Texture2D texture = DownloadHandlerTexture.GetContent(request);
             avatarImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f));
         }
-        else
-        {
-            Debug.LogError("❌ Failed to load avatar image: " + request.error);
-            // Set default avatar if available
-            if (defaultAvatarSprite != null && avatarImage != null)
-            {
-                avatarImage.sprite = defaultAvatarSprite;
-            }
-        }
-        
         request.Dispose(); // Dispose request to prevent memory leaks
+    }
+    
+    private void OnAvatarLoadFailure(string errorMessage)
+    {
+        Debug.LogError("❌ Failed to load avatar image: " + errorMessage);
+        // Set default avatar if available
+        if (defaultAvatarSprite != null && avatarImage != null)
+        {
+            avatarImage.sprite = defaultAvatarSprite;
+        }
     }
     
     private void ResetUIComponents()
@@ -298,6 +343,7 @@ public class ProfileScreenLoader : MonoBehaviour
         // Clear local variables
         userId = "";
         authToken = "";
+        needsProfileReload = false; // Reset the reload flag since we're logged out
     
         // Return to Login Screen
         if (profilePage != null) profilePage.SetActive(false);
