@@ -23341,6 +23341,7 @@ MonoBehaviour:
   detailPage: {fileID: 0}
   homePage: {fileID: 0}
   seeAllPage: {fileID: 0}
+  loginPage: {fileID: 0}
   courseFilterDropdown: {fileID: 0}
   showMandatoryOnlyToggle: {fileID: 0}
   nextPageButton: {fileID: 0}
@@ -23349,6 +23350,7 @@ MonoBehaviour:
   totalCoursesText: {fileID: 0}
   courseTypeText: {fileID: 0}
   courseProgressFill: {fileID: 0}
+  defaultAvatarSprite: {fileID: 0}
 --- !u!114 &832364816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34287,6 +34289,7 @@ MonoBehaviour:
   detailPage: {fileID: 2139142892}
   homePage: {fileID: 0}
   seeAllPage: {fileID: 0}
+  loginPage: {fileID: 0}
   courseFilterDropdown: {fileID: 0}
   showMandatoryOnlyToggle: {fileID: 0}
   nextPageButton: {fileID: 0}
@@ -34295,6 +34298,7 @@ MonoBehaviour:
   totalCoursesText: {fileID: 0}
   courseTypeText: {fileID: 0}
   courseProgressFill: {fileID: 0}
+  defaultAvatarSprite: {fileID: 0}
 --- !u!114 &1187122083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41554,6 +41558,7 @@ MonoBehaviour:
   detailPage: {fileID: 2139142892}
   homePage: {fileID: 2077063458}
   seeAllPage: {fileID: 5136726438671416080}
+  loginPage: {fileID: 1220088745}
   courseFilterDropdown: {fileID: 0}
   showMandatoryOnlyToggle: {fileID: 0}
   nextPageButton: {fileID: 893142121}
@@ -41562,6 +41567,7 @@ MonoBehaviour:
   totalCoursesText: {fileID: 13137418}
   courseTypeText: {fileID: 0}
   courseProgressFill: {fileID: 0}
+  defaultAvatarSprite: {fileID: 0}
 --- !u!1001 &1446826888
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58176,6 +58182,7 @@ MonoBehaviour:
   detailPage: {fileID: 2139142892}
   homePage: {fileID: 2077063458}
   seeAllPage: {fileID: 0}
+  loginPage: {fileID: 0}
   courseFilterDropdown: {fileID: 0}
   showMandatoryOnlyToggle: {fileID: 0}
   nextPageButton: {fileID: 0}
@@ -58184,6 +58191,7 @@ MonoBehaviour:
   totalCoursesText: {fileID: 0}
   courseTypeText: {fileID: 0}
   courseProgressFill: {fileID: 0}
+  defaultAvatarSprite: {fileID: 0}
 --- !u!114 &2077956870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58937,6 +58945,7 @@ GameObject:
   - component: {fileID: 2120011586}
   - component: {fileID: 2120011585}
   - component: {fileID: 2120011587}
+  - component: {fileID: 2120011588}
   m_Layer: 0
   m_Name: ScreenManager
   m_TagString: Untagged
@@ -59001,6 +59010,18 @@ MonoBehaviour:
   sceneNavigator: {fileID: 2120011585}
   transitionSpeed: 2
   splashDuration: 3
+--- !u!114 &2120011588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2120011584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d5425b9ccf346a48d7d365da8b4b22a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2127919486
 GameObject:
   m_ObjectHideFlags: 0
@@ -77562,6 +77583,7 @@ MonoBehaviour:
   profilePage: {fileID: 5701549742028723858}
   loginPage: {fileID: 1220088745}
   logoutButton: {fileID: 6241243681875471241}
+  defaultAvatarSprite: {fileID: 0}
 --- !u!222 &7121032800849078850
 CanvasRenderer:
   m_ObjectHideFlags: 0
