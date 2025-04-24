@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using Code;
 using Models;
 public class ProfileScreenLoader : MonoBehaviour
 {
