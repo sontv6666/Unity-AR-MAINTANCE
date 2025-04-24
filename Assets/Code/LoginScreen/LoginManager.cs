@@ -52,48 +52,43 @@ public class LoginManager : MonoBehaviour
         if (retryButton != null)
             retryButton.onClick.AddListener(RetryConnection);
     }
-
-    // Method to get a consistent device identifier across platforms including iOS
+    
     private string GetDeviceIdentifier()
     {
         // Try to load existing ID first
         string savedDeviceId = PlayerPrefs.GetString("UniqueDeviceId", "");
-        
+    
         if (!string.IsNullOrEmpty(savedDeviceId))
         {
+            Debug.Log("✅ Using existing device ID from PlayerPrefs");
             return savedDeviceId;
         }
-        
+    
         // If no saved ID exists, generate one based on platform
         string newDeviceId = "";
-        
-        #if UNITY_IOS
-            // For iOS, use vendor identifier which is more reliable than deviceUniqueIdentifier
-            #if !UNITY_EDITOR
-                newDeviceId = UnityEngine.iOS.Device.vendorIdentifier;
-            #endif
-            
-            // If that fails (or in editor), fall back to a different approach
-            if (string.IsNullOrEmpty(newDeviceId))
-            {
-                newDeviceId = SystemInfo.deviceUniqueIdentifier;
-            }
-        #else
-            // For Android and other platforms, use deviceUniqueIdentifier
-            newDeviceId = SystemInfo.deviceUniqueIdentifier;
-        #endif
-        
+    
+#if UNITY_IOS
+        // For iOS 14+, avoid using vendorIdentifier as it changes on reinstall
+        // Instead, generate a persistent GUID and store it in PlayerPrefs
+        newDeviceId = Guid.NewGuid().ToString();
+        Debug.Log("🍏 iOS detected: Generated new GUID for device ID due to iOS privacy restrictions");
+#else
+        // For Android and other platforms, use deviceUniqueIdentifier
+        newDeviceId = SystemInfo.deviceUniqueIdentifier;
+        Debug.Log("📱 Non-iOS platform: Using SystemInfo.deviceUniqueIdentifier");
+#endif
+    
         // If we still don't have an ID, generate a random GUID as last resort
         if (string.IsNullOrEmpty(newDeviceId))
         {
             newDeviceId = Guid.NewGuid().ToString();
-            Debug.Log("Generated new random GUID as device ID");
+            Debug.Log("⚠️ Generated fallback random GUID as device ID");
         }
-        
+    
         // Save the ID for future use
         PlayerPrefs.SetString("UniqueDeviceId", newDeviceId);
         PlayerPrefs.Save();
-        
+    
         return newDeviceId;
     }
 
