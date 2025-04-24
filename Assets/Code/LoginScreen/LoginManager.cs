@@ -36,8 +36,10 @@ public class LoginManager : MonoBehaviour
 
     void Start()
     {
-        deviceId = SystemInfo.deviceUniqueIdentifier; // Get device ID
+        // Get a cross-platform compatible device ID instead of using SystemInfo.deviceUniqueIdentifier directly
+        deviceId = GetDeviceIdentifier();
         Debug.Log($"📱 Device ID: {deviceId}");
+        
         // Ẩn Spinner và Overlay khi bắt đầu
         loadingSpinner.SetActive(false);
         overlay.SetActive(false);
@@ -46,10 +48,53 @@ public class LoginManager : MonoBehaviour
         if (noInternetPanel != null)
             noInternetPanel.SetActive(false);
         
-            
         // Add listener to retry button if it exists
         if (retryButton != null)
             retryButton.onClick.AddListener(RetryConnection);
+    }
+
+    // Method to get a consistent device identifier across platforms including iOS
+    private string GetDeviceIdentifier()
+    {
+        // Try to load existing ID first
+        string savedDeviceId = PlayerPrefs.GetString("UniqueDeviceId", "");
+        
+        if (!string.IsNullOrEmpty(savedDeviceId))
+        {
+            return savedDeviceId;
+        }
+        
+        // If no saved ID exists, generate one based on platform
+        string newDeviceId = "";
+        
+        #if UNITY_IOS
+            // For iOS, use vendor identifier which is more reliable than deviceUniqueIdentifier
+            #if !UNITY_EDITOR
+                newDeviceId = UnityEngine.iOS.Device.vendorIdentifier;
+            #endif
+            
+            // If that fails (or in editor), fall back to a different approach
+            if (string.IsNullOrEmpty(newDeviceId))
+            {
+                newDeviceId = SystemInfo.deviceUniqueIdentifier;
+            }
+        #else
+            // For Android and other platforms, use deviceUniqueIdentifier
+            newDeviceId = SystemInfo.deviceUniqueIdentifier;
+        #endif
+        
+        // If we still don't have an ID, generate a random GUID as last resort
+        if (string.IsNullOrEmpty(newDeviceId))
+        {
+            newDeviceId = Guid.NewGuid().ToString();
+            Debug.Log("Generated new random GUID as device ID");
+        }
+        
+        // Save the ID for future use
+        PlayerPrefs.SetString("UniqueDeviceId", newDeviceId);
+        PlayerPrefs.Save();
+        
+        return newDeviceId;
     }
 
     public void OnLogin()
@@ -103,14 +148,15 @@ public class LoginManager : MonoBehaviour
         overlay.SetActive(false);
 
         // Show no internet panel
-        if (noInternetPanel != null){
+        if (noInternetPanel != null)
+        {
             noInternetPanel.SetActive(true);
-        overlay.SetActive(true);
-
-    }
-    else
-
-    warningText.text = "No internet connection. Please check your network and try again.";
+            overlay.SetActive(true);
+        }
+        else
+        {
+            warningText.text = "No internet connection. Please check your network and try again.";
+        }
             
         Debug.LogWarning("❌ Login failed: No internet connection");
     }
@@ -119,8 +165,11 @@ public class LoginManager : MonoBehaviour
     {
         // Hide no internet panel
         if (noInternetPanel != null)
+        {
             noInternetPanel.SetActive(false);
-             overlay.SetActive(false);
+            overlay.SetActive(false);
+        }
+        
         // Try login again
         OnLogin();
     }
