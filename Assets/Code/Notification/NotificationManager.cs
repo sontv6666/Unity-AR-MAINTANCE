@@ -9,7 +9,6 @@ using Unity.Notifications.Android;
 #elif UNITY_IOS
 using Unity.Notifications.iOS;
 using UnityEngine.iOS;
-
 #endif
 
 // Firebase imports
@@ -23,7 +22,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
 {
     private static MaintenanceNotificationManager _instance;
     
-// Added retry mechanism for token registration
+    // Added retry mechanism for token registration
     private const int MAX_REGISTRATION_RETRIES = 3;
     private int registrationRetryCount = 0;
     private const float RETRY_DELAY = 5.0f; // 5 seconds
@@ -46,7 +45,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
     // Add Firebase variables
     private FirebaseApp app;
     private bool firebaseInitialized = false;
-    private string registrationEndpoint = "/notifications/register";
 
     void Awake()
     {
@@ -223,9 +221,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
     
-    
-    
-    
     private void HandlePointRequestNotification(string status, string pointsStr)
     {
         Debug.Log($"💰 Point request notification received: Status={status}, Points={pointsStr}");
@@ -266,7 +261,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
         StartCoroutine(FetchUserPoints());
     }
  
-
     private void HandleNewCourseNotification(string courseId, string courseName)
     {
         Debug.Log($"📚 New course notification: {courseName} (ID: {courseId})");
@@ -309,7 +303,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
                 PlayerPrefs.Save();
                 UserManager.Point = points;
                 
-
                 Debug.Log($"✅ User points refreshed: {points}");
             }
         }
@@ -317,7 +310,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
         {
             Debug.LogError($"❌ Failed to fetch user profile: {request.error}");
         }
-
     }
 
     // Display in-app notification
@@ -437,45 +429,28 @@ public class MaintenanceNotificationManager : MonoBehaviour
 
         Debug.Log($"🔄 Registering device with backend - User: {userId}, Company: {companyId}, Token: {token}");
         registrationRetryCount = 0;
-        StartCoroutine(SendRegistrationRequest(userId, companyId, token));
-    }
-    
-    private IEnumerator SendRegistrationRequest(string userId, string companyId, string token)
-    {
-        // Create registration request
-        Dictionary<string, string> requestData = new Dictionary<string, string>
-        {
-            { "token", token },
-            { "userId", userId },
-            { "companyId", companyId }
-        };
-
-        string jsonBody = JsonConvert.SerializeObject(requestData);
-
-        // Send registration request to backend
-        UnityWebRequest request = ApiConfig.CreateRequest(registrationEndpoint, "POST", jsonBody);
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            Debug.Log("✅ Device registered successfully with backend");
-
-            // Subscribe to company topic
-            SubscribeToCompanyTopic(companyId);
-        }
-        else
-        {
-            Debug.LogError($"❌ Error registering device: {request.error}");
-            
-            // Retry if possible
-            if (registrationRetryCount < MAX_REGISTRATION_RETRIES)
+        
+        // Use the NotificationService to register the device
+        NotificationService.Instance.RegisterDevice(userId, companyId, token, success => {
+            if (success)
             {
-                StartCoroutine(RetryRegistration(userId, companyId));
+                Debug.Log("✅ Device registered successfully with backend");
+                
+                // Subscribe to company topic
+                SubscribeToCompanyTopic(companyId);
             }
-        }
+            else
+            {
+                Debug.LogError("❌ Error registering device");
+                
+                // Retry if possible
+                if (registrationRetryCount < MAX_REGISTRATION_RETRIES)
+                {
+                    StartCoroutine(RetryRegistration(userId, companyId));
+                }
+            }
+        });
     }
-
 
     private IEnumerator RetryRegistration(string userId, string companyId)
     {
@@ -492,7 +467,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
         RegisterDeviceWithBackend(userId, companyId);
     }
     
-
     public void SubscribeToCompanyTopic(string companyId)
     {
         if (!firebaseInitialized)
@@ -504,6 +478,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
         string topic = $"company_{companyId}";
         Debug.Log($"🔄 Subscribing to topic: {topic}");
 
+        // Subscribe via Firebase directly (client-side subscription)
         FirebaseMessaging.SubscribeAsync(topic).ContinueWith(task =>
         {
             if (task.IsFaulted)
@@ -512,7 +487,23 @@ public class MaintenanceNotificationManager : MonoBehaviour
             }
             else if (task.IsCompleted)
             {
-                Debug.Log($"✅ Successfully subscribed to company topic: {topic}");
+                Debug.Log($"✅ Successfully subscribed to Firebase topic: {topic}");
+                
+                // Also subscribe through backend (if needed)
+                string token = PlayerPrefs.GetString("FirebaseToken", "");
+                if (!string.IsNullOrEmpty(token))
+                {
+                    NotificationService.Instance.SubscribeToTopic(token, topic, success => {
+                        if (success)
+                        {
+                            Debug.Log($"✅ Successfully subscribed to topic via backend: {topic}");
+                        }
+                        else
+                        {
+                            Debug.LogError($"❌ Failed to subscribe to topic via backend: {topic}");
+                        }
+                    });
+                }
             }
         });
     }
@@ -529,6 +520,7 @@ public class MaintenanceNotificationManager : MonoBehaviour
         string topic = $"company_{companyId}";
         Debug.Log($"🔄 Unsubscribing from topic: {topic}");
 
+        // Unsubscribe via Firebase directly
         FirebaseMessaging.UnsubscribeAsync(topic).ContinueWith(task =>
         {
             if (task.IsFaulted)
@@ -537,12 +529,139 @@ public class MaintenanceNotificationManager : MonoBehaviour
             }
             else if (task.IsCompleted)
             {
-                Debug.Log($"✅ Successfully unsubscribed from company topic: {topic}");
+                Debug.Log($"✅ Successfully unsubscribed from Firebase topic: {topic}");
+                
+                // Also unsubscribe through backend (if needed)
+                string token = PlayerPrefs.GetString("FirebaseToken", "");
+                if (!string.IsNullOrEmpty(token))
+                {
+                    NotificationService.Instance.UnsubscribeFromTopic(token, topic, success => {
+                        if (success)
+                        {
+                            Debug.Log($"✅ Successfully unsubscribed from topic via backend: {topic}");
+                        }
+                        else
+                        {
+                            Debug.LogError($"❌ Failed to unsubscribe from topic via backend: {topic}");
+                            }
+                    });
+                }
             }
         });
     }
 
-   
+    // Send notification to user
+    public void SendNotificationToUser(string userId, string title, string body, string data = null)
+    {
+        Debug.Log($"🔄 Sending notification to user: {userId}");
+        
+        NotificationService.Instance.SendNotificationToUser(userId, title, body, data, result => {
+            if (result != null && result.Count > 0)
+            {
+                Debug.Log($"✅ Successfully sent notification to {result.Count} devices of user {userId}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ No devices found for user {userId} or notification failed");
+            }
+        });
+    }
+    
+    // Send notification to topic
+    public void SendNotificationToTopic(string topic, string title, string body, string data = null)
+    {
+        Debug.Log($"🔄 Sending notification to topic: {topic}");
+        
+        NotificationService.Instance.SendNotificationToTopic(topic, title, body, data, result => {
+            if (!string.IsNullOrEmpty(result))
+            {
+                Debug.Log($"✅ Successfully sent notification to topic {topic}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ Failed to send notification to topic {topic}");
+            }
+        });
+    }
+    
+    // Send notification to a specific device token
+    public void SendNotificationToDevice(string token, string title, string body, string data = null)
+    {
+        Debug.Log($"🔄 Sending notification to device: {token}");
+        
+        NotificationService.Instance.SendNotificationToToken(token, title, body, data, result => {
+            if (!string.IsNullOrEmpty(result))
+            {
+                Debug.Log($"✅ Successfully sent notification to device {token}");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ Failed to send notification to device {token}");
+            }
+        });
+    }
+    
+    // Send maintenance notification to all users in a company
+    public void SendMaintenanceNotification(string companyId, string title, string body, DateTime scheduledTime)
+    {
+        string topic = $"company_{companyId}";
+        
+        // Create data payload with maintenance information
+        Dictionary<string, string> dataDict = new Dictionary<string, string>
+        {
+            { "type", "maintenance" },
+            { "scheduledTime", scheduledTime.ToString("o") } // ISO 8601 format
+        };
+        
+        // Convert data dictionary to JSON string
+        string dataPayload = JsonConvert.SerializeObject(dataDict);
+        
+        // Send notification to company topic
+        SendNotificationToTopic(topic, title, body, dataPayload);
+    }
+    
+    // Send course notification to specific user
+    public void SendCourseNotification(string userId, string courseId, string courseName)
+    {
+        string title = "New Course Available";
+        string body = $"A new course '{courseName}' is now available for you!";
+        
+        // Create data payload with course information
+        Dictionary<string, string> dataDict = new Dictionary<string, string>
+        {
+            { "type", "new_course" },
+            { "courseId", courseId },
+            { "courseName", courseName }
+        };
+        
+        // Convert data dictionary to JSON string
+        string dataPayload = JsonConvert.SerializeObject(dataDict);
+        
+        // Send notification to user
+        SendNotificationToUser(userId, title, body, dataPayload);
+    }
+    
+    // Send point usage notification
+    public void SendPointUsageNotification(string userId, int pointsUsed, int remainingPoints, string reason)
+    {
+        string title = "Points Used";
+        string body = $"You've used {pointsUsed} point(s) for {reason}. Remaining balance: {remainingPoints} points.";
+        
+        // Create data payload
+        Dictionary<string, string> dataDict = new Dictionary<string, string>
+        {
+            { "type", "point_used" },
+            { "pointsUsed", pointsUsed.ToString() },
+            { "remainingPoints", remainingPoints.ToString() },
+            { "reason", reason }
+        };
+        
+        // Convert data dictionary to JSON string
+        string dataPayload = JsonConvert.SerializeObject(dataDict);
+        
+        // Send notification to user
+        SendNotificationToUser(userId, title, body, dataPayload);
+    }
     
     // Notification for points used
     public void NotifyPointUsed()
@@ -564,7 +683,6 @@ public class MaintenanceNotificationManager : MonoBehaviour
 #endif
     }
     
-    
     public void CancelAllNotifications()
     {
 #if UNITY_ANDROID
@@ -574,6 +692,30 @@ public class MaintenanceNotificationManager : MonoBehaviour
         iOSNotificationCenter.RemoveAllDeliveredNotifications();
 #endif
     }
+    
+    // Unregister device when logging out
+    public void UnregisterDeviceOnLogout()
+    {
+        string token = PlayerPrefs.GetString("FirebaseToken", "");
+        string userId = UserManager.UserId;
+        
+        if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(userId))
+        {
+            Debug.Log($"🔄 Unregistering device on logout - User: {userId}, Token: {token}");
+            
+            NotificationService.Instance.UnregisterDevice(userId, token, success => {
+                if (success)
+                {
+                    Debug.Log("✅ Device unregistered successfully on logout");
+                }
+                else
+                {
+                    Debug.LogError("❌ Failed to unregister device on logout");
+                }
+            });
+        }
+    }
+    
     // Add this to handle application focus changes
     void OnApplicationPause(bool pause)
     {
@@ -588,14 +730,3 @@ public class MaintenanceNotificationManager : MonoBehaviour
         }
     }
 }
-
-
-// Support class for JSON serialization
-[Serializable]
-public class DeviceRegistrationRequest
-{
-    public string token;
-    public string userId;
-    public string companyId;
-}
-
