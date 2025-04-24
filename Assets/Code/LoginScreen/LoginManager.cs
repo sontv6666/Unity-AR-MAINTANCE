@@ -6,6 +6,7 @@ using System.Text;
 using System;
 using Newtonsoft.Json;
 using Models;
+using UnityEngine.UI;
 
 public class LoginManager : MonoBehaviour
 {
@@ -21,6 +22,10 @@ public class LoginManager : MonoBehaviour
     // Thêm Circular Progress Spinner và Overlay
     public GameObject loadingSpinner;  // Spinner Circular
     public GameObject overlay;         // Màn hình mờ
+    
+    // Internet connection UI elements
+    public GameObject noInternetPanel;  // Panel showing no internet message
+    public Button retryButton;          // Button to retry connection
 
     [Header("API Settings")]
     private string loginEndpoint = "/login";
@@ -35,6 +40,15 @@ public class LoginManager : MonoBehaviour
         // Ẩn Spinner và Overlay khi bắt đầu
         loadingSpinner.SetActive(false);
         overlay.SetActive(false);
+        
+        // Hide no internet panel at start
+        if (noInternetPanel != null)
+            noInternetPanel.SetActive(false);
+        
+            
+        // Add listener to retry button if it exists
+        if (retryButton != null)
+            retryButton.onClick.AddListener(RetryConnection);
     }
 
     public void OnLogin()
@@ -48,13 +62,66 @@ public class LoginManager : MonoBehaviour
             return;
         }
 
-        string requestBody = JsonConvert.SerializeObject(new LoginRequest { email = username, password = password });
+        // Check internet connection before proceeding
+        StartCoroutine(CheckInternetConnection((isConnected) => {
+            if (isConnected)
+            {
+                string requestBody = JsonConvert.SerializeObject(new LoginRequest { email = username, password = password });
+                
+                // Hiển thị Spinner và Overlay khi gọi API
+                loadingSpinner.SetActive(true);
+                overlay.SetActive(true);
+
+                StartCoroutine(SendLoginRequest(requestBody));
+            }
+            else
+            {
+                // Show no internet message
+                ShowNoInternetMessage();
+            }
+        }));
+    }
+    
+    private IEnumerator CheckInternetConnection(Action<bool> callback)
+    {
+        // Use Unity's ping to check connection
+        UnityWebRequest request = new UnityWebRequest("https://google.com");
+        request.timeout = 5; // 5 second timeout
+        yield return request.SendWebRequest();
         
-        // Hiển thị Spinner và Overlay khi gọi API
-        loadingSpinner.SetActive(true);
+        bool isConnected = request.result != UnityWebRequest.Result.ConnectionError && 
+                          request.result != UnityWebRequest.Result.DataProcessingError;
+        
+        callback(isConnected);
+    }
+
+    private void ShowNoInternetMessage()
+    {
+        // Hide spinner and overlay
+        loadingSpinner.SetActive(false);
+        overlay.SetActive(false);
+
+        // Show no internet panel
+        if (noInternetPanel != null){
+            noInternetPanel.SetActive(true);
         overlay.SetActive(true);
 
-        StartCoroutine(SendLoginRequest(requestBody));
+    }
+    else
+
+    warningText.text = "No internet connection. Please check your network and try again.";
+            
+        Debug.LogWarning("❌ Login failed: No internet connection");
+    }
+    
+    private void RetryConnection()
+    {
+        // Hide no internet panel
+        if (noInternetPanel != null)
+            noInternetPanel.SetActive(false);
+             overlay.SetActive(false);
+        // Try login again
+        OnLogin();
     }
 
     private IEnumerator SendLoginRequest(string jsonBody)
@@ -68,10 +135,15 @@ public class LoginManager : MonoBehaviour
             loadingSpinner.SetActive(false);
             overlay.SetActive(false);
 
-            if (request.result != UnityWebRequest.Result.Success)
+            if (request.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.LogError($"❌ Connection Error: {request.error}");
+                ShowNoInternetMessage();
+            }
+            else if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"❌ Login Error: {request.error}");
-                warningText.text = "Email or passsword is incorrect.";
+                warningText.text = "Email or password is incorrect.";
             }
             else
             {
@@ -102,10 +174,9 @@ public class LoginManager : MonoBehaviour
 
             if (user.roleName == "STAFF" && user.status == "ACTIVE")
             {
-             
-                    SaveUserData(response.result.token, user);
-                    PlayerPrefs.Save();
-                    SwitchToHomePage();
+                SaveUserData(response.result.token, user);
+                PlayerPrefs.Save();
+                SwitchToHomePage();
             }
             else
             {
@@ -152,8 +223,6 @@ public class LoginManager : MonoBehaviour
         {
             Debug.LogWarning("⚠️ MaintenanceNotificationManager instance not found!");
         }
-        
-        
     }
 
     private void SwitchToHomePage()
