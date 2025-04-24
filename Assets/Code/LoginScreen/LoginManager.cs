@@ -102,17 +102,10 @@ public class LoginManager : MonoBehaviour
 
             if (user.roleName == "STAFF" && user.status == "ACTIVE")
             {
-                if (!string.IsNullOrEmpty(user.deviceId) && user.deviceId != deviceId)
-                {
-                    warningText.text = "Your account is linked to another device!";
-                    Debug.LogWarning("❌ Device ID mismatch! User is already linked to another device.");
-                }
-                else
-                {
+             
                     SaveUserData(response.result.token, user);
                     PlayerPrefs.Save();
                     SwitchToHomePage();
-                }
             }
             else
             {
@@ -166,11 +159,22 @@ public class LoginManager : MonoBehaviour
     private void SwitchToHomePage()
     {
         Debug.Log("🔄 Switching UI: Hiding Login, Showing Home & Profile...");
-    
+
         loginCanvas.SetActive(false);
         homeCanvas.SetActive(true);
         profileCanvas.SetActive(true);
+    
+        // Trigger event for other components to refresh
+        EventManager.TriggerEvent("UserLoggedIn");
 
         Debug.Log($"✅ UI State - loginCanvas: {loginCanvas.activeSelf}, homeCanvas: {homeCanvas.activeSelf}, profileCanvas: {profileCanvas.activeSelf}");
+    
+        // Find and reload CourseLoader if it exists
+        CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
+        if (courseLoader != null)
+        {
+            Debug.Log("🔄 Refreshing CourseLoader for new user");
+            courseLoader.ReloadForNewUser();
+        }
     }
 }

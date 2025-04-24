@@ -27,6 +27,7 @@ public class CourseLoader: MonoBehaviour
     public GameObject detailPage;
     public GameObject homePage;
     public GameObject seeAllPage;
+    public GameObject loginPage; // Added reference to login page
     
     [Header("Course Filtering")]
     public TMP_Dropdown courseFilterDropdown; // New: Filter dropdown
@@ -44,47 +45,186 @@ public class CourseLoader: MonoBehaviour
     public TMP_Text courseTypeText; // New: Show types of courses available
     public Image courseProgressFill; // New: Visual progress indicator
     
+    [Header("Default Avatar")]
+    public Sprite defaultAvatarSprite; // Default profile image when none available
+    
     [Header("API Settings")] 
     private string userEndpoint = "/user/{0}"; // API to fetch user details
     private string endpointTemplate = "/course/company/{0}?page={1}&size={2}&status=ACTIVE";
+    
+    // Flag to track if initialization is complete
+    private bool isInitialized = false;
+
+    void Awake()
+    {
+        // Make sure defaults are set
+        if (nocourseText != null) nocourseText.SetActive(true);
+        ClearUserInfo();
+    }
 
     void Start()
     {
+        // Set up a pleasing greeting message
         SetGreetingMessage();
 
-        // Ensure UserId is set from PlayerPrefs
+        // Set up filtering controls (dropdown, toggle buttons)
+        SetupFilteringControls();
+        
+        // Check authentication status
+        CheckAuthenticationStatus();
+    }
+    
+ 
+    
+    private void CheckAuthenticationStatus()
+    {
+        // Get auth token and user ID from PlayerPrefs
+        string authToken = PlayerPrefs.GetString("AuthToken", "");
+        string userId = PlayerPrefs.GetString("UserId", "");
+    
+        Debug.Log($"🔍 Checking auth - Token: {(string.IsNullOrEmpty(authToken) ? "missing" : "present")}, UserId: {userId}");
+    
+        if (string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(userId))
+        {
+            Debug.Log("❌ No auth token or user ID found - showing login page");
+            // No auth token or user ID, show login page
+            if (loginPage != null) loginPage.SetActive(true);
+            if (homePage != null) homePage.SetActive(false);
+        
+            // Clear any cached user data
+            ClearUserInfo();
+            return;
+        }
+    
+        // We have auth token and user ID, load data
+        UserManager.UserId = userId;
+        UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+        UserManager.Token = authToken; // Make sure to set the token as well
+    
+        // Load user profile and courses
+        InitializeUserData();
+
+        // Show home page, hide login page
+        if (homePage != null) homePage.SetActive(true);
+        if (loginPage != null) loginPage.SetActive(false);
+    }
+    
+    private void InitializeUserData()
+    {
         if (string.IsNullOrEmpty(UserManager.UserId))
         {
-            UserManager.UserId = PlayerPrefs.GetString("UserId", "");
+            Debug.LogError("❌ CourseLoader: UserId is not set. Unable to initialize!");
+            return;
+        }
+            
+        Debug.Log($"🔄 Initializing user data for: {UserManager.UserId}");
+            
+        // Fetch user profile first
+        string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
+        StartCoroutine(FetchUserData(userEndpointFormatted));
+            
+        // Wait for CompanyId before fetching courses
+        StartCoroutine(WaitForCompanyIdAndFetchCourses());
+            
+        isInitialized = true;
+    }
+
+    void OnEnable()
+    {
+        // Register for events
+        EventManager.StartListening("UserLoggedIn", OnUserLoggedIn);
+        EventManager.StartListening("UserLoggedOut", OnUserLoggedOut);
+    }
+    
+    void OnDisable()
+    {
+        // Unregister from events
+        EventManager.StopListening("UserLoggedIn", OnUserLoggedIn);
+        EventManager.StopListening("UserLoggedOut", OnUserLoggedOut);
+    }
+    
+    // Called when a user logs in
+    void OnUserLoggedIn()
+    {
+        Debug.Log("📣 CourseLoader received UserLoggedIn event");
+        ReloadForNewUser();
+    }
+    
+    // Called when a user logs out
+    void OnUserLoggedOut()
+    {
+        Debug.Log("📣 CourseLoader received UserLoggedOut event");
+        ClearUserInfo();
+        ClearCourseList();
+        
+        // Show login page, hide home page
+        if (loginPage != null) loginPage.SetActive(true);
+        if (homePage != null) homePage.SetActive(false);
+        
+        isInitialized = false;
+    }
+    
+    // Method to clear user information from UI
+    private void ClearUserInfo()
+    {
+        if (usernameText != null) usernameText.text = "";
+        if (pointsText != null) pointsText.text = "0 ";
+        if (roleText != null) roleText.text = "";
+        if (companyNameText != null) companyNameText.text = "";
+        if (statusText != null) 
+        {
+            statusText.text = "";
+            statusText.color = Color.white;
         }
         
-        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        // Reset profile image to default
+        if (profileImage != null && defaultAvatarSprite != null)
         {
-            UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+            profileImage.sprite = defaultAvatarSprite;
         }
-
-        // Initialize UI controls
-        SetupFilteringControls();
-
-        if (!string.IsNullOrEmpty(UserManager.UserId))
-        {
-            string endpoint = string.Format(endpointTemplate, UserManager.UserId, currentPage, pageSize);
-            Debug.Log($"CourseLoader: Fetching course data for userId: {UserManager.UserId}");
+    }
+    
+    // Public method to completely refresh for a new user
+    public void ReloadForNewUser()
+    {
+        // Reset to first page
+        currentPage = 1;
         
-            // Wait for CompanyId before fetching courses
-            StartCoroutine(WaitForCompanyIdAndFetchCourses());
-
-            // Fetch user data
-            string userEndpointFormatted = string.Format(userEndpoint, UserManager.UserId);
-            Debug.Log($"CourseLoader: Fetching user data for userId: {UserManager.UserId}");
-            StartCoroutine(FetchUserData(userEndpointFormatted));
+        // Clear all existing course data
+        ClearCourseList();
+        
+        // Clear user info
+        ClearUserInfo();
+        
+        // Refresh greeting message
+        SetGreetingMessage();
+        
+        // Get fresh user ID and company ID from PlayerPrefs
+        UserManager.UserId = PlayerPrefs.GetString("UserId", "");
+        UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+        UserManager.Token = PlayerPrefs.GetString("AuthToken", "");
+        
+        Debug.Log($"🔄 Reloading for new user: {UserManager.UserId}, company: {UserManager.CompanyId}");
+        
+        // Initialize user data if we have valid credentials
+        if (!string.IsNullOrEmpty(UserManager.UserId) && !string.IsNullOrEmpty(UserManager.Token))
+        {
+            // Show home page, hide login page
+            if (homePage != null) homePage.SetActive(true);
+            if (loginPage != null) loginPage.SetActive(false);
+            
+            InitializeUserData();
         }
         else
         {
-            Debug.LogError("CourseLoader: UserId is not set. Unable to fetch courses or user data!");
+            Debug.LogError("❌ CourseLoader: UserId or Token is missing after login event!");
+            
+            // Show login page, hide home page
+            if (loginPage != null) loginPage.SetActive(true);
+            if (homePage != null) homePage.SetActive(false);
         }
     }
-
+    
     void SetupFilteringControls()
     {
         // Setup course filter dropdown if it exists
@@ -157,19 +297,21 @@ public class CourseLoader: MonoBehaviour
         StartCoroutine(FetchCourseData(endpoint));
     }
 
-// Add this helper method to clear course list
+    // Add this helper method to clear course list
     private void ClearCourseList()
     {
         // Show "no courses" text while loading
-        nocourseText.SetActive(true);
+        if (nocourseText != null) nocourseText.SetActive(true);
     
         // Clear all existing course panels
-        foreach (Transform child in contentParent)
+        if (contentParent != null)
         {
-            Destroy(child.gameObject);
+            foreach (Transform child in contentParent)
+            {
+                Destroy(child.gameObject);
+            }
         }
     }
-    
     
     void OnNextPageClicked()
     {
@@ -190,10 +332,27 @@ public class CourseLoader: MonoBehaviour
     
     IEnumerator WaitForCompanyIdAndFetchCourses()
     {
-        while (string.IsNullOrEmpty(UserManager.CompanyId))
+        int attempts = 0;
+        int maxAttempts = 10;
+        float waitTime = 0.5f;
+        
+        while (string.IsNullOrEmpty(UserManager.CompanyId) && attempts < maxAttempts)
         {
             Debug.Log("⌛ Waiting for CompanyId...");
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(waitTime);
+            attempts++;
+            
+            // Try to get CompanyId from PlayerPrefs if it's still not set
+            if (string.IsNullOrEmpty(UserManager.CompanyId))
+            {
+                UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+            }
+        }
+
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            Debug.LogError("❌ Failed to get CompanyId after multiple attempts!");
+            yield break;
         }
 
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
@@ -203,6 +362,8 @@ public class CourseLoader: MonoBehaviour
     
     void SetGreetingMessage()
     {
+        if (greetingText == null) return;
+        
         int hour = DateTime.Now.Hour;
         string greeting = "Hello"; // Default greeting
 
@@ -216,10 +377,10 @@ public class CourseLoader: MonoBehaviour
         greetingText.text = greeting;
     }
 
-  IEnumerator FetchUserData(string endpoint)
+    IEnumerator FetchUserData(string endpoint)
     {
         string authToken = PlayerPrefs.GetString("AuthToken", "");
-    
+
         if (string.IsNullOrEmpty(authToken))
         {
             Debug.LogError("❌ Auth token is missing! Cannot fetch user data.");
@@ -240,6 +401,20 @@ public class CourseLoader: MonoBehaviour
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError($"❌ User API Error: {request.error}");
+            
+                // Check if unauthorized (401)
+                if (request.responseCode == 401)
+                {
+                    Debug.Log("🔒 Auth token expired or invalid. Logging out...");
+                
+                    // Clear cached credentials and show login page
+                    PlayerPrefs.DeleteKey("UserId");
+                    PlayerPrefs.DeleteKey("AuthToken");
+                    PlayerPrefs.Save();
+                
+                    // Fire logout event to notify other components
+                    EventManager.TriggerEvent("UserLoggedOut");
+                }
             }
             else
             {
@@ -255,9 +430,10 @@ public class CourseLoader: MonoBehaviour
                     Debug.LogError($"❌ Error Parsing User Data: {e.Message}");
                 }
             }
+        
+            request.Dispose(); // Clean up resources
         }
     }
-
     void ProcessUserData(string jsonData)
     {
         ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(jsonData);
@@ -265,8 +441,29 @@ public class CourseLoader: MonoBehaviour
         if (response != null && response.result != null)
         {
             UserProfileResult user = response.result;
-            usernameText.text = user.username;
-            pointsText.text = $"{user.points} ";
+        
+            Debug.Log($"👤 Processing user data for: {user.username}, Points: {user.points}");
+        
+            // Update UI elements if they exist
+            if (usernameText != null)
+            {
+                usernameText.text = user.username;
+                Debug.Log($"✅ Set username text to: {user.username}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ usernameText is null!");
+            }
+            
+            if (pointsText != null)
+            {    
+                pointsText.text = $"{user.points} ";
+                Debug.Log($"✅ Set points text to: {user.points}");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ pointsText is null!");
+            }
             
             // Add new user information to UI
             if (roleText != null)
@@ -288,16 +485,23 @@ public class CourseLoader: MonoBehaviour
             
             Debug.Log($"👤 User: {user.username}");
 
-            // Save company.id to UserManager
+            // Save company.id to UserManager and PlayerPrefs
             if (user.company != null && !string.IsNullOrEmpty(user.company.id))
             {
                 UserManager.CompanyId = user.company.id;
+                PlayerPrefs.SetString("CompanyId", user.company.id);
+                PlayerPrefs.Save();
                 Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
             }
         
             if (!string.IsNullOrEmpty(user.avatar))
             {
                 StartCoroutine(DownloadAndLoadProfileImage(user.avatar));
+            }
+            else if (profileImage != null && defaultAvatarSprite != null)
+            {
+                // Use default avatar if none provided
+                profileImage.sprite = defaultAvatarSprite;
             }
         }
         else
@@ -311,6 +515,13 @@ public class CourseLoader: MonoBehaviour
         if (string.IsNullOrEmpty(imageUrl))
         {
             Debug.LogError("Profile image URL is null or empty!");
+            
+            // Set default avatar if available
+            if (profileImage != null && defaultAvatarSprite != null)
+            {
+                profileImage.sprite = defaultAvatarSprite;
+            }
+            
             yield break;
         }
 
@@ -330,12 +541,30 @@ public class CourseLoader: MonoBehaviour
         {
             yield return LoadImageFromLocal(localPath, profileImage);
         }
+        else if (profileImage != null && defaultAvatarSprite != null)
+        {
+            // Set default avatar if download failed
+            profileImage.sprite = defaultAvatarSprite;
+        }
     }
     
     public void ReloadCourseData()
     {
         // Reset to first page
         currentPage = 1;
+        
+        // Refresh CompanyId from UserManager or PlayerPrefs
+        if (string.IsNullOrEmpty(UserManager.CompanyId))
+        {
+            UserManager.CompanyId = PlayerPrefs.GetString("CompanyId", "");
+            
+            if (string.IsNullOrEmpty(UserManager.CompanyId))
+            {
+                Debug.LogError("❌ Cannot reload courses: CompanyId is missing!");
+                return;
+            }
+        }
+        
         string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
         StartCoroutine(FetchCourseData(endpoint));
     }
@@ -351,6 +580,20 @@ public class CourseLoader: MonoBehaviour
                 request.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError($"API Error: {request.error}");
+                
+                // Check if unauthorized (401)
+                if (request.responseCode == 401)
+                {
+                    Debug.Log("🔒 Auth token expired or invalid. Logging out...");
+                    
+                    // Clear cached credentials and show login page
+                    PlayerPrefs.DeleteKey("UserId");
+                    PlayerPrefs.DeleteKey("AuthToken");
+                    PlayerPrefs.Save();
+                    
+                    // Fire logout event to notify other components
+                    EventManager.TriggerEvent("UserLoggedOut");
+                }
             }
             else
             {
@@ -359,13 +602,20 @@ public class CourseLoader: MonoBehaviour
 
                 ProcessCourseData(jsonData);
             }
+            
+            request.Dispose(); // Clean up resources
         }
     }
 
     void ProcessCourseData(string jsonData)
     {
         Debug.Log("📡 CourseLoader: Processing course data.");
-        Debug.Log($"📜 Raw JSON Data: {jsonData}");
+        
+        if (string.IsNullOrEmpty(jsonData))
+        {
+            Debug.LogError("❌ Received empty JSON data!");
+            return;
+        }
 
         try
         {
@@ -374,7 +624,7 @@ public class CourseLoader: MonoBehaviour
             if (response == null || response.result == null || response.result.objectList == null || response.result.objectList.Count == 0)
             {
                 Debug.LogError("❌ No courses found or invalid response.");
-                nocourseText.SetActive(true);
+                if (nocourseText != null) nocourseText.SetActive(true);
                 
                 // Update pagination controls
                 UpdatePaginationInfo(0, 0, 0);
@@ -390,9 +640,17 @@ public class CourseLoader: MonoBehaviour
             UpdateDashboardStats(response.result);
 
             // Clear old UI panels before adding new ones
-            foreach (Transform child in contentParent)
+            if (contentParent != null)
             {
-                Destroy(child.gameObject);
+                foreach (Transform child in contentParent)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ contentParent is null! Cannot display courses.");
+                return;
             }
 
             foreach (CourseResult course in response.result.objectList)
@@ -410,7 +668,7 @@ public class CourseLoader: MonoBehaviour
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;
 
-                nocourseText.SetActive(false);
+                if (nocourseText != null) nocourseText.SetActive(false);
 
                 // Create the UI panel
                 CreateCoursePanel(course);
@@ -418,7 +676,7 @@ public class CourseLoader: MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\nRaw JSON: {jsonData}");
+            Debug.LogError($"❌ JSON Parsing Error: {e.Message}\n{e.StackTrace}");
         }
     }
     
@@ -429,7 +687,6 @@ public class CourseLoader: MonoBehaviour
         {
             pageInfoText.text = $"Page {currentPage} of {totalPages} ";
         }
-       // ({totalItems} guidelines)
         
         // Enable/disable pagination buttons
         if (prevPageButton != null)
@@ -480,19 +737,25 @@ public class CourseLoader: MonoBehaviour
         if (courseProgressFill != null)
         {
             // Example: Fill based on how many pages viewed out of total
-            float fillAmount = (float)currentPage / data.totalPages;
+            float fillAmount = data.totalPages > 0 ? (float)currentPage / data.totalPages : 0f;
             courseProgressFill.fillAmount = fillAmount;
         }
     }
 
     void CreateCoursePanel(CourseResult course)
     {
+        if (coursePanelPrefab == null || contentParent == null)
+        {
+            Debug.LogError("❌ Cannot create course panel - prefab or parent is null!");
+            return;
+        }
+        
         Debug.Log($"CourseLoader: Creating panel for course: {course.title}");
         GameObject panel = Instantiate(coursePanelPrefab, contentParent);
 
-        TMP_Text titleText = panel.transform.Find("course_titleText").GetComponent<TMP_Text>();
-        TMP_Text descriptionText = panel.transform.Find("course_descriptionText").GetComponent<TMP_Text>();
-        TMP_Text scoreText = panel.transform.Find("course_scoreText").GetComponent<TMP_Text>();
+        TMP_Text titleText = panel.transform.Find("course_titleText")?.GetComponent<TMP_Text>();
+        TMP_Text descriptionText = panel.transform.Find("course_descriptionText")?.GetComponent<TMP_Text>();
+        TMP_Text scoreText = panel.transform.Find("course_scoreText")?.GetComponent<TMP_Text>();
         
         // Look for additional UI elements that might exist in your prefab
         TMP_Text typeText = panel.transform.Find("course_typeText")?.GetComponent<TMP_Text>();
@@ -542,7 +805,7 @@ public class CourseLoader: MonoBehaviour
 
         if (!string.IsNullOrEmpty(course.imageUrl))
         {
-            Image imageComponent = panel.transform.Find("courseImage_background/course_image").GetComponent<Image>();
+            Image imageComponent = panel.transform.Find("courseImage_background/course_image")?.GetComponent<Image>();
             if (imageComponent != null)
             {
                 StartCoroutine(DownloadAndLoadCourseImage(course.imageUrl, imageComponent));
@@ -597,9 +860,10 @@ public class CourseLoader: MonoBehaviour
                 File.WriteAllBytes(localPath, request.downloadHandler.data);
                 Debug.Log($"✅ Downloaded and saved: {localPath}");
             }
+            
+            request.Dispose(); // Clean up resources
         }
     }
-
     IEnumerator LoadImageFromLocal(string path, Image imageComponent)
     {
         if (!File.Exists(path))
@@ -724,7 +988,21 @@ public class CourseLoader: MonoBehaviour
             }
         }
     }
-    
+    // Add this to CourseLoader class
+    public void ReloadUserData()
+    {
+        string userId = PlayerPrefs.GetString("UserId", "");
+        if (!string.IsNullOrEmpty(userId))
+        {
+            Debug.Log($"🔄 Reloading user data for ID: {userId}");
+            string endpoint = string.Format(userEndpoint, userId);
+            StartCoroutine(FetchUserData(endpoint));
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ Cannot reload user data - userId is empty!");
+        }
+    }
     public void LoadVRScene()
     {
         // Load VR scene directly without transition
