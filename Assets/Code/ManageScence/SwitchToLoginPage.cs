@@ -176,7 +176,14 @@ public class ScreenManager : MonoBehaviour
             ShowScreen("HomePage");
 
             CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
-            courseLoader?.ReloadCourseData();
+            if (courseLoader != null)
+            {
+                // Reload user data first
+                courseLoader.ReloadUserData();
+            
+                // Then reload course data
+                courseLoader.ReloadCourseData();
+            }
 
             currentScreenIndex = screens.FindIndex(s => s.name == "HomePage");
         }
@@ -187,7 +194,6 @@ public class ScreenManager : MonoBehaviour
         PlayerPrefs.SetString("SelectedCourseID", "");
         PlayerPrefs.Save();
     }
-
     public void ShowScreen(string screenName)
     {
         foreach (RectTransform screen in screens)
