@@ -208,10 +208,10 @@ public class QRCodeScanner : MonoBehaviour
         overlayUI.gameObject.SetActive(false);
      
         // scan
-        StartScanning();
+       StartScanning();
 
 
-       // StartCoroutine(FetchMachineData("New", courseID));
+    //   StartCoroutine(FetchMachineData("FC1", courseID));
     }
 
 
@@ -251,6 +251,10 @@ public class QRCodeScanner : MonoBehaviour
                 // ✅ Collect all download tasks
                 downloadTasks.Add(FetchModelData(response.result));
                 downloadTasks.Add(DownloadAndLoadUI(response.result));
+                
+                centerModelButton.gameObject.SetActive(true);
+                JoyStick.gameObject.SetActive(true);
+                realDataButton.gameObject.SetActive(true);
 
                 yield return StartCoroutine(DownloadAllFiles(downloadTasks));
             }
@@ -600,16 +604,19 @@ void TryScanQRCode()
 
             if (response != null && response.result != null)
             {
-                if (response.code == 1000 && response.result.courseCode == scannedQR)
+                if (response.code == 1000 || response.result.courseCode == scannedQR)
                 {
                     UpdateUIText("QR Validated! Loading UI...", "Course: " + response.result.courseCode);
                     StartCoroutine(SendCourseScan(response.result.id, UserManager.UserId));
                     overlayUI.gameObject.SetActive(true);
                     StartCoroutine(FetchModelData(response.result));
-                    StartCoroutine(DownloadAndLoadUI(response.result));
+                    
+                   Debug.Log("trietrie");
                     centerModelButton.gameObject.SetActive(true);
                     JoyStick.gameObject.SetActive(true);
                     realDataButton.gameObject.SetActive(true);
+                    StartCoroutine(DownloadAndLoadUI(response.result));
+            
                     // 🔹 Ensure Model Stays Upright
                     qrCodeRotation.x = 0; // Reset X rotation (prevents laying down)
                     qrCodeRotation.z = 0; // Reset Z rotation (prevents tilting)
@@ -1144,7 +1151,8 @@ void TryScanQRCode()
             courseUIPanel.SetActive(true);
             instructionDetailPanel.SetActive(false);
             backButton.gameObject.SetActive(true);
-        
+
+         
 
             // Show title
             courseTitleText.text = course.title;
