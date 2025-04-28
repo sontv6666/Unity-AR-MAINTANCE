@@ -491,7 +491,7 @@ void TryScanQRCode()
                     }
                     
                         // Check if user has enough points for this course
-                         SendCourseScan(guidelineId, userId);
+                        StartCoroutine(SendCourseScan(guidelineId, userId));
                          UpdateUIText("Checking...", "Please click on intruction to learn your guideline");
 
                          ShowLoadingUI("Done QR Scan");
