@@ -135,7 +135,7 @@ public class TransactionLoader : MonoBehaviour
                     totalPages = response.result.totalPages;
                     currentPage = response.result.page;
                     
-                    
+                    Debug.Log("Show");
                     // Display transactions from objectList
                     DisplayTransactions(response.result.objectList);
                 }
@@ -153,57 +153,59 @@ public class TransactionLoader : MonoBehaviour
         }
     }
 
-   private void DisplayTransactions(List<WalletTransaction> transactions)
+ private void DisplayTransactions(List<WalletTransaction> transactions)
+{
+    // Clear old transactions before loading new ones
+    foreach (Transform child in transactionLayoutGroup)
     {
-        // Clear old transactions before loading new ones
-        foreach (Transform child in transactionLayoutGroup)
-        {
-            Destroy(child.gameObject);
-        }
-
-        Debug.Log($"🔄 Displaying {transactions.Count} transactions...");
-
-        // Show empty state if there are no transactions
-        if (transactions == null || transactions.Count == 0)
-        {
-            ShowEmptyState(true);
-            return;
-        }
-
-        ShowEmptyState(false);
-
-        foreach (var transaction in transactions)
-        {
-            GameObject newTransaction = Instantiate(transactionPrefab, transactionLayoutGroup);
-            newTransaction.transform.localScale = Vector3.one; // Ensure proper scaling
-
-            TMP_Text serviceName = newTransaction.transform.Find("guidelineName")?.GetComponent<TMP_Text>();
-            TMP_Text createdDate = newTransaction.transform.Find("createdDate")?.GetComponent<TMP_Text>();
-            TMP_Text amount = newTransaction.transform.Find("usageAmount")?.GetComponent<TMP_Text>();
-            TMP_Text balance = newTransaction.transform.Find("remainAmount")?.GetComponent<TMP_Text>();
-       
-            if (serviceName == null || createdDate == null || amount == null || balance == null)
-            {
-                Debug.LogError("⚠️ Missing UI Elements! Check prefab structure.");
-                continue;
-            }
-
-            serviceName.text = transaction.guidelineName;
-            createdDate.text = $"Date: {FormatDate(transaction.createdDate)}";
-            amount.text = $"Usage Points: {transaction.amount}";
-            balance.text = $"Remain Points: {transaction.balance}";
-
-            // Determine transaction type color
-            if (transaction.type == "DEBIT")
-            {
-                amount.color = Color.red;  // Red for debit/usage
-            }
-            else if (transaction.type == "CREDIT")
-            {
-                amount.color = Color.green;  // Green for credit/income
-            }
-        }
+        Destroy(child.gameObject);
     }
+
+    Debug.Log($"🔄 Displaying {transactions.Count} transactions...");
+
+    // Show empty state if there are no transactions
+    if (transactions == null || transactions.Count == 0)
+    {
+        ShowEmptyState(true);
+        return;
+    }
+
+    ShowEmptyState(false);
+
+    foreach (var transaction in transactions)
+    {
+        GameObject newTransaction = Instantiate(transactionPrefab, transactionLayoutGroup);
+        newTransaction.transform.localScale = Vector3.one; // Ensure proper scaling
+
+        TMP_Text serviceName = newTransaction.transform.Find("guidelineName")?.GetComponent<TMP_Text>();
+        TMP_Text createdDate = newTransaction.transform.Find("createdDate")?.GetComponent<TMP_Text>();
+        TMP_Text amount = newTransaction.transform.Find("usageAmount")?.GetComponent<TMP_Text>();
+        TMP_Text balance = newTransaction.transform.Find("remainAmount")?.GetComponent<TMP_Text>();
+       
+        if (serviceName == null || createdDate == null || amount == null || balance == null)
+        {
+            Debug.LogError("⚠️ Missing UI Elements! Check prefab structure.");
+            continue;
+        }
+
+        // For credit transactions, use serviceName instead of guidelineName
+        if (transaction.type == "CREDIT")
+        {
+            serviceName.text = transaction.serviceName != null ? transaction.serviceName : "Points Added";
+            amount.text = $"+{transaction.amount}";
+            amount.color = Color.green;  // Green for credit/income
+        }
+        else // DEBIT
+        {
+            serviceName.text = transaction.guidelineName;
+            amount.text = $"-{transaction.amount}";  
+            amount.color = Color.red;  // Red for debit/usage
+        }
+        
+        createdDate.text = $"Date: {FormatDate(transaction.createdDate)}";
+        balance.text = $"Balance: {transaction.balance}";
+    }
+}
 
     private string FormatDate(string dateTime)
     {
