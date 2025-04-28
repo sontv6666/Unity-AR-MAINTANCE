@@ -377,7 +377,7 @@ void TryScanQRCode()
 
             Debug.Log($"✅ QR Code Scanned: {result.Text}");
 
-            UpdateUIText("Scanning...", "QR: ");
+            UpdateUIText("Scanning...", "");
 
          
             // Get the machine code from QR (now it's just a single value)
@@ -490,10 +490,12 @@ void TryScanQRCode()
                         yield break;
                     }
                     
-                    // Check if user has enough points for this course
-                    yield return StartCoroutine(SendCourseScan(guidelineId, userId));
-                   
-                    
+                        // Check if user has enough points for this course
+                         SendCourseScan(guidelineId, userId);
+                         UpdateUIText("Checking...", "Please click on intruction to learn your guideline");
+
+                         ShowLoadingUI("Done QR Scan");
+                       
                         // Machine belongs to guideline, continue with course data
                         StartCoroutine(FetchCourseData(guidelineId));
                     
