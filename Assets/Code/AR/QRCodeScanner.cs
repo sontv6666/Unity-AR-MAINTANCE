@@ -480,9 +480,24 @@ void TryScanQRCode()
                 if (belongsToGuideline)
                 {
                     Debug.Log("✅ Machine belongs to this guideline! Proceeding...");
-                    // Machine belongs to guideline, continue with course data
-                    StartCoroutine(FetchCourseData(guidelineId));
-                    // Additional processing can go here to handle the successful match
+                    
+                    string userId = PlayerPrefs.GetString("UserId", "");
+                    if (string.IsNullOrEmpty(userId))
+                    {
+                        Debug.LogError("❌ User ID is missing! User might need to log in again.");
+                        UpdateUIText("Error", "User information is missing. Please log in again.");
+                        Invoke(nameof(ResetScanning), 3f);
+                        yield break;
+                    }
+                    
+                    // Check if user has enough points for this course
+                    yield return StartCoroutine(SendCourseScan(guidelineId, userId));
+                   
+                    if (!insufficientPointsPanel.activeSelf)
+                    {
+                        // Machine belongs to guideline, continue with course data
+                        StartCoroutine(FetchCourseData(guidelineId));
+                    }
                 }
                 else
                 {
@@ -506,68 +521,6 @@ void TryScanQRCode()
         }
     }
 
-        // IEnumerator FetchMachineData(string machineCode, string secondValue, string courseId)
-        // {
-        //     currentMachineCode = machineCode; 
-        //
-        //     // Get company ID from PlayerPrefs
-        //     string companyId = PlayerPrefs.GetString("CompanyId", "");
-        //
-        //     if (string.IsNullOrEmpty(companyId))
-        //     {
-        //         Debug.LogError("❌ Company ID is missing! User might need to log in again.");
-        //         APIRealTime.Instance.UpdateUIText("Missing company information", "Please log in again");
-        //         Invoke(nameof(ResetScanning), 3f);
-        //         yield break;
-        //     }
-        //
-        //     // Updated endpoint to include company ID
-        //     string endpoint = $"/machine/code/{machineCode}/company/{companyId}";
-        //     UnityWebRequest request = ApiConfig.CreateRequest(endpoint);
-        //     request.SetRequestHeader("Authorization", "Bearer " + PlayerPrefs.GetString("AuthToken", ""));
-        //
-        //     Debug.Log($"📡 Sending API Request to: {endpoint}");
-        //
-        //     yield return request.SendWebRequest();
-        //
-        //     if (request.result == UnityWebRequest.Result.Success)
-        //     {
-        //         string jsonResponse = request.downloadHandler.text;
-        //         Debug.Log($"✅ Machine API Response: {jsonResponse}");
-        //
-        //         // 🔹 Parse JSON response into MachineResponse model
-        //         ApiResponse<MachineResponse> response = JsonConvert.DeserializeObject<ApiResponse<MachineResponse>>(jsonResponse);
-        //         
-        //         if (response != null && response.result != null)
-        //         {
-        //             MachineResponse machine = response.result;
-        //         
-        //             // 🔹 Send data to UI
-        //             APIRealTime.Instance.UpdateMachineUI(machine);
-        //             
-        //
-        //             // Continue with QR logic
-        //             StartCoroutine(CheckQRCode(secondValue, courseId));
-        //         }
-        //         else
-        //         {
-        //             Debug.LogError("❌ Failed to parse machine response.");
-        //             APIRealTime.Instance.UpdateUIText("Failed to get machine data!", "");
-        //             Invoke(nameof(ResetScanning), 3f);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         Debug.LogError($"❌ Machine API Request Failed: {request.error}");
-        //         UpdateUIText("Failed to get machine data!", "");
-        //         Invoke(nameof(ResetScanning), 2f);
-        //     }
-        // }
-
-
-
-
-     
 
 
     //cach 2.2
