@@ -109,6 +109,7 @@ public class TransactionLoader : MonoBehaviour
 
     private IEnumerator FetchTransactions(string userId, string token)
     {
+        Debug.Log("🔄 Fetching transactions for User ID: " + userId);
         string endpoint = $"/wallets/history/user/{userId}?page={currentPage}&size={pageSize}";
         UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET");
 
