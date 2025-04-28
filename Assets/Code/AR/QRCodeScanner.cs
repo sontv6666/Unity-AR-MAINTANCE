@@ -493,11 +493,10 @@ void TryScanQRCode()
                     // Check if user has enough points for this course
                     yield return StartCoroutine(SendCourseScan(guidelineId, userId));
                    
-                    if (!insufficientPointsPanel.activeSelf)
-                    {
+                    
                         // Machine belongs to guideline, continue with course data
                         StartCoroutine(FetchCourseData(guidelineId));
-                    }
+                    
                 }
                 else
                 {
