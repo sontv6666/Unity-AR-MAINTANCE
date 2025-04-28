@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Code;
 using UnityEngine.Networking;
 using System;
+using Models;
 #if UNITY_ANDROID && !UNITY_EDITOR
 using UnityEngine.Android;
 #endif
@@ -27,7 +28,7 @@ public class ScreenManager : MonoBehaviour
     public SceneNavigator sceneNavigator; // ✅ Assign in Inspector
     public float transitionSpeed = 2f; // ✅ Adjust speed for smooth transitions
     public float splashDuration = 3f; // ⏳ Adjustable Splash Screen duration
-
+    private bool isUserStatusBeingChecked = false;
     // Event that other scripts can subscribe to for network status changes
     public static event Action<bool> OnConnectionStatusChanged;
 
@@ -85,13 +86,15 @@ public class ScreenManager : MonoBehaviour
         // Check internet connection before proceeding
         yield return StartCoroutine(CheckInternetConnection((isConnected) => {
             wasConnectedBefore = isConnected; // Initialize connection state tracker
-            
+        
             if (isConnected)
             {
-                if (IsUserLoggedIn())
+                string userId = PlayerPrefs.GetString("UserId", "");
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    Debug.Log("✅ User already logged in! Restoring last page...");
-                    RestoreLastPage();
+                    Debug.Log("✅ User credentials found! Checking status...");
+                    // Start user status check - this will direct to login or restore session
+                    StartCoroutine(CheckUserStatus(userId));
                 }
                 else
                 {
@@ -104,23 +107,11 @@ public class ScreenManager : MonoBehaviour
             {
                 Debug.LogWarning("⚠️ No internet connection detected at startup!");
                 ShowNoInternetMessage();
-                
-                // If user was logged in before, we should still try to restore their session
-                if (IsUserLoggedIn())
-                {
-                    Debug.Log("⚠️ User was logged in. Routing to login screen due to no connectivity.");
-                    // Find index of login screen
-                    int loginScreenIndex = screens.FindIndex(s => s.name.Contains("LoginScreen") || s.name.Contains("Login"));
-                    if (loginScreenIndex >= 0)
-                    {
-                        GoToScreen(loginScreenIndex);
-                    }
-                }
-                else
-                {
-                    AssignNextButtons();
-                    GoToNextScreen(); // Still move to login screen
-                }
+            
+                // Move to login screen regardless of previous login state
+                // when there's no internet
+                AssignNextButtons();
+                GoToNextScreen();
             }
         }));
     }
@@ -316,7 +307,120 @@ public class ScreenManager : MonoBehaviour
     private bool IsUserLoggedIn()
     {
         string userId = PlayerPrefs.GetString("UserId", "");
-        return !string.IsNullOrEmpty(userId);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return false;
+        }
+    
+        // Start user status check if not already in progress
+        if (!isUserStatusBeingChecked)
+        {
+            StartCoroutine(CheckUserStatus(userId));
+        }
+    
+        return false; // Return false until status check completes
+    }
+    
+    private IEnumerator CheckUserStatus(string userId)
+    {
+        isUserStatusBeingChecked = true;
+        string token = PlayerPrefs.GetString("AuthToken", "");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Debug.LogWarning("⚠️ Auth token is missing!");
+            isUserStatusBeingChecked = false;
+            ClearUserSession();
+            yield break;
+        }
+
+        string endpoint = $"/user/{userId}";
+        UnityWebRequest request = ApiConfig.CreateRequest(endpoint, "GET");
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"❌ User status API error: {request.error}");
+            isUserStatusBeingChecked = false;
+            ClearUserSession();
+            yield break;
+        }
+
+        string responseText = request.downloadHandler.text;
+        Debug.Log($"✅ User status API response: {responseText}");
+
+        try
+        {
+            // Parse the response using JsonUtility
+            ApiResponse<UserProfileResult> response = JsonUtility.FromJson<ApiResponse<UserProfileResult>>(responseText);
+    
+            if (response != null && response.code == 1000 && response.result != null)
+            {
+                if (response.result.status == "ACTIVE")
+                {
+                    Debug.Log("✅ User is active, proceeding with session");
+                    // Continue with normal flow - user is logged in and active
+                    RestoreLastPage();
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ User account is not active: {response.result.status}");
+                    ClearUserSession();
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ Invalid API response format or user not found");
+                ClearUserSession();
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"❌ JSON parsing error: {e.Message}");
+            ClearUserSession();
+        }
+
+        isUserStatusBeingChecked = false;
+    }
+
+    private void ClearUserSession()
+    {
+        Debug.Log("🔹 Logging out...");
+
+        // Clear stored user data
+        PlayerPrefs.DeleteKey("UserId");
+        PlayerPrefs.DeleteKey("AuthToken");
+        PlayerPrefs.DeleteKey("CompanyId");
+        PlayerPrefs.DeleteKey("ShowHomePage");
+        PlayerPrefs.DeleteKey("ShowDetailPage");
+        PlayerPrefs.DeleteKey("SelectedCourseID");
+        PlayerPrefs.DeleteKey("RoleName");
+        PlayerPrefs.DeleteKey("CompanyName");
+        PlayerPrefs.DeleteKey("Email");
+        PlayerPrefs.DeleteKey("Username");
+        PlayerPrefs.DeleteKey("Phone");
+        PlayerPrefs.DeleteKey("Status");
+        PlayerPrefs.DeleteKey("DeviceId");
+        PlayerPrefs.DeleteKey("Point");
+        PlayerPrefs.Save();
+
+        // Reset any cached data in static managers
+        UserManager.UserId = "";
+        UserManager.CompanyId = "";
+        UserManager.RoleName = "";
+        UserManager.CompanyName = "";
+        UserManager.Token = "";
+        CourseManager.SelectedCourseId = "";
+        
+
+        // Find login screen index
+        int loginScreenIndex = screens.FindIndex(s => s.name.Contains("LoginScreen") || s.name.Contains("Login"));
+        if (loginScreenIndex >= 0)
+        {
+            // Go to login screen
+            StartCoroutine(SlideTransition(loginScreenIndex));
+        }
     }
 
     public void GoToNextScreen()
