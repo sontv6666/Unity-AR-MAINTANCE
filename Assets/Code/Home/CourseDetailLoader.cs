@@ -403,7 +403,7 @@ namespace Code
         {
             if (machineTypeNameText != null)
             {
-                machineTypeNameText.text = $"Machine Type: {machineType.machineTypeName}";
+                machineTypeNameText.text = $"{machineType.machineTypeName}";
             }
 
             // Clear existing attributes
