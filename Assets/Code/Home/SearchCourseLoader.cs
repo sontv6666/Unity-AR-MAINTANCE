@@ -171,6 +171,11 @@ public class SearchCourseLoader : MonoBehaviour
 
             foreach (var course in response.result.objectList)
             {
+                string truncatedTitle = course.title.Length > 20 ? course.title.Substring(0, 20) + "..." : course.title;
+                string truncatedDescription = course.description.Length > 50 ? course.description.Substring(0, 50) + "..." : course.description;
+
+                course.title = truncatedTitle;
+                course.description = truncatedDescription;
                 CreateCoursePanel(course);
             }
         }
