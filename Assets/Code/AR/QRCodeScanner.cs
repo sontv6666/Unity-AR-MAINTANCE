@@ -15,11 +15,13 @@ using Models;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
+using Cdm.Figma;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.AR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Newtonsoft.Json;
 using UnityEngine.EventSystems;
+using Color = UnityEngine.Color;
 
 public class QRCodeScanner : MonoBehaviour
 {
@@ -605,6 +607,9 @@ void TryScanQRCode()
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
                 {
                     Debug.LogError($"❌ Course Scan API Error: {request.error}");
+                    insufficientPointsPanel.SetActive(true); // Show warning panel
+                    Invoke(nameof(GoBackToMainApp), 0f); // Wait 3s, then go back
+                    insufficientPointsPanel.SetActive(false);   
                 }
                 else
                 {
@@ -613,20 +618,18 @@ void TryScanQRCode()
 
                     if (response != null)
                     {
-                        Debug.Log($"✅ Course scan response: {jsonResponse}");
-
                         if (response.code != 1000) // If the user doesn't have enough points
                         {
-                            Debug.Log("⚠️ Not enough points to play this course.");
-                            insufficientPointsPanel.SetActive(true); // Show warning panel
-                            Invoke(nameof(GoBackToMainApp), 5f); // Wait 3s, then go back
-                            insufficientPointsPanel.SetActive(false);   
+                            Debug.Log("⚠️ Not enough points to play this course."); 
+                            Invoke(nameof(GoBackToMainApp), 0f); // Wait 3s, then go back
+                           
                         }
                         else
                         {
                             Debug.Log("✅ Successfully used points for this course.");
                            // MaintenanceNotificationManager.Instance.NotifyPointUsed();
                            MaintenanceNotificationManager.Instance.NotifyPointUsed();
+                        
                         }
                     }
                     else

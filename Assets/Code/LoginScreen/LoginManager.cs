@@ -289,6 +289,8 @@ public class LoginManager : MonoBehaviour
         {
             Debug.Log("🔄 Refreshing CourseLoader for new user");
             courseLoader.ReloadForNewUser();
-        }
+            
+          
+            }
     }
 }

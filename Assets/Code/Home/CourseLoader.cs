@@ -65,6 +65,8 @@ public class CourseLoader: MonoBehaviour
         // Make sure defaults are set
         if (nocourseText != null) nocourseText.SetActive(true);
         ClearUserInfo();
+        
+        
     }
 
     void Start()
@@ -536,6 +538,8 @@ public class CourseLoader: MonoBehaviour
             {
                 UserManager.CompanyId = user.company.id;
                 PlayerPrefs.SetString("CompanyId", user.company.id);
+                PlayerPrefs.SetInt("Point", user.points);
+                UserManager.Point = user.points;
                 PlayerPrefs.Save();
                 Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
             }
@@ -727,8 +731,8 @@ public class CourseLoader: MonoBehaviour
                 }
 
                 // Shorten title and description
-                string truncatedTitle = course.title.Length > 20 ? course.title.Substring(0, 20) + "..." : course.title;
-                string truncatedDescription = course.description.Length > 50 ? course.description.Substring(0, 50) + "..." : course.description;
+                string truncatedTitle = course.title.Length > 25 ? course.title.Substring(0, 25) + "..." : course.title;
+                string truncatedDescription = course.description.Length > 80 ? course.description.Substring(0, 80) + "..." : course.description;
 
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;
