@@ -727,8 +727,8 @@ public class CourseLoader: MonoBehaviour
                 }
 
                 // Shorten title and description
-                string truncatedTitle = course.title.Length > 20 ? course.title.Substring(0, 20) + "..." : course.title;
-                string truncatedDescription = course.description.Length > 50 ? course.description.Substring(0, 50) + "..." : course.description;
+                string truncatedTitle = course.title.Length > 25 ? course.title.Substring(0, 25) + "..." : course.title;
+                string truncatedDescription = course.description.Length > 80 ? course.description.Substring(0, 80) + "..." : course.description;
 
                 course.title = truncatedTitle;
                 course.description = truncatedDescription;
