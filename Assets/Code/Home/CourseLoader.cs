@@ -65,6 +65,8 @@ public class CourseLoader: MonoBehaviour
         // Make sure defaults are set
         if (nocourseText != null) nocourseText.SetActive(true);
         ClearUserInfo();
+        
+        
     }
 
     void Start()
@@ -536,6 +538,8 @@ public class CourseLoader: MonoBehaviour
             {
                 UserManager.CompanyId = user.company.id;
                 PlayerPrefs.SetString("CompanyId", user.company.id);
+                PlayerPrefs.SetInt("Point", user.points);
+                UserManager.Point = user.points;
                 PlayerPrefs.Save();
                 Debug.Log($"🏢 Company ID: {UserManager.CompanyId}");
             }

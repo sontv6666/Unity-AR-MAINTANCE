@@ -336,6 +336,7 @@ public class ProfileScreenLoader : MonoBehaviour
         UserManager.RoleName = "";
         UserManager.CompanyName = "";
         UserManager.Token = "";
+        UserManager.Point = 0;
         CourseManager.SelectedCourseId = "";
     
         // Reset UI elements - this is now handled by OnUserLoggedOut via the event

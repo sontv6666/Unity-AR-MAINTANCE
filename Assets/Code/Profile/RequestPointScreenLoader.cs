@@ -9,8 +9,8 @@ using Newtonsoft.Json;
 public class RequestPointScreenLoader : MonoBehaviour
 {
     [Header("UI References")] public GameObject requestPointPrefab; // Prefab để tạo danh sách
-    public Transform requestPointLayoutGroup; // Layout chứa các request
-    public Sprite processingSprite, completeSprite; // Hình ảnh cho trạng thái
+    public Transform requestPointLayoutGroup; 
+    public Sprite processingSprite, completeSprite; 
 
     public GameObject requestPointListPage; // Page for list of request points
     public GameObject requestPointPage; // Page for requesting new points
@@ -91,16 +91,16 @@ public class RequestPointScreenLoader : MonoBehaviour
 
     public void LoadRequests()
     {
-        string employeeId = PlayerPrefs.GetString("UserId", "");
+        string userId = PlayerPrefs.GetString("UserId", "");
         string token = PlayerPrefs.GetString("AuthToken", "");
 
-        if (string.IsNullOrEmpty(employeeId) || string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
         {
             Debug.LogError("Missing employee ID or authentication token.");
             return;
         }
 
-        StartCoroutine(FetchRequests(employeeId, token));
+        StartCoroutine(FetchRequests(userId, token));
     }
 
     private IEnumerator FetchRequests(string employeeId, string token)
@@ -137,7 +137,7 @@ public class RequestPointScreenLoader : MonoBehaviour
 
 private void DisplayRequests(List<RequestPointData> requests)
 {
-    // Xóa danh sách cũ trước khi load mới
+    
     foreach (Transform child in requestPointLayoutGroup)
     {
         Destroy(child.gameObject);

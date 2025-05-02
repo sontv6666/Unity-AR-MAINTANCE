@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Models;
 using Newtonsoft.Json;
+
 public class TransactionLoader : MonoBehaviour
 {
     [Header("UI References")]
@@ -25,40 +26,42 @@ public class TransactionLoader : MonoBehaviour
     public Button prevPageButton;
     public TMP_Text pageIndicatorText;
     public int currentPage = 1;
-    public int pageSize = 100;
+    public int pageSize = 10;
     public int totalPages = 1;
 
-    
-    
     public Button backButton;
 
     [Header("API Settings")]
     private string getTransactionEndpoint = "/wallets/history/user/"; // API Endpoint
+    
     void Start()
     {
-        LoadTransactions();
+        // Set up button listeners
         backButton.onClick.AddListener(GoBack);
         
-        // // Set up pagination buttons if they exist
-        // if (nextPageButton != null)
-        //     nextPageButton.onClick.AddListener(NextPage);
-        //
-        // if (prevPageButton != null)
-        //     prevPageButton.onClick.AddListener(PreviousPage);
+        // Set up pagination buttons
+        if (nextPageButton != null)
+            nextPageButton.onClick.AddListener(NextPage);
+        
+        if (prevPageButton != null)
+            prevPageButton.onClick.AddListener(PreviousPage);
+            
+        // Initial load
+        LoadTransactions();
     }
 
     public void OpenTransactionListFromProfile()
     {
         currentPage = 1; // Reset to first page when opening
+        OpenTransactionListPage();
         LoadTransactions();
         Debug.Log("📌 Opening Transaction List from Profile...");
         previousPage = profilePage; // Remember previous page
-        OpenTransactionListPage();
+      
     }
 
     private void OpenTransactionListPage()
     {
-        LoadTransactions();
         if (transactionListPage != null)
         {
             transactionListPage.SetActive(true);
@@ -107,6 +110,45 @@ public class TransactionLoader : MonoBehaviour
         StartCoroutine(FetchTransactions(userId, token));
     }
 
+    // Pagination methods
+    public void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            LoadTransactions();
+        }
+    }
+
+    public void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            LoadTransactions();
+        }
+    }
+
+    private void UpdatePaginationUI()
+    {
+        // Update page indicator text
+        if (pageIndicatorText != null)
+        {
+            pageIndicatorText.text = $"Page {currentPage} of {totalPages}";
+        }
+
+        // Enable/disable pagination buttons based on current page
+        if (prevPageButton != null)
+        {
+            prevPageButton.interactable = (currentPage > 1);
+        }
+
+        if (nextPageButton != null)
+        {
+            nextPageButton.interactable = (currentPage < totalPages);
+        }
+    }
+
     private IEnumerator FetchTransactions(string userId, string token)
     {
         Debug.Log("🔄 Fetching transactions for User ID: " + userId);
@@ -136,7 +178,9 @@ public class TransactionLoader : MonoBehaviour
                     totalPages = response.result.totalPages;
                     currentPage = response.result.page;
                     
-                    Debug.Log("Show");
+                    // Update pagination UI
+                    UpdatePaginationUI();
+                    
                     // Display transactions from objectList
                     DisplayTransactions(response.result.objectList);
                 }
@@ -154,59 +198,59 @@ public class TransactionLoader : MonoBehaviour
         }
     }
 
- private void DisplayTransactions(List<WalletTransaction> transactions)
-{
-    // Clear old transactions before loading new ones
-    foreach (Transform child in transactionLayoutGroup)
+    private void DisplayTransactions(List<WalletTransaction> transactions)
     {
-        Destroy(child.gameObject);
-    }
-
-    Debug.Log($"🔄 Displaying {transactions.Count} transactions...");
-
-    // Show empty state if there are no transactions
-    if (transactions == null || transactions.Count == 0)
-    {
-        ShowEmptyState(true);
-        return;
-    }
-
-    ShowEmptyState(false);
-
-    foreach (var transaction in transactions)
-    {
-        GameObject newTransaction = Instantiate(transactionPrefab, transactionLayoutGroup);
-        newTransaction.transform.localScale = Vector3.one; // Ensure proper scaling
-
-        TMP_Text serviceName = newTransaction.transform.Find("guidelineName")?.GetComponent<TMP_Text>();
-        TMP_Text createdDate = newTransaction.transform.Find("createdDate")?.GetComponent<TMP_Text>();
-        TMP_Text amount = newTransaction.transform.Find("usageAmount")?.GetComponent<TMP_Text>();
-        TMP_Text balance = newTransaction.transform.Find("remainAmount")?.GetComponent<TMP_Text>();
-       
-        if (serviceName == null || createdDate == null || amount == null || balance == null)
+        // Clear old transactions before loading new ones
+        foreach (Transform child in transactionLayoutGroup)
         {
-            Debug.LogError("⚠️ Missing UI Elements! Check prefab structure.");
-            continue;
+            Destroy(child.gameObject);
         }
 
-        // For credit transactions, use serviceName instead of guidelineName
-        if (transaction.type == "CREDIT")
+        Debug.Log($"🔄 Displaying {transactions.Count} transactions...");
+
+        // Show empty state if there are no transactions
+        if (transactions == null || transactions.Count == 0)
         {
-            serviceName.text = transaction.serviceName != null ? transaction.serviceName : "Points Added";
-            amount.text = $"+{transaction.amount}";
-            amount.color = Color.green;  // Green for credit/income
+            ShowEmptyState(true);
+            return;
         }
-        else // DEBIT
+
+        ShowEmptyState(false);
+
+        foreach (var transaction in transactions)
         {
-            serviceName.text = transaction.guidelineName;
-            amount.text = $"-{transaction.amount}";  
-            amount.color = Color.red;  // Red for debit/usage
+            GameObject newTransaction = Instantiate(transactionPrefab, transactionLayoutGroup);
+            newTransaction.transform.localScale = Vector3.one; // Ensure proper scaling
+
+            TMP_Text serviceName = newTransaction.transform.Find("guidelineName")?.GetComponent<TMP_Text>();
+            TMP_Text createdDate = newTransaction.transform.Find("createdDate")?.GetComponent<TMP_Text>();
+            TMP_Text amount = newTransaction.transform.Find("usageAmount")?.GetComponent<TMP_Text>();
+            TMP_Text balance = newTransaction.transform.Find("remainAmount")?.GetComponent<TMP_Text>();
+           
+            if (serviceName == null || createdDate == null || amount == null || balance == null)
+            {
+                Debug.LogError("⚠️ Missing UI Elements! Check prefab structure.");
+                continue;
+            }
+
+            // For credit transactions, use serviceName instead of guidelineName
+            if (transaction.type == "CREDIT")
+            {
+                serviceName.text = transaction.serviceName != null ? transaction.serviceName : "Points Added";
+                amount.text = $"+{transaction.amount}";
+                amount.color = Color.green;  // Green for credit/income
+            }
+            else // DEBIT
+            {
+                serviceName.text = transaction.guidelineName;
+                amount.text = $"-{transaction.amount}";  
+                amount.color = Color.red;  // Red for debit/usage
+            }
+            
+            createdDate.text = $"Date: {FormatDate(transaction.createdDate)}";
+            balance.text = $"Points: {transaction.balance}";
         }
-        
-        createdDate.text = $"Date: {FormatDate(transaction.createdDate)}";
-        balance.text = $"Balance: {transaction.balance}";
     }
-}
 
     private string FormatDate(string dateTime)
     {
@@ -228,13 +272,24 @@ public class TransactionLoader : MonoBehaviour
         {
             transactionLayoutGroup.gameObject.SetActive(!show);
         }
+        
+        // Hide pagination if there are no transactions
+        if (nextPageButton != null && nextPageButton.gameObject != null)
+        {
+            nextPageButton.gameObject.SetActive(!show);
+        }
+        
+        if (prevPageButton != null && prevPageButton.gameObject != null)
+        {
+            prevPageButton.gameObject.SetActive(!show);
+        }
+        
+        if (pageIndicatorText != null && pageIndicatorText.gameObject != null)
+        {
+            pageIndicatorText.gameObject.SetActive(!show);
+        }
     }
-    
- 
 }
-
-
-
 
 [System.Serializable]
 public class WalletResponse

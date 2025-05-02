@@ -25,6 +25,7 @@ public class SceneNavigator : MonoBehaviour
         if (profileLoader != null)
         {
             profileLoader.ReloadUserInfo();
+      
             Debug.Log("✅ Profile data reloaded!");
         }
         else
@@ -42,8 +43,11 @@ public class SceneNavigator : MonoBehaviour
         // 🔥 Gọi lại `ReloadCourseData()` khi vào HomePage
         CourseLoader courseLoader = FindObjectOfType<CourseLoader>();
         if (courseLoader != null)
-        {
+        {    courseLoader.ReloadForNewUser();
             courseLoader.ReloadCourseData();
+            courseLoader.ReloadUserData();
+                
+        
             Debug.Log("✅ Course data reloaded!");
         }
         else

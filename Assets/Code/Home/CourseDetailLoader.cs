@@ -57,6 +57,12 @@ namespace Code
         private bool isDownloading = false;
         private CourseResult cachedCourseData;
         
+        
+        [Header("Points Required UI")]
+        public GameObject noPointsPanel;
+        public TMP_Text noPointsMessageText;
+        public Button noPointsCloseButton;
+        
         private void Start()
         {
             SetupUI();
@@ -65,6 +71,17 @@ namespace Code
             if (backButton != null)
             {
                 backButton.onClick.AddListener(BackToHomePage);
+            }
+            // Setup no points panel initially hidden
+            if (noPointsPanel != null)
+            {
+                noPointsPanel.SetActive(false);
+        
+                // Setup close button if it exists
+                if (noPointsCloseButton != null)
+                {
+                    noPointsCloseButton.onClick.AddListener(CloseNoPointsPanel);
+                }
             }
         }
         
@@ -639,7 +656,27 @@ namespace Code
                 Debug.LogError("❌ Course ID is null or empty!");
                 return;
             }
+            
+            // Get user points from UserManager or PlayerPrefs
+            int userPoints = 0;
+    
+            // First try to get from UserManager (if available)
+            if ( PlayerPrefs.GetInt("Point") > 0)
+            {
+                userPoints =  PlayerPrefs.GetInt("Point");
+            }
+            else
+            {   userPoints = PlayerPrefs.GetInt("Point", 0);
+            }
 
+            // Check if user has enough points
+            if (userPoints <= 0)
+            {
+                Debug.Log("⚠️ User has 0 points. Cannot enter AR experience.");
+                ShowNoPointsPanel();
+                return;
+            }
+            
             // Show loading UI with enhanced styling
             loadingUIPanel.SetActive(true);
             overlay.SetActive(true);
@@ -657,6 +694,52 @@ namespace Code
             
             // Start model download
             StartCoroutine(FetchAndDownloadModel(courseId));
+        }
+        
+        private void ShowNoPointsPanel()
+        {
+            if (noPointsPanel != null)
+            {
+                // Set the message
+                if (noPointsMessageText != null)
+                {
+                    noPointsMessageText.text = "Your point is 0. You need to have points to enter this.";
+                    noPointsMessageText.color = new Color(0.8f, 0.2f, 0.2f); // Red text for emphasis
+                    noPointsMessageText.fontStyle = FontStyles.Bold;
+                }
+        
+                // Show the panel
+               // overlay.SetActive(true);
+                noPointsPanel.SetActive(true);
+        
+                // Set up close button if available
+                if (noPointsCloseButton != null )
+                {
+                    noPointsCloseButton.onClick.AddListener(CloseNoPointsPanel);
+                }
+            }
+            else
+            {
+                // Fallback if no panel is assigned - use the progress text as a temporary solution
+                loadingUIPanel.SetActive(true);
+                overlay.SetActive(true);
+                progressText.text = "Your point is 0. You need to have points to enter this.";
+                progressText.color = new Color(0.8f, 0.2f, 0.2f); // Red text
+                progressText.fontStyle = FontStyles.Bold;
+        
+                // Auto-hide after 3 seconds
+                StartCoroutine(AutoHideError(3f));
+            }
+        }
+
+
+        public void CloseNoPointsPanel()
+        {
+            if (noPointsPanel != null)
+            {
+                noPointsPanel.SetActive(false);
+                overlay.SetActive(false);
+            }
         }
 
         IEnumerator FetchAndDownloadModel(string courseId)
@@ -714,6 +797,8 @@ namespace Code
             overlay.SetActive(false);
             loadingUIPanel.SetActive(false);
         }
+        
+        
 
         private IEnumerator DownloadModelFile(string modelId)
         {
