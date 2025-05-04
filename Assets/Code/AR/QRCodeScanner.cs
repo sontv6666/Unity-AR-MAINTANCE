@@ -23,6 +23,8 @@ using Newtonsoft.Json;
 using UnityEngine.EventSystems;
 using Color = UnityEngine.Color;
 
+
+
 public class QRCodeScanner : MonoBehaviour
 {
 
@@ -107,6 +109,10 @@ public class QRCodeScanner : MonoBehaviour
     int currentSpeedIndex = 2; // Default speed index (1x)
     private float lastAnimationSpeed = 1f; // Default speed is 1x
 
+    
+    private ARAnchor qrAnchor;
+    
+    private ARSession arSession;
 
     private void Awake()
     {
@@ -381,21 +387,41 @@ void TryScanQRCode()
 
             UpdateUIText("Scanning...", "");
 
-         
             // Get the machine code from QR (now it's just a single value)
             string machineCode = result.Text.Trim();
           
-            // string firstValue = values[0].Trim();  // First value (Machine)
-            // string secondValue = values[1].Trim(); // Second value (Course)
             ShowLoadingUI("Processing QR Code...");
+            
+            // 🆕 Create a fixed position for the QR code that won't move
+            // Use camera's position and rotation for better wall placement
             qrCodePosition = arCameraManager.transform.position + arCameraManager.transform.forward * 0.5f;
             qrCodeRotation = arCameraManager.transform.rotation.eulerAngles;
+            
+            // 🆕 Create AR anchor at scan position to keep model in place
+            CreateScanAnchor(qrCodePosition, Quaternion.Euler(qrCodeRotation));
 
             Debug.Log($"✅ Course Id: {courseID}");
-          //  StartCoroutine(FetchMachineData(firstValue, secondValue, courseID));
             StartCoroutine(FetchMachineData(machineCode, courseID));
         }
     }
+}
+
+// 🆕 New method to create an AR anchor at scan position
+private void CreateScanAnchor(Vector3 position, Quaternion rotation)
+{
+    // Create an anchor to keep the model in place
+    GameObject anchorObject = new GameObject("QRCodeAnchor");
+    anchorObject.transform.position = position;
+    anchorObject.transform.rotation = rotation;
+    
+    // Add ARAnchor component if in AR context
+    if (arSession != null)
+    {
+        ARAnchor anchor = anchorObject.AddComponent<ARAnchor>();
+        qrAnchor = anchor; // Store reference to the anchor
+    }
+    
+    Debug.Log($"🔒 Created AR anchor at position: {position}");
 }
  IEnumerator FetchMachineData(string machineCode, string guidelineId)
     {
@@ -710,120 +736,129 @@ void TryScanQRCode()
 
         //LOAD MODEL FROM FETCH, DOWNLOAD MODEL
 
-        public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation,  Vector3 scale)
-        {
-            Debug.Log($"📌 Attempting to load model from: {modelPath}");
+       public IEnumerator Load3DModel(string modelPath, GameObject modelContainer, Vector3 position, Vector3 rotation, Vector3 scale)
+{
+    Debug.Log($"📌 Attempting to load model from: {modelPath}");
 
-            string formattedPath = modelPath.Replace("\\", "/");
+    string formattedPath = modelPath.Replace("\\", "/");
 
-            string fullPath;
+    string fullPath;
 #if UNITY_ANDROID
-            fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
+    fullPath = "file://" + Path.Combine(Application.persistentDataPath, Path.GetFileName(formattedPath));
 #else
-            fullPath = formattedPath;
+    fullPath = formattedPath;
 #endif
 
-            Debug.Log($"🔗 Full path: {fullPath}");
+    Debug.Log($"🔗 Full path: {fullPath}");
 
-            bool fileExists = File.Exists(fullPath);
+    bool fileExists = File.Exists(fullPath);
 
 #if UNITY_ANDROID
-         using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
-        {
-            yield return request.SendWebRequest();
-            fileExists = !request.isHttpError && !request.isNetworkError;
-        }
+     using (UnityWebRequest request = UnityWebRequest.Get(fullPath))
+    {
+        yield return request.SendWebRequest();
+        fileExists = !request.isHttpError && !request.isNetworkError;
+    }
 #endif
 
-            if (!fileExists)
-            {
-                Debug.LogError($"❌ Model file not found: {fullPath}");
-                yield break;
-            }
+    if (!fileExists)
+    {
+        Debug.LogError($"❌ Model file not found: {fullPath}");
+        yield break;
+    }
 
-            Debug.Log($"✅ Model file exists: {fullPath}");
+    Debug.Log($"✅ Model file exists: {fullPath}");
 
-            if (modelContainer == null)
-            {
-                Debug.LogError("❌ Model container is null. Cannot load model.");
-                yield break;
-            }
+    if (modelContainer == null)
+    {
+        Debug.LogError("❌ Model container is null. Cannot load model.");
+        yield break;
+    }
 
-            foreach (Transform child in modelContainer.transform)
-            {
-                Destroy(child.gameObject);
-            }
+    foreach (Transform child in modelContainer.transform)
+    {
+        Destroy(child.gameObject);
+    }
 
-            Debug.Log($"🔗 Preparing to load GLB from: {fullPath}");
+    Debug.Log($"🔗 Preparing to load GLB from: {fullPath}");
 
-            var gltf = new GltfImport();
-            var loadTask = gltf.Load(fullPath);
+    var gltf = new GltfImport();
+    var loadTask = gltf.Load(fullPath);
 
-            while (!loadTask.IsCompleted)
-            {
-                yield return null;
-            }
+    while (!loadTask.IsCompleted)
+    {
+        yield return null;
+    }
 
-            if (!loadTask.Result)
-            {
-                Debug.LogError("❌ Failed to load GLB model.");
-                yield break;
-            }
+    if (!loadTask.Result)
+    {
+        Debug.LogError("❌ Failed to load GLB model.");
+        yield break;
+    }
 
-            var instantiateTask = gltf.InstantiateMainSceneAsync(modelContainer.transform);
+    var instantiateTask = gltf.InstantiateMainSceneAsync(modelContainer.transform);
 
-            while (!instantiateTask.IsCompleted)
-            {
-                yield return null;
-            }
+    while (!instantiateTask.IsCompleted)
+    {
+        yield return null;
+    }
 
-            if (!instantiateTask.Result)
-            {
-                Debug.LogError("❌ Failed to instantiate GLB model.");
-                yield break;
-            }
+    if (!instantiateTask.Result)
+    {
+        Debug.LogError("❌ Failed to instantiate GLB model.");
+        yield break;
+    }
 
-            Debug.Log("✅ 3D Model successfully loaded.");
+    Debug.Log("✅ 3D Model successfully loaded.");
 
-            GameObject loadedModel = modelContainer.transform.childCount > 0
-                ? modelContainer.transform.GetChild(modelContainer.transform.childCount - 1).gameObject
-                : null;
+    GameObject loadedModel = modelContainer.transform.childCount > 0
+        ? modelContainer.transform.GetChild(modelContainer.transform.childCount - 1).gameObject
+        : null;
 
-            if (loadedModel == null)
-            {
-                Debug.LogError("❌ Failed to find the loaded model.");
-                yield break;
-            }
+    if (loadedModel == null)
+    {
+        Debug.LogError("❌ Failed to find the loaded model.");
+        yield break;
+    }
 
-            // 🔹 Set the name of the first model after scanning
-            loadedModel.name = "FirstModelAfterScan";
+    // 🔹 Set the name of the first model after scanning
+    loadedModel.name = "FirstModelAfterScan";
 
-            // 🔹 Apply QR Code position and rotation
-            loadedModel.transform.SetParent(modelContainer.transform, false);
-            SetupModelInteractions(loadedModel);
+    // 🔹 Apply QR Code position and rotation
+    loadedModel.transform.SetParent(modelContainer.transform, false);
+    
+    // 🆕 Create a child anchor for the model if qrAnchor exists
+    if (qrAnchor != null)
+    {
+        // Parent the model to the QR anchor
+        loadedModel.transform.SetParent(qrAnchor.transform, false);
+        Debug.Log("🔒 Model parented to QR anchor for stability");
+    }
+    
+    SetupModelInteractions(loadedModel);
 
+    Debug.Log($"✅ Model info {position}, Rotation: {rotation}");
+  
+    // ✅ Apply correct position - using a small offset to prevent Z-fighting
+    // This positions the model relative to the QR code position
+    loadedModel.transform.position = qrCodePosition + new Vector3(position.x, position.y, position.z);
 
-            Debug.Log(
-                $"✅ Model info {position}, Rotation: {rotation}");
-          
-            // ✅ Apply correct position
-            loadedModel.transform.position = qrCodePosition + position;;
+    // ✅ Apply correct rotation - modified to respect the surface orientation
+    Quaternion surfaceRotation = Quaternion.Euler(qrCodeRotation);
+    Quaternion modelRotation = Quaternion.Euler(rotation);
+    loadedModel.transform.rotation = surfaceRotation * modelRotation;
+    
+    // ✅ Store initial scanned position & rotation
+    qrPosition = loadedModel.transform.position;
+    qrRotation = loadedModel.transform.rotation;
 
-      
-            // ✅ Apply correct rotation
-            loadedModel.transform.rotation = Quaternion.Euler(rotation);
-            
-            // ✅ Store initial scanned position & rotation
-            qrPosition = loadedModel.transform.position;
-            qrRotation = loadedModel.transform.rotation;
-
-            // ✅ Apply correct scale
-            loadedModel.transform.localScale = scale;
-            Debug.Log($"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
-            
-            overlayUI.gameObject.SetActive(false);
-
-        }
+    // ✅ Apply correct scale
+    loadedModel.transform.localScale = scale;
+    Debug.Log($"✅ Model anchored to QR Code at {loadedModel.transform.position}, Rotation: {loadedModel.transform.rotation.eulerAngles}");
+    
+    
+    overlayUI.gameObject.SetActive(false);
+}
 
 
 
