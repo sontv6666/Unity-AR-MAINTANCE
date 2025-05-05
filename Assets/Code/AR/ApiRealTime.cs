@@ -110,14 +110,18 @@ public class APIRealTime : MonoBehaviour
 
             if (!string.IsNullOrEmpty(currentMachineCode))
             {
-                // If panel is now visible, make sure data is loaded
-                if (previousJson == "")
+                // Always restart the real-time data coroutine when panel becomes visible
+                if (realTimeDataCoroutine != null)
                 {
-                    StartCoroutine(FetchMachineDataRoutine(currentMachineCode, "", ""));
+                    StopCoroutine(realTimeDataCoroutine);
+                    realTimeDataCoroutine = null;
                 }
+            
+                // Fetch machine data again to ensure we have the latest information
+                StartCoroutine(FetchMachineDataRoutine(currentMachineCode, "", ""));
             }
         }
-        
+    
         // Force layout update when showing the panel
         if (isPanelVisible)
         {
