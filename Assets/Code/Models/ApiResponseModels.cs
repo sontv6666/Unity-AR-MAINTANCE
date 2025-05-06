@@ -66,7 +66,7 @@ namespace Models
         public int? numberOfLessons;
         public int? numberOfParticipants;
         public Instruction[] instructions;
-        
+        public int? numberOfStaffScan;
         public string machineTypeId;
        
     }
