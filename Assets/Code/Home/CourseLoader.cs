@@ -50,7 +50,7 @@ public class CourseLoader: MonoBehaviour
     
     [Header("API Settings")] 
     private string userEndpoint = "/user/{0}"; // API to fetch user details
-    private string endpointTemplate = "/course/company/{0}?page={1}&size={2}&status=ACTIVE";
+    private string endpointTemplate = "/course/company/{0}?page={1}&size={2}&status=ACTIVE&staffId={3}";
     
     // Flag to track if initialization is complete
     private bool isInitialized = false;
@@ -302,16 +302,16 @@ public class CourseLoader: MonoBehaviour
         switch (index)
         {
             case 0: // All Courses
-                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
                 break;
             case 1: // Active Only
-                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&status=ACTIVE";
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId) + "&status=ACTIVE";
                 break;
             case 2: // By Duration
-                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=duration";
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId) + "&sortBy=duration";
                 break;
             case 3: // By Type
-                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize) + "&sortBy=type";
+                endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId) + "&sortBy=type";
                 break;
         }
     
@@ -324,7 +324,7 @@ public class CourseLoader: MonoBehaviour
         ClearCourseList();
     
         // Apply mandatory filter
-        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
         if (isOn)
         {
             endpoint += "&mandatory=true";
@@ -352,7 +352,7 @@ public class CourseLoader: MonoBehaviour
     void OnNextPageClicked()
     {
         currentPage++;
-        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
         FetchCourseData(endpoint);
     }
     
@@ -361,7 +361,7 @@ public class CourseLoader: MonoBehaviour
         if (currentPage > 1)
         {
             currentPage--;
-            string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+            string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
             FetchCourseData(endpoint);
         }
     }
@@ -391,8 +391,8 @@ public class CourseLoader: MonoBehaviour
             yield break;
         }
 
-        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
-        Debug.Log($"📡 Fetching courses for Company ID: {UserManager.CompanyId}");
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
+        Debug.Log($"📡 Fetching courses for Company ID: {UserManager.CompanyId} and User ID: {UserManager.UserId}");
         FetchCourseData(endpoint);
     }
     
@@ -616,7 +616,7 @@ public class CourseLoader: MonoBehaviour
             }
         }
         
-        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize);
+        string endpoint = string.Format(endpointTemplate, UserManager.CompanyId, currentPage, pageSize, UserManager.UserId);
         FetchCourseData(endpoint);
     }
     
@@ -829,6 +829,7 @@ public class CourseLoader: MonoBehaviour
         // Look for additional UI elements that might exist in your prefab
         TMP_Text typeText = panel.transform.Find("course_typeText")?.GetComponent<TMP_Text>();
         TMP_Text durationText = panel.transform.Find("course_durationText")?.GetComponent<TMP_Text>();
+        TMP_Text scanCountText = panel.transform.Find("course_scanCountText")?.GetComponent<TMP_Text>(); // New: For displaying scan count
         GameObject mandatoryBadge = panel.transform.Find("mandatoryBadge")?.gameObject;
         
         // Set existing information
@@ -845,6 +846,14 @@ public class CourseLoader: MonoBehaviour
                 scoreInfo += $" | Participants: {course.numberOfParticipants}";
                 
             scoreText.text = scoreInfo;
+        }
+        
+        // Enhanced information display
+        if (scanCountText != null)
+        {
+            string scanCountInfo = $"Scan Number: {course.numberOfStaffScan ?? 0}.";
+                
+            scanCountText.text = scanCountInfo;
         }
         
         // Set additional information if UI elements exist

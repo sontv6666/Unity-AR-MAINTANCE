@@ -27,7 +27,8 @@ public class SearchCourseLoader : MonoBehaviour
     private int pageSize = 3;
     
     private string currentSearchQuery = "";
-    private string searchApiTemplate = "/course/company/{0}?title={1}&page={2}&size={3}&status=ACTIVE";
+    // Updated to include staffId parameter
+    private string searchApiTemplate = "/course/company/{0}?title={1}&page={2}&size={3}&status=ACTIVE&staffId={4}";
     
     // Flag to track if we need to retry loading when network is restored
     private bool needsReload = false;
@@ -105,10 +106,17 @@ public class SearchCourseLoader : MonoBehaviour
             Debug.LogError("❌ Company ID is missing! Cannot fetch courses.");
             yield break;
         }
+        
+        if (string.IsNullOrEmpty(UserManager.UserId))
+        {
+            Debug.LogError("❌ User ID is missing! Cannot fetch courses.");
+            yield break;
+        }
 
         // If title is empty, fetch ALL courses
         string searchQuery = string.IsNullOrEmpty(title) ? "" : title;
-        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, searchQuery, page, pageSize);
+        // Added UserManager.UserId as staffId parameter
+        string endpoint = string.Format(searchApiTemplate, UserManager.CompanyId, searchQuery, page, pageSize, UserManager.UserId);
         string fullUrl = ApiConfig.GetBaseUrl() + endpoint;
 
         Debug.Log($"📡 Fetching courses from: {fullUrl}");
@@ -213,7 +221,7 @@ public class SearchCourseLoader : MonoBehaviour
 
         TMP_Text titleText = panel.transform.Find("course_titleText").GetComponent<TMP_Text>();
         TMP_Text descriptionText = panel.transform.Find("course_descriptionText").GetComponent<TMP_Text>();
-
+        TMP_Text scanCountText = panel.transform.Find("course_scanCountText")?.GetComponent<TMP_Text>();
         if (titleText != null) titleText.text = course.title;
         if (descriptionText != null) descriptionText.text = course.description;
 
@@ -222,6 +230,12 @@ public class SearchCourseLoader : MonoBehaviour
         if (courseButton != null)
         {
             courseButton.onClick.AddListener(() => OnCourseClicked(course.id));
+        }
+        if (scanCountText != null)
+        {
+            string scanCountInfo = $"Scan Number: {course.numberOfStaffScan ?? 0}.";
+                
+            scanCountText.text = scanCountInfo;
         }
 
         if (!string.IsNullOrEmpty(course.imageUrl))
